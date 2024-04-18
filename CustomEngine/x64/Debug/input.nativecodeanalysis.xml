@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\tuana\Desktop\PROJELER\C++ PROJELER\CustomEngine\src\</FILEPATH>
+      <FILENAME>input.cpp</FILENAME>
+      <LINE>3</LINE>
+      <COLUMN>7</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Input::m_keys' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Input::{ctor}</FUNCTION>
+    <DECORATED>??0Input@@QEAA@XZ</DECORATED>
+    <FUNCLINE>3</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>Input::m_keys</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\tuana\Desktop\PROJELER\C++ PROJELER\CustomEngine\src\</FILEPATH>
+      <FILENAME>input.cpp</FILENAME>
+      <LINE>8</LINE>
+      <COLUMN>7</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Input::m_keys' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Input::{ctor}</FUNCTION>
+    <DECORATED>??0Input@@QEAA@AEBV0@@Z</DECORATED>
+    <FUNCLINE>8</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>Input::m_keys</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+</DEFECTS>

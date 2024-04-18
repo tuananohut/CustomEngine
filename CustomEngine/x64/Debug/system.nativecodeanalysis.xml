@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\tuana\Desktop\PROJELER\C++ PROJELER\CustomEngine\src\</FILEPATH>
+      <FILENAME>system.cpp</FILENAME>
+      <LINE>3</LINE>
+      <COLUMN>8</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'System::m_applicationName' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>System::{ctor}</FUNCTION>
+    <DECORATED>??0System@@QEAA@XZ</DECORATED>
+    <FUNCLINE>3</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>System::m_applicationName</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\tuana\Desktop\PROJELER\C++ PROJELER\CustomEngine\src\</FILEPATH>
+      <FILENAME>system.cpp</FILENAME>
+      <LINE>3</LINE>
+      <COLUMN>8</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'System::m_hInstance' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>System::{ctor}</FUNCTION>
+    <DECORATED>??0System@@QEAA@XZ</DECORATED>
+    <FUNCLINE>3</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>System::m_hInstance</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\tuana\Desktop\PROJELER\C++ PROJELER\CustomEngine\src\</FILEPATH>
+      <FILENAME>system.cpp</FILENAME>
+      <LINE>3</LINE>
+      <COLUMN>8</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'System::m_hwnd' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>System::{ctor}</FUNCTION>
+    <DECORATED>??0System@@QEAA@XZ</DECORATED>
+    <FUNCLINE>3</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>System::m_hwnd</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\tuana\Desktop\PROJELER\C++ PROJELER\CustomEngine\src\</FILEPATH>
+      <FILENAME>system.cpp</FILENAME>
+      <LINE>9</LINE>
+      <COLUMN>8</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'System::m_applicationName' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>System::{ctor}</FUNCTION>
+    <DECORATED>??0System@@QEAA@AEBV0@@Z</DECORATED>
+    <FUNCLINE>9</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>System::m_applicationName</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\tuana\Desktop\PROJELER\C++ PROJELER\CustomEngine\src\</FILEPATH>
+      <FILENAME>system.cpp</FILENAME>
+      <LINE>9</LINE>
+      <COLUMN>8</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'System::m_hInstance' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>System::{ctor}</FUNCTION>
+    <DECORATED>??0System@@QEAA@AEBV0@@Z</DECORATED>
+    <FUNCLINE>9</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>System::m_hInstance</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\tuana\Desktop\PROJELER\C++ PROJELER\CustomEngine\src\</FILEPATH>
+      <FILENAME>system.cpp</FILENAME>
+      <LINE>9</LINE>
+      <COLUMN>8</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'System::m_hwnd' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>System::{ctor}</FUNCTION>
+    <DECORATED>??0System@@QEAA@AEBV0@@Z</DECORATED>
+    <FUNCLINE>9</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>System::m_hwnd</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\tuana\Desktop\PROJELER\C++ PROJELER\CustomEngine\src\</FILEPATH>
+      <FILENAME>system.cpp</FILENAME>
+      <LINE>9</LINE>
+      <COLUMN>8</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'System::m_Input' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>System::{ctor}</FUNCTION>
+    <DECORATED>??0System@@QEAA@AEBV0@@Z</DECORATED>
+    <FUNCLINE>9</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>System::m_Input</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\tuana\Desktop\PROJELER\C++ PROJELER\CustomEngine\src\</FILEPATH>
+      <FILENAME>system.cpp</FILENAME>
+      <LINE>9</LINE>
+      <COLUMN>8</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'System::m_Application' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>System::{ctor}</FUNCTION>
+    <DECORATED>??0System@@QEAA@AEBV0@@Z</DECORATED>
+    <FUNCLINE>9</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>System::m_Application</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+</DEFECTS>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\tuana\Desktop\PROJELER\C++ PROJELER\CustomEngine\src\</FILEPATH>
+      <FILENAME>camera.cpp</FILENAME>
+      <LINE>3</LINE>
+      <COLUMN>8</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Camera::m_viewMatrix' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Camera::{ctor}</FUNCTION>
+    <DECORATED>??0Camera@@QEAA@XZ</DECORATED>
+    <FUNCLINE>3</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>Camera::m_viewMatrix</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\tuana\Desktop\PROJELER\C++ PROJELER\CustomEngine\src\</FILEPATH>
+      <FILENAME>camera.cpp</FILENAME>
+      <LINE>14</LINE>
+      <COLUMN>8</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Camera::m_positionX' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Camera::{ctor}</FUNCTION>
+    <DECORATED>??0Camera@@QEAA@AEBV0@@Z</DECORATED>
+    <FUNCLINE>14</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>Camera::m_positionX</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\tuana\Desktop\PROJELER\C++ PROJELER\CustomEngine\src\</FILEPATH>
+      <FILENAME>camera.cpp</FILENAME>
+      <LINE>14</LINE>
+      <COLUMN>8</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Camera::m_positionY' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Camera::{ctor}</FUNCTION>
+    <DECORATED>??0Camera@@QEAA@AEBV0@@Z</DECORATED>
+    <FUNCLINE>14</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>Camera::m_positionY</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\tuana\Desktop\PROJELER\C++ PROJELER\CustomEngine\src\</FILEPATH>
+      <FILENAME>camera.cpp</FILENAME>
+      <LINE>14</LINE>
+      <COLUMN>8</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Camera::m_positionZ' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Camera::{ctor}</FUNCTION>
+    <DECORATED>??0Camera@@QEAA@AEBV0@@Z</DECORATED>
+    <FUNCLINE>14</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>Camera::m_positionZ</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\tuana\Desktop\PROJELER\C++ PROJELER\CustomEngine\src\</FILEPATH>
+      <FILENAME>camera.cpp</FILENAME>
+      <LINE>14</LINE>
+      <COLUMN>8</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Camera::m_rotationX' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Camera::{ctor}</FUNCTION>
+    <DECORATED>??0Camera@@QEAA@AEBV0@@Z</DECORATED>
+    <FUNCLINE>14</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>Camera::m_rotationX</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\tuana\Desktop\PROJELER\C++ PROJELER\CustomEngine\src\</FILEPATH>
+      <FILENAME>camera.cpp</FILENAME>
+      <LINE>14</LINE>
+      <COLUMN>8</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Camera::m_rotationY' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Camera::{ctor}</FUNCTION>
+    <DECORATED>??0Camera@@QEAA@AEBV0@@Z</DECORATED>
+    <FUNCLINE>14</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>Camera::m_rotationY</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\tuana\Desktop\PROJELER\C++ PROJELER\CustomEngine\src\</FILEPATH>
+      <FILENAME>camera.cpp</FILENAME>
+      <LINE>14</LINE>
+      <COLUMN>8</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Camera::m_rotationZ' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Camera::{ctor}</FUNCTION>
+    <DECORATED>??0Camera@@QEAA@AEBV0@@Z</DECORATED>
+    <FUNCLINE>14</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>Camera::m_rotationZ</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\tuana\Desktop\PROJELER\C++ PROJELER\CustomEngine\src\</FILEPATH>
+      <FILENAME>camera.cpp</FILENAME>
+      <LINE>14</LINE>
+      <COLUMN>8</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Camera::m_viewMatrix' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Camera::{ctor}</FUNCTION>
+    <DECORATED>??0Camera@@QEAA@AEBV0@@Z</DECORATED>
+    <FUNCLINE>14</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>Camera::m_viewMatrix</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+</DEFECTS>

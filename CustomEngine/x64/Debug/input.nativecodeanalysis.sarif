@@ -1,0 +1,103 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
+      "results": [
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'Input::m_keys' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/tuana/Desktop/PROJELER/C++ PROJELER/CustomEngine/src/input.cpp"
+                },
+                "region": {
+                  "startLine": 3,
+                  "startColumn": 8
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Input::{ctor}",
+                  "decoratedName": "??0Input@@QEAA@XZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "Input::m_keys"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'Input::m_keys' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/tuana/Desktop/PROJELER/C++ PROJELER/CustomEngine/src/input.cpp"
+                },
+                "region": {
+                  "startLine": 8,
+                  "startColumn": 8
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Input::{ctor}",
+                  "decoratedName": "??0Input@@QEAA@AEBV0@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "Input::m_keys"
+          }
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "PREfast",
+          "fullName": "PREfast Code Analysis",
+          "version": "14.39.33523.0",
+          "informationUri": "https://aka.ms/cpp/ca"
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///C:/Users/tuana/Desktop/PROJELER/C++ PROJELER/CustomEngine/src/input.cpp"
+          },
+          "roles": [
+            "analysisTarget",
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "e1fc4d299d3a092b0720ceca261fdee8dcad41ea05856e3099d0b7af59c642a7"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/tuana/desktop/projeler/c++ projeler/customengine/src/headers/input.h"
+          },
+          "hashes": {
+            "sha-256": "49f8b90399f6b253efa43a61229c7a4b4d2cccc50e11dcdd7f4236d0efc3fad9"
+          }
+        }
+      ]
+    }
+  ]
+}
