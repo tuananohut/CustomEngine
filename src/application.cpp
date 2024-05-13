@@ -8,7 +8,8 @@ Application::Application()
 	m_ColorShader = NULL;
 	m_TextureShader = NULL;
 	m_LightShader = NULL;
-	m_Light = NULL;
+	m_Lights = NULL;
+	// m_Light = NULL;
 }
 
 Application::Application(const Application& other)
@@ -39,9 +40,11 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	m_Camera = new Camera;
 
-	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
+	m_Camera->SetPosition(0.0f, 2.0f, -15.0f);
+    // m_Camera->SetRotation(30.0f, 0.0f, 0.0f);
+	m_Camera->Render();
 
-	strcpy_s(modelFilename, "src/assets/models/cube.txt");
+	strcpy_s(modelFilename, "src/assets/models/plane.txt");
 
 	strcpy_s(textureFilename, "src/assets/shaders/palestine.tga");
 
@@ -54,27 +57,6 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	
-	// m_ColorShader = new ColorShader;
-	// 
-	// result = m_ColorShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-	// if(!result)
-	// {
-	// 	MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
-	// 	return false;
-	// }
-	// 
-	// 
-	// m_TextureShader = new TextureShader;
-	//   
-	// result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-	// if (!result)
-	// {
-	// 	MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
-	// 	return false;
-	// }
-
-
 	m_LightShader = new LightShader;
 
 	result = m_LightShader->Initialize(m_Direct3D->GetDevice(), hwnd);
@@ -84,16 +66,42 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	m_Light = new Light;
+	m_numLights = 4;
 
-	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetDirection(0.0f, 0.0f, 1.0f);
+	m_Lights = new Light[m_numLights];
+
+	m_Lights[0].SetDiffuseColor(1.0f, 0.0f, 0.0f, 1.0f);
+	m_Lights[0].SetPosition(-3.0f, 1.0f, 3.0f);
+
+	m_Lights[1].SetDiffuseColor(0.0f, 1.0f, 0.0f, 1.0f);
+	m_Lights[1].SetPosition(3.0f, 1.0f, 3.0f);
+
+	m_Lights[2].SetDiffuseColor(0.0f, 0.0f, 1.0f, 1.0f);
+	m_Lights[2].SetPosition(-3.0f, 1.0f, -3.0f);
+
+	m_Lights[3].SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Lights[3].SetPosition(3.0f, 1.0f, -3.0f);
+
+	// m_Light = new Light;
+	// 
+	// m_Light->SetAmbientColor(0.5f, 0.5f, 0.5f, 1.0f);
+	// m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+	// m_Light->SetDirection(1.0f, 0.0f, 1.0f);
+	// m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
+	// m_Light->SetSpecularPower(32.0f);
+
 
 	return true;
 }
 
 void Application::Shutdown()
 {
+	if(m_Lights)
+	{
+		delete[] m_Lights;
+		m_Lights = NULL;
+	}
+
 	if(m_ColorShader)
 	{
 		m_ColorShader->Shutdown();
@@ -108,11 +116,11 @@ void Application::Shutdown()
 		m_TextureShader = NULL;
 	}
 	
-	if(m_Light)
-	{
-		delete m_Light;
-		m_Light = NULL;
-	}
+	// if(m_Light)
+	// {
+	// 	delete m_Light;
+	// 	m_Light = NULL;
+	// }
 
 	if(m_LightShader)
 	{
@@ -147,6 +155,10 @@ void Application::Shutdown()
 bool Application::Frame()
 {
 	static float rotation = 0.0f;
+	static float translationX = 0.0f;
+	static float translationZ = 0.0f;
+	static float speedX = 0.1f;
+	static float speedZ = 0.1f;
 	bool result;
 
 	rotation -= 0.0174532925f * 0.25f;
@@ -154,8 +166,24 @@ bool Application::Frame()
 	{
 		rotation += 360.0f;
 	}
+	
+	// translationX += speedX * 0.5f; 
+	// translationZ += speedZ * 0.2f;
+	// 
+	// if (translationZ > 4.0f || translationZ < 0.0f) 
+	// {
+	// 	speedZ *= -1.0f;
+	// }
+	// 
+	// if (translationX > 5.0f || translationX < -5.0f) 
+	// {
+	// 	speedX *= -1.0f;
+	// }	
 
-	result = Render(rotation);
+	translationX = 4.f * std::cos(rotation);
+	translationZ = 4.f * std::sin(rotation);
+
+	result = Render(rotation, translationX, translationZ);
 	if(!result)
 	{
 
@@ -165,9 +193,11 @@ bool Application::Frame()
 	return true;
 }
 
-bool Application::Render(float rotation)
+bool Application::Render(float rotation, float translationX, float translationZ)
 {
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, rotateMatrix, translateMatrix, scaleMatrix, srMatrix;
+	XMFLOAT4 diffuseColor[4], lightPosition[4];
+	int i;
 	bool result;
 
 	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
@@ -178,30 +208,55 @@ bool Application::Render(float rotation)
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-	XMMATRIX rotationX = XMMatrixRotationX(rotation);
-	XMMATRIX rotationZ = XMMatrixRotationZ(rotation);
+	for(i = 0; i < m_numLights; i++)
+	{
+		diffuseColor[i] = m_Lights[i].GetDiffuseColor();
+		
+		lightPosition[i] = m_Lights[i].GetPosition();
+	}
 
-	worldMatrix = XMMatrixMultiply(rotationX, rotationZ);
-
-	m_Model->Render(m_Direct3D->GetDeviceContext());
-	 
-	// result = m_ColorShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
-	// if(!result)
-	// {
-	// 	return false;
-	// }
-	// 
-	// result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture());
-	// if(!result)
-	// {
-	// 	return false;
-	// }
-
-	result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetDiffuseColor());
-	if(!result)	
+	result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), diffuseColor, lightPosition);
+	if(!result)
 	{
 		return false;
 	}
+
+	//*** ONE CUBE ROTATES - WATERMELON ***
+	XMMATRIX rotationX = XMMatrixRotationX(rotation);
+	XMMATRIX rotationY = XMMatrixRotationY(rotation);
+	XMMATRIX rotationZ = XMMatrixRotationZ(rotation);
+	// 
+	// worldMatrix = XMMatrixMultiply(rotationX, rotationZ);
+	// 
+	// m_Model->Render(m_Direct3D->GetDeviceContext());
+
+	rotateMatrix = XMMatrixMultiply(rotationX, rotationY);
+	translateMatrix = XMMatrixTranslation(0.0f, 0.0f, 0.0f);
+	
+	worldMatrix = XMMatrixMultiply(rotateMatrix, translateMatrix);
+
+	m_Model->Render(m_Direct3D->GetDeviceContext());
+
+	// result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+	// if (!result)
+	// {
+	// 	return false;
+	// }
+
+	// scaleMatrix = XMMatrixScaling(0.5f, 0.5f, 0.5f);
+	// rotateMatrix = XMMatrixMultiply(rotationX, rotationZ);
+	// translateMatrix = XMMatrixTranslation(translationX + 2.5f, 0.0f, translationZ);
+	// 
+	// srMatrix = XMMatrixMultiply(scaleMatrix, rotateMatrix);
+	// worldMatrix = XMMatrixMultiply(srMatrix, translateMatrix);
+	// 
+	// m_Model->Render(m_Direct3D->GetDeviceContext());
+	// 
+	// result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor());
+	// if(!result)	
+	// {
+	// 	return false;
+	// }
 
 	m_Direct3D->EndScene();
 

@@ -4,6 +4,7 @@
 #define _APPLICATION_H_
 
 #include <Windows.h>
+#include <cmath>
 
 #include "d3d.h"
 #include "camera.h"
@@ -30,7 +31,7 @@ public:
 	bool Frame();
 
 private:
-	bool Render(float);
+	bool Render(float, float, float);
 
 private:
 	D3D* m_Direct3D;
@@ -39,7 +40,9 @@ private:
 	ColorShader* m_ColorShader;
 	TextureShader* m_TextureShader;
 	LightShader* m_LightShader;
-	Light* m_Light;
+	Light* m_Lights;
+	int m_numLights;
+	// Light* m_Light;
 };
 
 #endif
