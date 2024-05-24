@@ -2,13 +2,14 @@
 
 D3D::D3D()
 {
-	m_swapChain = NULL;
-	m_device = NULL;
-	m_deviceContext = NULL;
-	m_renderTargetView = NULL;
-	m_depthStencilBuffer = NULL;
-	m_depthStencilState = NULL;
-	m_depthStencilView = NULL;
+	m_swapChain = nullptr;
+	m_device = nullptr;
+	m_deviceContext = nullptr;
+	m_renderTargetView = nullptr;
+	m_depthStencilBuffer = nullptr;
+	m_depthStencilState = nullptr;
+	m_depthDisabledStencilState = nullptr;
+	m_depthStencilView = nullptr;
 	m_rasterState = 0;
 }
 
