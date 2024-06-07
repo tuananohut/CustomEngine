@@ -96,7 +96,7 @@ bool Bitmap::InitializeBuffers(ID3D11Device* device)
 
   indices = new unsigned long[m_indexCount];
 
-  memset(vertices, 0, (sizeof(VertexType)* m_vertexCount));
+  memset(vertices, 0, (sizeof(VertexType) * m_vertexCount));
 
   for(i = 0; i < m_indexCount; i++)
     {
@@ -104,7 +104,7 @@ bool Bitmap::InitializeBuffers(ID3D11Device* device)
     }
 
   vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-  vertexBufferDesc.ByteWidth = sizeof(VertexType)* m_vertexCount;
+  vertexBufferDesc.ByteWidth = sizeof(VertexType) * m_vertexCount;
   vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
   vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
   vertexBufferDesc.MiscFlags = 0;
@@ -115,7 +115,7 @@ bool Bitmap::InitializeBuffers(ID3D11Device* device)
   vertexData.SysMemSlicePitch = 0;
 
   result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer);
-  if(FAILED)
+  if(FAILED(result))
     {
       return false;
     }
@@ -204,8 +204,8 @@ bool Bitmap::UpdateBuffers(ID3D11DeviceContext* deviceContent)
   vertices[4].position = XMFLOAT3(right, top, 0.0f);
   vertices[4].texture = XMFLOAT2(1.0f, 0.0f);
 
-  vertices[5].position = XMFLOAT3(right, top, 0.0f);
-  vertices[5].texture = XMFLAOT2(1.0f, 1.0f);
+  vertices[5].position = XMFLOAT3(right, bottom, 0.0f);
+  vertices[5].texture = XMFLOAT2(1.0f, 1.0f);
 
   result = deviceContent->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
   if(FAILED(result))

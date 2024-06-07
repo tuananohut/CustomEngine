@@ -1,7 +1,7 @@
 #ifndef _BITMAP_H_
 #define _BITMAP_H_
 
-#include <DirectXMath>
+#include <DirectXMath.h>
 using namespace DirectX;
 
 #include "texture.h"
@@ -39,7 +39,7 @@ private:
   void ReleaseTexture();
 
 private:
-  ID3D11Buffer* *m_vertexBuffer, *m_indexBuffer;
+  ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;
   int m_vertexCount, m_indexCount, m_screenWidth, m_screenHeight, m_bitmapWidth, m_bitmapHeight, m_renderX, m_renderY, m_prevPosX, m_prevPosY;
   Texture* m_Texture;
 };

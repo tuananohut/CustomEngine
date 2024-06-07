@@ -18,7 +18,5 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 	mSystem->Shutdown();
 	delete mSystem;
-	mSystem = NULL;
-
-	return 0;
+	mSystem = nullptr;
 }
