@@ -1,9 +1,0 @@
-#include "headers/sprite.h"
-
-Sprite::Sprite()
-{
-  m_vertexBuffer = nullptr;
-  m_indexBuffer = nullptr;
-  m_Textures = nullptr;
-}
-
