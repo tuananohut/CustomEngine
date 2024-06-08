@@ -14,6 +14,8 @@
 #include "lightshader.h"
 #include "light.h"
 #include "bitmap.h"
+#include "sprite.h"
+#include "timer.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -44,6 +46,8 @@ private:
   Light* m_Lights;
   int m_numLights;
   Bitmap* m_Bitmap;
+  Sprite* m_Sprite;
+  Timer* m_Timer;
 };
 
 #endif

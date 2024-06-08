@@ -10,6 +10,8 @@ Application::Application()
   m_Bitmap = nullptr;
   m_LightShader = nullptr;
   m_Lights = nullptr;
+  m_Sprite = nullptr;
+  m_Timer = nullptr;
 }
 
 Application::Application(const Application& other)
@@ -28,6 +30,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
   char modelFilename[128];
   char textureFilename[128];
   char bitmapFilename[128];
+  char spriteFilename[128];
   bool result;
 
   m_Direct3D = new D3D;
@@ -54,21 +57,43 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
       return false;
     }
 
-  strcpy_s(bitmapFilename, "src/assets/shaders/palestine.tga");
+  strcpy_s(spriteFilename, "src/assets/sprites/sprite_data_01.txt");
 
-  m_Bitmap = new Bitmap;
+  m_Sprite = new Sprite;
 
-  result = m_Bitmap->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, bitmapFilename, 50, 50);
+  result = m_Sprite->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, spriteFilename, 50, 50);
+  if(!result)
+    {
+      MessageBox(hwnd, L"Bu sprite başlatılamıyor.", L"Neden bilmiyorum ama", MB_OK);
+      return false;
+    }
+
+  m_Timer = new Timer;
+
+  result = m_Timer->Initialize();
   if(!result)
     {
       return false;
     }
-
+  
   return true;
 }
 
 void Application::Shutdown()
 {
+  if(m_Timer)
+    {
+      delete m_Timer;
+      m_Timer = nullptr;
+    }
+
+  if(m_Sprite)
+    {
+      m_Sprite->Shutdown();
+      delete m_Sprite;
+      m_Sprite = nullptr;
+    }
+  
   if(m_Bitmap)
     {
       m_Bitmap->Shutdown();
@@ -133,6 +158,7 @@ bool Application::Frame()
   static float translationZ = 0.0f;
   static float speedX = 0.1f;
   static float speedZ = 0.1f;
+  float frameTime;
   bool result;
 
   rotation -= 0.0174532925f * 0.25f;
@@ -157,6 +183,12 @@ bool Application::Frame()
   translationX = 4.f * std::cos(rotation);
   translationZ = 4.f * std::sin(rotation);
 
+  m_Timer->Frame();
+
+  frameTime = m_Timer->GetTime();
+
+  m_Sprite->Update(frameTime);
+  
   result = Render(rotation, translationX, translationZ);
   if(!result)
     {
@@ -184,13 +216,13 @@ bool Application::Render(float rotation, float translationX, float translationZ)
 
   m_Direct3D->TurnZBufferOff();
 
-  result = m_Bitmap->Render(m_Direct3D->GetDeviceContext());
+  result = m_Sprite->Render(m_Direct3D->GetDeviceContext());
   if(!result)
     {
       return false;
     }
 
-  result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture());
+  result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Sprite->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Sprite->GetTexture());
   if(!result)
     {
       return false;
