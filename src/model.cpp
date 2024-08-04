@@ -2,17 +2,17 @@
 
 Model::Model()
 {
-	m_vertexBuffer = NULL;
-	m_indexBuffer = NULL;
-	m_Texture = NULL;
-	m_model = NULL;
+	m_vertexBuffer = nullptr;
+	m_indexBuffer = nullptr;
+	m_Textures = nullptr;
+	m_model = nullptr;
 }
 
 Model::Model(const Model& other) {}
 
 Model::~Model() {}
 
-bool Model::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* modelFilename, char* textureFilename)
+bool Model::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* modelFilename, char* textureFilename1, char* textureFilename2)
 {
 	bool result;
 
@@ -28,7 +28,7 @@ bool Model::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext,
 		return false;
 	}
 
-	result = LoadTexture(device, deviceContext, textureFilename);
+	result = LoadTextures(device, deviceContext, textureFilename1, textureFilename2);
 	if(!result)
 	{
 		return false;
@@ -41,11 +41,9 @@ void Model::Shutdown()
 {
 	ReleaseModel();
 
-	ReleaseTexture();
+	ReleaseTextures();
 
 	ShutdownBuffers();
-
-	return;
 }
 
 void Model::Render(ID3D11DeviceContext* deviceContext)
@@ -60,9 +58,9 @@ int Model::GetIndexCount()
 	return m_indexCount;
 }
 
-ID3D11ShaderResourceView* Model::GetTexture()
+ID3D11ShaderResourceView* Model::GetTexture(int index)
 {
-	return m_Texture->GetTexture();
+	return m_Textures[index].GetTexture();
 }
 
 bool Model::InitializeBuffers(ID3D11Device* device)
@@ -73,22 +71,6 @@ bool Model::InitializeBuffers(ID3D11Device* device)
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
 	HRESULT result;
 	int i;
-
-	// m_vertexCount = 4;
-	// 
-	// m_indexCount = 6;
-	// 
-	// vertices = new VertexType[m_vertexCount];
-	// if(!vertices)
-	// {
-	// 	return false;
-	// }
-	// 
-	// indices = new unsigned long[m_indexCount];
-	// if(!indices)
-	// {
-	// 	return false;
-	// }
 
 	vertices = new VertexType[m_vertexCount];
 
@@ -102,81 +84,6 @@ bool Model::InitializeBuffers(ID3D11Device* device)
 
 		indices[i] = i;
 	}
-
-	// Triangle code - Color
-	// vertices[0].position = XMFLOAT3(-1.0f, -1.0f, 0.0f);
-	// vertices[0].color = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
-	// 
-	// vertices[1].position = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	// vertices[1].color = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
-	// 
-	// vertices[2].position = XMFLOAT3(1.0f, -1.0f, 0.0f);
-	// vertices[2].color = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
-	// 
-	// indices[0] = 0;
-	// indices[1] = 1;
-	// indices[2] = 2;
-
-	// Square code - Color
-	// vertices[0].position = XMFLOAT3(-1.0f, -1.0f, 0.0f);
-	// vertices[0].color = XMFLOAT4(1.0f , 0.0f, 1.0f, 1.0f);
-	// 
-	// vertices[1].position = XMFLOAT3(-1.0f, 1.0f, 0.0f);
-	// vertices[1].color = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
-	// 
-	// vertices[2].position = XMFLOAT3(1.0f, -1.0f, 0.0f);
-	// vertices[2].color = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
-	// 
-	// vertices[3].position = XMFLOAT3(1.0f, 1.0f, 0.0f);
-	// vertices[3].color = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-	// 
-	// indices[0] = 0;
-	// indices[1] = 1;
-	// indices[2] = 2;
-	// indices[3] = 1;
-	// indices[4] = 3;
-	// indices[5] = 2;
-
-	// Triangle Code - Texture
-	// vertices[0].position = XMFLOAT3(-1.0f, -1.0f, 0.0f);
-	// vertices[0].texture = XMFLOAT2(0.0f, 1.0f);
-	// vertices[0].normal = XMFLOAT3(0.0f, 0.0f, -1.0f);
-	// 
-	// vertices[1].position = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	// vertices[1].texture = XMFLOAT2(0.5f, 0.0f);
-	// vertices[1].normal = XMFLOAT3(0.0f, 0.0f, -1.0f);
-	// 
-	// 
-	// vertices[2].position = XMFLOAT3(1.0f, -1.0f, 0.0f);
-	// vertices[2].texture = XMFLOAT2(1.0f, 1.0f);
-	// vertices[2].normal = XMFLOAT3(0.0f, 0.0f, -1.0f);
-	// 
-	// indices[0] = 0;
-	// indices[1] = 1;
-	// indices[2] = 2;
-
-	// Square Code - Texture
-	// vertices[0].position = XMFLOAT3(-1.0f, -1.0f, 0.0f);
-	// vertices[0].texture = XMFLOAT2(0.0f, 1.0f);
-	// 
-	// 
-	// vertices[1].position = XMFLOAT3(-1.0f, 1.0f, 0.0f);
-	// vertices[1].texture = XMFLOAT2(0.0f, 0.0f);
-	// 
-	// 
-	// vertices[2].position = XMFLOAT3(1.0f, -1.0f, 0.0f);
-	// vertices[2].texture = XMFLOAT2(1.0f, 1.0f);
-	// 
-	// 
-	// vertices[3].position = XMFLOAT3(1.0f, 1.0f, 0.0f);
-	// vertices[3].texture = XMFLOAT2(1.0f, 0.0f);
-	// 
-	// indices[0] = 0;
-	// indices[1] = 1;
-	// indices[2] = 2;
-	// indices[3] = 1;
-	// indices[4] = 3;
-	// indices[5] = 2;
 
 	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	vertexBufferDesc.ByteWidth = sizeof(VertexType) * m_vertexCount;
@@ -255,14 +162,19 @@ void Model::RenderBuffers(ID3D11DeviceContext* deviceContext)
 	return;
 }
 
-bool Model::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename)
+bool Model::LoadTextures(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename1, char* filename2)
 {
 	bool result;
 
-	m_Texture = new Texture;
+	m_Textures = new Texture[2];
 
-	result = m_Texture->Initialize(device, deviceContext, filename);
-	
+	result = m_Textures[0].Initialize(device, deviceContext, filename1);
+	if(!result)
+	{
+		return false;
+	}
+
+	result = m_Textures[1].Initialize(device, deviceContext, filename2);
 	if(!result)
 	{
 		return false;
@@ -271,16 +183,16 @@ bool Model::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	return true;
 }
 
-void Model::ReleaseTexture()
+void Model::ReleaseTextures()
 {
-	if(m_Texture)
+	if(m_Textures)
 	{
-		m_Texture->Shutdown();
-		delete m_Texture;
-		m_Texture = NULL;
-	}
+		m_Textures[0].Shutdown();
+		m_Textures[1].Shutdown();
 
-	return;
+		delete[] m_Textures;
+		m_Textures = nullptr;
+	}
 }
 
 bool Model::LoadModel(char* filename)
