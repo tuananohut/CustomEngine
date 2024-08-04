@@ -4,6 +4,8 @@ I am making a render engine to learn render engine architecture. I am using Dire
 
 I am following this https://www.rastertek.com/tutdx11win10.html tutorial. 
 
+Completed lessons from RasterTek:
+
 - [x] Tutorial 1: Setting up DirectX11 with Visual Studio 2022
 - [x] Tutorial 2: Creating a Framework and Window
 - [x] Tutorial 3: Initializing DirectX11
