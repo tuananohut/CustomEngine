@@ -20,6 +20,7 @@ Completed lessons from RasterTek:
 - [x] Tutorial 12: 2D Rendering
 - [x] Tutorail 13: Sprites and Timers
 - [x] Tutorial 17: Multitexturing
+- [ ] Tutorial 18: Light Maps
 
 ## I made this with engine:
 
