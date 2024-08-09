@@ -129,36 +129,53 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\headers\application.h" />
+    <ClInclude Include="src\headers\bitmap.h" />
     <ClInclude Include="src\headers\camera.h" />
     <ClInclude Include="src\headers\colorshader.h" />
     <ClInclude Include="src\headers\d3d.h" />
+    <ClInclude Include="src\headers\DirectXMath.h" />
+    <ClInclude Include="src\headers\font.h" />
     <ClInclude Include="src\headers\input.h" />
     <ClInclude Include="src\headers\light.h" />
+    <ClInclude Include="src\headers\lightmapshader.h" />
     <ClInclude Include="src\headers\lightshader.h" />
     <ClInclude Include="src\headers\model.h" />
+    <ClInclude Include="src\headers\multitextureshader.h" />
+    <ClInclude Include="src\headers\sprite.h" />
     <ClInclude Include="src\headers\system.h" />
     <ClInclude Include="src\headers\texture.h" />
     <ClInclude Include="src\headers\textureshader.h" />
+    <ClInclude Include="src\headers\timer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\application.cpp" />
+    <ClCompile Include="src\bitmap.cpp" />
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\colorshader.cpp" />
     <ClCompile Include="src\d3d.cpp" />
+    <ClCompile Include="src\font.cpp" />
     <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\light.cpp" />
+    <ClCompile Include="src\lightmapshader.cpp" />
     <ClCompile Include="src\lightshader.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\model.cpp" />
+    <ClCompile Include="src\multitextureshader.cpp" />
+    <ClCompile Include="src\sprite.cpp" />
     <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\textureshader.cpp" />
     <ClCompile Include="src\system.cpp" />
+    <ClCompile Include="src\timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\lights\light.ps" />
     <None Include="src\lights\light.vs" />
+    <None Include="src\lights\lightmap.ps" />
+    <None Include="src\lights\lightmap.vs" />
     <None Include="src\shaders\color.ps" />
     <None Include="src\shaders\color.vs" />
+    <None Include="src\textures\multitexture.ps" />
+    <None Include="src\textures\multitexture.vs" />
     <None Include="src\textures\texture.ps" />
     <None Include="src\textures\texture.vs" />
   </ItemGroup>
