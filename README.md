@@ -1,6 +1,6 @@
 # CustomEngine
 
-I am learning rendering techniques with DirectX11. 
+I am making a render engine to learn render engine architecture. I am using DirectX11.
 
 I am following this https://www.rastertek.com/tutdx11win10.html tutorial. 
 
@@ -20,7 +20,6 @@ Completed lessons from RasterTek:
 - [x] Tutorial 12: 2D Rendering
 - [x] Tutorail 13: Sprites and Timers
 - [x] Tutorial 17: Multitexturing
-- [ ] Tutorial 18: Light Maps
 
 ## I made this with engine:
 

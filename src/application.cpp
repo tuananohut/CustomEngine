@@ -5,7 +5,7 @@ Application::Application()
   m_Direct3D = nullptr;
   m_Camera = nullptr;
   m_Model = nullptr;
-  m_MultiTextureShader = nullptr;
+  m_LightMapShader = nullptr;
 }
 
 Application::Application(const Application& other)
@@ -41,12 +41,12 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
   // m_Camera->SetRotation(30.0f, 0.0f, 0.0f);
   m_Camera->Render();
 
-  m_MultiTextureShader = new MultiTextureShader;
+  m_LightMapShader = new LightMapShader;
 
-  result = m_MultiTextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+  result = m_LightMapShader->Initialize(m_Direct3D->GetDevice(), hwnd);
   if(!result)
   {
-      MessageBox(hwnd, L"Could not initialize the multitexture shader object.", L"Error", MB_OK);
+      MessageBox(hwnd, L"Could not initialize the light map shader object.", L"Error", MB_OK);
       return false;
   }
 
@@ -75,11 +75,11 @@ void Application::Shutdown()
       m_Model = nullptr;
     }
 
-  if(m_MultiTextureShader)
+  if(m_LightMapShader)
   {
-      m_MultiTextureShader->Shutdown();
-      delete m_MultiTextureShader;
-      m_MultiTextureShader = nullptr;
+      m_LightMapShader->Shutdown();
+      delete m_LightMapShader;
+      m_LightMapShader = nullptr;
   }
 
   if(m_Camera)
@@ -169,7 +169,7 @@ bool Application::Render(float rotation, float translationX, float translationZ)
 
   m_Model->Render(m_Direct3D->GetDeviceContext());
 
-  result = m_MultiTextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), m_Model->GetTexture(1));
+  result = m_LightMapShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), m_Model->GetTexture(1));
   if(!result)
   {
       return false;

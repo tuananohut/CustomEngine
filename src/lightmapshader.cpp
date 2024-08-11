@@ -20,13 +20,13 @@ bool LightMapShader::Initialize(ID3D11Device* device, HWND hwnd)
 	wchar_t psFilename[128];
 	int error;
 
-	error = wcscpy_s(vsFilename, 128, L"lights/lightmap.vs");
+	error = wcscpy_s(vsFilename, 128, L"../CustomEngine/src/lights/lightmap.vs");
 	if(error != 0)
 	{
 		return false;
 	}
 
-	error = wcscpy_s(psFilename, 128, L"lights/lightmap.ps");
+	error = wcscpy_s(psFilename, 128, L"../CustomEngine/src/lights/lightmap.ps");
 	if(error != 0)
 	{
 		return false;
@@ -283,6 +283,35 @@ bool LightMapShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 		return false;
 	}
 
-	// MAPPING
+	dataPtr = (MatrixBufferType*)mappedResource.pData;
+
+	dataPtr->world = worldMatrix;
+	dataPtr->view = viewMatrix;
+	dataPtr->projection = projectionMatrix;
+
+	deviceContext->Unmap(m_matrixBuffer, 0);
+
+	bufferNumber = 0;
+
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+
+	deviceContext->PSSetShaderResources(0, 1, &texture1);
+	deviceContext->PSSetShaderResources(1, 1, &texture2);
+
+	return true;
 }
+
+void LightMapShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+{
+	deviceContext->IASetInputLayout(m_layout);
+
+	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
+	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
+
+	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
+
+	deviceContext->DrawIndexed(indexCount, 0, 0);
+}
+
+
 

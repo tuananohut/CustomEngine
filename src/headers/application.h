@@ -9,7 +9,8 @@
 #include "d3d.h"
 #include "camera.h"
 #include "model.h"
-#include "multitextureshader.h"
+#include "lightmapshader.h"
+#include "input.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -33,7 +34,7 @@ private:
 private:
   D3D* m_Direct3D;
   Camera* m_Camera;
-  MultiTextureShader* m_MultiTextureShader;
+  LightMapShader* m_LightMapShader;
   Model* m_Model;
 
 };

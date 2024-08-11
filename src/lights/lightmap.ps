@@ -1,31 +1,24 @@
-struct DS_OUTPUT
+Texture2D shaderTexture1: register(t0);
+Texture2D shaderTexture2: register(t1);
+SamplerState SampleType: register(s0);
+
+struct PixelInputType
 {
-	float4 vPosition  : SV_POSITION;
+	float4 position: SV_POSITION;
+	float2 tex: TEXCOORD0;
 };
 
-struct HS_CONTROL_POINT_OUTPUT
+float4 LightMapPixelShader(PixelInputType input): SV_TARGET
 {
-	float3 vPosition : WORLDPOS; 
-};
+	float4 color;
+	float4 lightColor;
+	float4 finalColor;
 
-struct HS_CONSTANT_DATA_OUTPUT
-{
-	float EdgeTessFactor[3]			: SV_TessFactor;
-	float InsideTessFactor			: SV_InsideTessFactor;
-};
+	color = shaderTexture1.Sample(SampleType, input.tex);
 
-#define NUM_CONTROL_POINTS 3
+	lightColor = shaderTexture2.Sample(SampleType, input.tex);
 
-[domain("tri")]
-DS_OUTPUT main(
-	HS_CONSTANT_DATA_OUTPUT input,
-	float3 domain : SV_DomainLocation,
-	const OutputPatch<HS_CONTROL_POINT_OUTPUT, NUM_CONTROL_POINTS> patch)
-{
-	DS_OUTPUT Output;
-
-	Output.vPosition = float4(
-		patch[0].vPosition*domain.x+patch[1].vPosition*domain.y+patch[2].vPosition*domain.z,1);
-
-	return Output;
+	finalColor = color * lightColor;
+	
+	return finalColor;
 }
