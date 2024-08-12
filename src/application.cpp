@@ -37,8 +37,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
   m_Camera = new Camera;
 
-  m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
-  // m_Camera->SetRotation(30.0f, 0.0f, 0.0f);
+  m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
+  m_Camera->SetRotation(0.0f, 0.0f, 0.0f);
   m_Camera->Render();
 
   m_LightMapShader = new LightMapShader;
@@ -52,8 +52,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
   strcpy_s(modelFilename, "../CustomEngine/src/assets/models/cube.txt");
 
-  strcpy_s(textureFilename1, "../CustomEngine/src/assets/shaders/stone01.tga");
-  strcpy_s(textureFilename2, "../CustomEngine/src/assets/shaders/dirt.tga");
+  strcpy_s(textureFilename1, "../CustomEngine/src/assets/shaders/light01.tga");
+  strcpy_s(textureFilename2, "../CustomEngine/src/assets/shaders/stone01.tga");
   
   m_Model = new Model;
 

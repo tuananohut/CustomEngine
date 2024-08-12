@@ -128,6 +128,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\headers\alphamapshader.h" />
     <ClInclude Include="src\headers\application.h" />
     <ClInclude Include="src\headers\bitmap.h" />
     <ClInclude Include="src\headers\camera.h" />
@@ -148,6 +149,7 @@
     <ClInclude Include="src\headers\timer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\alphamapshader.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\bitmap.cpp" />
     <ClCompile Include="src\camera.cpp" />
@@ -174,6 +176,8 @@
     <None Include="src\lights\lightmap.vs" />
     <None Include="src\shaders\color.ps" />
     <None Include="src\shaders\color.vs" />
+    <None Include="src\textures\alphamap.ps" />
+    <None Include="src\textures\alphamap.vs" />
     <None Include="src\textures\multitexture.ps" />
     <None Include="src\textures\multitexture.vs" />
     <None Include="src\textures\texture.ps" />
