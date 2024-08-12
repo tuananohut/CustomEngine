@@ -20,18 +20,12 @@ Completed lessons from RasterTek:
 - [x] Tutorial 12: 2D Rendering
 - [x] Tutorail 13: Sprites and Timers
 - [x] Tutorial 17: Multitexturing
+- [x] Tutorial 18: Light Maps
+- [ ] Tutorial 19: Alpha Mapping 
 
 ## I made this with engine:
 
-https://youtu.be/TdYyk6QHX8Y
-
-https://youtu.be/Ta9QdAhRlNA
-
-https://youtu.be/gl3oU_Peb9c
-
-https://youtu.be/7_FLdQbl4z0
-
-https://youtu.be/rwaolUeHuRs
+https://youtube.com/playlist?list=PLXrxdHvhMCuDurn_0heADnFvAuU0MJ2qA&si=DglcRUGw4UCXyhUU
 
 ## I used in this engine:
 
