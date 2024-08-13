@@ -5,7 +5,7 @@ Application::Application()
   m_Direct3D = nullptr;
   m_Camera = nullptr;
   m_Model = nullptr;
-  m_LightMapShader = nullptr;
+  m_AlphaMapShader = nullptr;
 }
 
 Application::Application(const Application& other)
@@ -24,6 +24,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
   char modelFilename[128];
   char textureFilename1[128];
   char textureFilename2[128];
+  char textureFilename3[128];
   bool result;
 
   m_Direct3D = new D3D;
@@ -37,27 +38,28 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
   m_Camera = new Camera;
 
-  m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
+  m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
   m_Camera->SetRotation(0.0f, 0.0f, 0.0f);
   m_Camera->Render();
 
-  m_LightMapShader = new LightMapShader;
+  m_AlphaMapShader = new AlphaMapShader;
 
-  result = m_LightMapShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+  result = m_AlphaMapShader->Initialize(m_Direct3D->GetDevice(), hwnd);
   if(!result)
   {
-      MessageBox(hwnd, L"Could not initialize the light map shader object.", L"Error", MB_OK);
+      MessageBox(hwnd, L"Could not initialize the alpha map shader object.", L"Error", MB_OK);
       return false;
   }
 
   strcpy_s(modelFilename, "../CustomEngine/src/assets/models/cube.txt");
 
-  strcpy_s(textureFilename1, "../CustomEngine/src/assets/shaders/light01.tga");
-  strcpy_s(textureFilename2, "../CustomEngine/src/assets/shaders/stone01.tga");
-  
+  strcpy_s(textureFilename1, "../CustomEngine/src/assets/shaders/stone01.tga");
+  strcpy_s(textureFilename2, "../CustomEngine/src/assets/shaders/dirt.tga");
+  strcpy_s(textureFilename3, "../CustomEngine/src/assets/shaders/alpha01.tga");
+
   m_Model = new Model;
 
-  result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename1, textureFilename2);
+  result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename1, textureFilename2, textureFilename3);
   if(!result)
   {
       return false;
@@ -75,11 +77,11 @@ void Application::Shutdown()
       m_Model = nullptr;
     }
 
-  if(m_LightMapShader)
+  if(m_AlphaMapShader)
   {
-      m_LightMapShader->Shutdown();
-      delete m_LightMapShader;
-      m_LightMapShader = nullptr;
+      m_AlphaMapShader->Shutdown();
+      delete m_AlphaMapShader;
+      m_AlphaMapShader = nullptr;
   }
 
   if(m_Camera)
@@ -169,7 +171,7 @@ bool Application::Render(float rotation, float translationX, float translationZ)
 
   m_Model->Render(m_Direct3D->GetDeviceContext());
 
-  result = m_LightMapShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), m_Model->GetTexture(1));
+  result = m_AlphaMapShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), m_Model->GetTexture(1), m_Model->GetTexture(2));
   if(!result)
   {
       return false;

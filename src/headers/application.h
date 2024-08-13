@@ -9,7 +9,7 @@
 #include "d3d.h"
 #include "camera.h"
 #include "model.h"
-#include "lightmapshader.h"
+#include "alphamapshader.h"
 #include "input.h"
 
 const bool FULL_SCREEN = true;
@@ -34,7 +34,7 @@ private:
 private:
   D3D* m_Direct3D;
   Camera* m_Camera;
-  LightMapShader* m_LightMapShader;
+  AlphaMapShader* m_AlphaMapShader;
   Model* m_Model;
 
 };
