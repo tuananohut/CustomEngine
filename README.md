@@ -21,7 +21,8 @@ Completed lessons from RasterTek:
 - [x] Tutorail 13: Sprites and Timers
 - [x] Tutorial 17: Multitexturing
 - [x] Tutorial 18: Light Maps
-- [x] Tutorial 19: Alpha Mapping 
+- [x] Tutorial 19: Alpha Mapping
+- [ ] Tutorial 20: Normal Mapping
 
 ## I made this with engine:
 
