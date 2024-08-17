@@ -274,5 +274,100 @@ void NormalMapShader::ShutdownShader()
 
 void NormalMapShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
 {
+	char* compileErrors;
+	unsigned long long bufferSize;
+	unsigned long long i;
+	ofstream fout;
 
+	compileErrors = (char*)(errorMessage->GetBufferPointer());
+
+	bufferSize = errorMessage->GetBufferSize();
+
+	fout.open("shader-error.txt");
+
+	for (i = 0; i < bufferSize; i++)
+	{
+		fout << compileErrors[i];
+	}
+
+	fout.close();
+	
+	errorMessage->Release();
+	errorMessage = nullptr;
+
+	MessageBox(hwnd, L"Error compiling shader. Check shader-error.txt for message.", shaderFilename, MB_OK);
 }
+
+bool NormalMapShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
+										  XMMATRIX worldMatrix,
+										  XMMATRIX viewMatrix,
+										  XMMATRIX projectionMatrix,
+										  ID3D11ShaderResourceView* texture1,
+										  ID3D11ShaderResourceView* texture2,
+									      XMFLOAT3 lightDirection,
+										  XMFLOAT4 diffuseColor)
+{
+	HRESULT result;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	MatrixBufferType* dataPtr;
+	unsigned int bufferNumber;
+	LightBufferType* dataPtr2;
+
+	worldMatrix = XMMatrixTranspose(worldMatrix);
+	viewMatrix = XMMatrixTranspose(viewMatrix);
+	projectionMatrix = XMMatrixTranspose(projectionMatrix);
+
+	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+	
+	dataPtr = (MatrixBufferType*)mappedResource.pData;
+
+	dataPtr->world = worldMatrix;
+	dataPtr->view = viewMatrix;
+	dataPtr->projection = projectionMatrix;
+
+	deviceContext->Unmap(m_matrixBuffer, 0);
+	
+	bufferNumber = 0;
+
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+
+	deviceContext->PSSetShaderResources(0, 1, &texture1);
+	deviceContext->PSSetShaderResources(1, 1, &texture2);
+
+	result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	dataPtr2 = (LightBufferType*)mappedResource.pData;
+
+	dataPtr2->diffuseColor = diffuseColor;
+	dataPtr2->lightDirection = lightDirection;
+	dataPtr2->padding = 0.0f;
+
+	deviceContext->Unmap(m_lightBuffer, 0);
+
+	bufferNumber = 0;
+
+	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
+
+	return true;
+}
+
+void NormalMapShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+{
+	deviceContext->IASetInputLayout(m_layout);
+
+	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
+	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
+
+	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
+
+	deviceContext->DrawIndexed(indexCount, 0, 0);
+}
+
