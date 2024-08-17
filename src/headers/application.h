@@ -9,8 +9,9 @@
 #include "d3d.h"
 #include "camera.h"
 #include "model.h"
-#include "alphamapshader.h"
+#include "normalmapshader.h"
 #include "input.h"
+#include "light.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -34,9 +35,9 @@ private:
 private:
   D3D* m_Direct3D;
   Camera* m_Camera;
-  AlphaMapShader* m_AlphaMapShader;
+  NormalMapShader* m_NormalMapShader;
   Model* m_Model;
-
+  Light* m_Light;
 };
 
 #endif
