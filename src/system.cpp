@@ -33,7 +33,7 @@ bool System::Initialize()
 	m_Application = new Application;
 
 	result = m_Application->Initialize(screenWidth, screenHeight, m_hwnd);
-	if(!result)
+	if (!result)
 	{
 		return false;
 	}
@@ -44,14 +44,14 @@ bool System::Initialize()
 
 void System::Shutdown()
 {
-	if(m_Application)
+	if (m_Application)
 	{
 		m_Application->Shutdown();
 		delete m_Application;
 		m_Application = NULL;
 	}
 
-	if(m_Input)
+	if (m_Input)
 	{
 		delete m_Input;
 		m_Input = NULL;
@@ -66,22 +66,22 @@ void System::Run()
 	ZeroMemory(&msg, sizeof(MSG));
 
 	done = false;
-	while(!done)
+	while (!done)
 	{
-		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
 
-		if(msg.message == WM_QUIT)
+		if (msg.message == WM_QUIT)
 		{
 			done = true;
 		}
 		else
 		{
 			result = Frame();
-			if(!result)
+			if (!result)
 			{
 				done = true;
 			}
@@ -95,13 +95,13 @@ bool System::Frame()
 {
 	bool result;
 
-	if(m_Input->IsKeyDown(VK_ESCAPE))
+	if (m_Input->IsKeyDown(VK_ESCAPE))
 	{
 		return false;
 	}
-	
+
 	result = m_Application->Frame();
-	if(!result)
+	if (!result)
 	{
 		return false;
 	}
@@ -109,30 +109,30 @@ bool System::Frame()
 	return true;
 }
 
-LRESULT CALLBACK 
-	System::MessageHandler(HWND hwnd, 
-						   UINT umsg, 
-						   WPARAM wparam, 
-						   LPARAM lparam)
+LRESULT CALLBACK
+System::MessageHandler(HWND hwnd,
+	UINT umsg,
+	WPARAM wparam,
+	LPARAM lparam)
 {
-	switch(umsg)
+	switch (umsg)
 	{
-		case WM_KEYDOWN:
-		{
-			m_Input->KeyDown((unsigned int)wparam);
-			return 0;
-		}
+	case WM_KEYDOWN:
+	{
+		m_Input->KeyDown((unsigned int)wparam);
+		return 0;
+	}
 
-		case WM_KEYUP:
-		{
-			m_Input->KeyUp((unsigned int)wparam);
-			return 0;
-		}	
+	case WM_KEYUP:
+	{
+		m_Input->KeyUp((unsigned int)wparam);
+		return 0;
+	}
 
-		default:
-		{
-			return DefWindowProc(hwnd, umsg, wparam, lparam);
-		}
+	default:
+	{
+		return DefWindowProc(hwnd, umsg, wparam, lparam);
+	}
 	}
 }
 
@@ -166,7 +166,7 @@ void System::InitializeWindows(int& screenWidth, int& screenHeight)
 	screenWidth = GetSystemMetrics(SM_CXSCREEN);
 	screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
-	if(FULL_SCREEN)
+	if (FULL_SCREEN)
 	{
 		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
 		dmScreenSettings.dmSize = sizeof(dmScreenSettings);
@@ -189,12 +189,12 @@ void System::InitializeWindows(int& screenWidth, int& screenHeight)
 	}
 
 	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW,
-							m_applicationName,
-							m_applicationName,
-							WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
-							posX, posY,
-							screenWidth, screenHeight,
-							NULL, NULL, m_hInstance, NULL);
+		m_applicationName,
+		m_applicationName,
+		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
+		posX, posY,
+		screenWidth, screenHeight,
+		NULL, NULL, m_hInstance, NULL);
 
 	ShowWindow(m_hwnd, SW_SHOW);
 	SetForegroundWindow(m_hwnd);
@@ -209,7 +209,7 @@ void System::ShutdownWindows()
 {
 	ShowCursor(true);
 
-	if(FULL_SCREEN)
+	if (FULL_SCREEN)
 	{
 		ChangeDisplaySettings(NULL, 0);
 	}
@@ -225,30 +225,29 @@ void System::ShutdownWindows()
 	return;
 }
 
-LRESULT CALLBACK 
-	WndProc(HWND hwnd,
-			UINT umessage,
-			WPARAM wparam,
-			LPARAM lparam)
+LRESULT CALLBACK
+WndProc(HWND hwnd,
+	UINT umessage,
+	WPARAM wparam,
+	LPARAM lparam)
 {
-	switch(umessage)
+	switch (umessage)
 	{
-		case WM_DESTROY:
-		{
-			PostQuitMessage(0);
-			return 0;
-		}
+	case WM_DESTROY:
+	{
+		PostQuitMessage(0);
+		return 0;
+	}
 
-		case WM_CLOSE:
-		{
-			PostQuitMessage(0);
-			return 0;
-		}
+	case WM_CLOSE:
+	{
+		PostQuitMessage(0);
+		return 0;
+	}
 
-		default:
-		{
-			return ApplicationHandle->MessageHandler(hwnd, umessage, wparam, lparam);
-		}
+	default:
+	{
+		return ApplicationHandle->MessageHandler(hwnd, umessage, wparam, lparam);
+	}
 	}
 }
-

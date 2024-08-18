@@ -55,7 +55,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
   strcpy_s(modelFilename, "../CustomEngine/src/assets/models/cube.txt");
 
   strcpy_s(textureFilename1, "../CustomEngine/src/assets/shaders/stone01.tga");
-  strcpy_s(textureFilename2, "../CustomEngine/src/assets/shaders/dirt.tga");
+  strcpy_s(textureFilename2, "../CustomEngine/src/assets/shaders/normal01.tga");
 
   m_Model = new Model;
 
@@ -68,7 +68,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
   m_Light = new Light;
 
   m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-  m_Light->SetDirection(0.0f, 0.0f, 0.0f);
+  m_Light->SetDirection(0.0f, 0.0f, 1.0f);
  
   return true;
 }
@@ -113,12 +113,11 @@ void Application::Shutdown()
 
 bool Application::Frame()
 {
-  static float rotation = 0.0f;
+  static float rotation = 360.0f;
   static float translationX = 0.0f;
   static float translationZ = 0.0f;
   static float speedX = 0.1f;
   static float speedZ = 0.1f;
-  float frameTime;
   bool result;
 
   rotation -= 0.0174532925f * 0.25f;
@@ -127,38 +126,25 @@ bool Application::Frame()
       rotation += 360.0f;
     }
 	
-  // translationX += speedX * 0.5f; 
-  // translationZ += speedZ * 0.2f;
-  // 
-  // if (translationZ > 4.0f || translationZ < 0.0f) 
-  // {
-  // 	speedZ *= -1.0f;
-  // }
-  // 
-  // if (translationX > 5.0f || translationX < -5.0f) 
-  // {
-  // 	speedX *= -1.0f;
-  // }	
+    translationX += speedX * 0.5f; 
+    translationZ += speedZ * 0.2f;
+    
+    if (translationZ > 4.0f || translationZ < 0.0f) 
+    {
+    	speedZ *= -1.0f;
+    }
+    
+    if (translationX > 5.0f || translationX < -5.0f) 
+    {
+    	speedX *= -1.0f;
+    }	
 
   translationX = 4.f * std::cos(rotation);
   translationZ = 4.f * std::sin(rotation);
 
-  // m_Timer->Frame();
-  // m_Timer->Frame();
-  // 
-  // 
-  // frameTime = m_Timer->GetTime();
-  // frameTime = m_Timer->GetTime();
-  // 
-  // 
-  // m_Sprite->Update(frameTime);
-  // m_Sprite->Update(frameTime);
-  // 
-  // 
   result = Render(rotation, translationX, translationZ);
   if(!result)
     {
-
       return false;
     }
 
@@ -167,7 +153,7 @@ bool Application::Frame()
 
 bool Application::Render(float rotation, float translationX, float translationZ)
 {
-  XMMATRIX worldMatrix, viewMatrix, projectionMatrix, rotateMatrix, translateMatrix, scaleMatrix, srMatrix, orthoMatrix;
+  XMMATRIX worldMatrix, viewMatrix, projectionMatrix, rotateMatrixX, rotateMatrixZ;
   XMFLOAT4 diffuseColor[4], lightPosition[4];
   int i;
   bool result;
@@ -180,9 +166,14 @@ bool Application::Render(float rotation, float translationX, float translationZ)
   m_Camera->GetViewMatrix(viewMatrix);
   m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
+  rotateMatrixX = XMMatrixRotationX(rotation);
+  rotateMatrixZ = XMMatrixRotationZ(rotation);
+
+  worldMatrix = XMMatrixMultiply(rotateMatrixX, rotateMatrixZ);
+
   m_Model->Render(m_Direct3D->GetDeviceContext());
 
-  result = m_NormalMapShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), m_Model->GetTexture(1));
+  result = m_NormalMapShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), m_Model->GetTexture(1), m_Light->GetDirection(), m_Light->GetDiffuseColor());
   if(!result)
   {
       return false;

@@ -2,14 +2,12 @@
 
 Input::Input()
 {
-	m_direcInput = nullptr;
-	m_keyboard = nullptr;
-	m_mouse = nullptr;
+
 }
 
 Input::Input(const Input& other)
 {
-	
+
 }
 
 Input::~Input()
@@ -17,12 +15,31 @@ Input::~Input()
 
 }
 
-void Input::Initialize(HINSTANCE hInstance, 
-					   HWND hwnd,
-					   int screenWidth,
-					   int screenHeight)
+void Input::Initialize()
 {
-	HRESULT result;
+	int i;
+
+	for (i = 0; i < 256; i++)
+	{
+		m_keys[i] = false;
+	}
+
+	return;
 }
 
+void Input::KeyDown(unsigned int input)
+{
+	m_keys[input] = true;
+	return;
+}
 
+void Input::KeyUp(unsigned int input)
+{
+	m_keys[input] = false;
+	return;
+}
+
+bool Input::IsKeyDown(unsigned int key)
+{
+	return m_keys[key];
+}

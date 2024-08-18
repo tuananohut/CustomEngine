@@ -8,7 +8,7 @@
 #include "input.h" 
 #include "application.h"
 
-class System 
+class System
 {
 public:
 	System();

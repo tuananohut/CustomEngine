@@ -51,12 +51,6 @@
     <ClInclude Include="src\headers\bitmap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\headers\DirectXMath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\headers\font.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\headers\sprite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -70,6 +64,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\headers\alphamapshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\normalmapshader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -113,9 +110,6 @@
     <ClCompile Include="src\bitmap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\font.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\sprite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -129,6 +123,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\alphamapshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\normalmapshader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -145,8 +142,13 @@
     <None Include="src\lights\lightmap.ps" />
     <None Include="src\textures\alphamap.vs" />
     <None Include="src\textures\alphamap.ps" />
+    <None Include="src\textures\normalmap.vs" />
+    <None Include="src\textures\normalmap.ps" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\assets\models\cube.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="src\assets\shaders\normal01.tga" />
   </ItemGroup>
 </Project>

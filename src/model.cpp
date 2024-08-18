@@ -323,7 +323,7 @@ void Model::CalculateTangentBinormal(TempVertexType vertex1, TempVertexType vert
 	tuVector[0] = vertex2.tu - vertex1.tu;
 	tvVector[0] = vertex2.tv - vertex1.tv;
 
-	tuVector[0] = vertex3.tu - vertex1.tu;
+	tuVector[1] = vertex3.tu - vertex1.tu;
 	tvVector[1] = vertex3.tv - vertex1.tv;
 
 	den = 1.0f / (tuVector[0] * tvVector[1] - tuVector[1] * tvVector[0]);
@@ -332,9 +332,9 @@ void Model::CalculateTangentBinormal(TempVertexType vertex1, TempVertexType vert
 	tangent.y = (tvVector[1] * vector1[1] - tvVector[0] * vector2[1]) * den;
 	tangent.z = (tvVector[1] * vector1[2] - tvVector[0] * vector2[2]) * den;
 
-	binormal.x = (tuVector[1] * vector1[0] - tuVector[0] * vector2[0]) * den;
-	binormal.y = (tuVector[1] * vector1[1] - tuVector[0] * vector2[1]) * den;
-	binormal.z = (tuVector[1] * vector1[2] - tuVector[0] * vector2[2]) * den;
+	binormal.x = (tuVector[0] * vector2[0] - tuVector[1] * vector1[0]) * den;
+	binormal.y = (tuVector[0] * vector2[1] - tuVector[1] * vector1[1]) * den;
+	binormal.z = (tuVector[0] * vector2[2] - tuVector[1] * vector1[2]) * den;
 
 	length = sqrt((tangent.x * tangent.x) + (tangent.y * tangent.y) + (tangent.z * tangent.z));
 
