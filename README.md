@@ -22,7 +22,7 @@ Completed lessons from RasterTek:
 - [x] Tutorial 17: Multitexturing
 - [x] Tutorial 18: Light Maps
 - [x] Tutorial 19: Alpha Mapping
-- [ ] Tutorial 20: Normal Mapping
+- [x] Tutorial 20: Normal Mapping
 
 ## I made this with engine:
 
