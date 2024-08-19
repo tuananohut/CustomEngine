@@ -69,6 +69,9 @@
     <ClInclude Include="src\headers\normalmapshader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\headers\specmapshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -128,6 +131,9 @@
     <ClCompile Include="src\normalmapshader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\specmapshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\color.vs" />
@@ -144,6 +150,8 @@
     <None Include="src\textures\alphamap.ps" />
     <None Include="src\textures\normalmap.vs" />
     <None Include="src\textures\normalmap.ps" />
+    <None Include="src\textures\specmap.vs" />
+    <None Include="src\textures\specmap.ps" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\assets\models\cube.txt" />

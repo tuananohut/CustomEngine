@@ -52,7 +52,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
       return false;
   }
 
-  strcpy_s(modelFilename, "../CustomEngine/src/assets/models/cube.txt");
+  strcpy_s(modelFilename, "../CustomEngine/src/assets/models/sphere.txt");
 
   strcpy_s(textureFilename1, "../CustomEngine/src/assets/shaders/stone01.tga");
   strcpy_s(textureFilename2, "../CustomEngine/src/assets/shaders/normal01.tga");
