@@ -12,7 +12,7 @@ Model::Model(const Model& other) {}
 
 Model::~Model() {}
 
-bool Model::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* modelFilename, char* textureFilename1, char* textureFilename2)
+bool Model::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* modelFilename, char* textureFilename1, char* textureFilename2, char* textureFilename3)
 {
 	bool result;
 
@@ -30,7 +30,7 @@ bool Model::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext,
 		return false;
 	}
 
-	result = LoadTextures(device, deviceContext, textureFilename1, textureFilename2);
+	result = LoadTextures(device, deviceContext, textureFilename1, textureFilename2, textureFilename3);
 	if(!result)
 	{
 		return false;
@@ -160,11 +160,11 @@ void Model::RenderBuffers(ID3D11DeviceContext* deviceContext)
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-bool Model::LoadTextures(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename1, char* filename2)
+bool Model::LoadTextures(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename1, char* filename2, char* filename3)
 {
 	bool result;
 
-	m_Textures = new Texture[2];
+	m_Textures = new Texture[3];
 
 	result = m_Textures[0].Initialize(device, deviceContext, filename1);
 	if (!result)
@@ -173,6 +173,12 @@ bool Model::LoadTextures(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 	}
 
 	result = m_Textures[1].Initialize(device, deviceContext, filename2);
+	if (!result)
+	{
+		return false;
+	}
+
+	result = m_Textures[2].Initialize(device, deviceContext, filename3);
 	if (!result)
 	{
 		return false;
@@ -187,6 +193,7 @@ void Model::ReleaseTextures()
 	{
 		m_Textures[0].Shutdown();
 		m_Textures[1].Shutdown();
+		m_Textures[2].Shutdown();
 
 		delete[] m_Textures;
 		m_Textures = nullptr;

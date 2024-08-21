@@ -9,7 +9,7 @@
 #include "d3d.h"
 #include "camera.h"
 #include "model.h"
-#include "normalmapshader.h"
+#include "specmapshader.h"
 #include "input.h"
 #include "light.h"
 
@@ -35,7 +35,7 @@ private:
 private:
   D3D* m_Direct3D;
   Camera* m_Camera;
-  NormalMapShader* m_NormalMapShader;
+  SpecMapShader* m_SpecMapShader;
   Model* m_Model;
   Light* m_Light;
 };

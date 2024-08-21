@@ -1,61 +1,65 @@
 cbuffer MatrixBuffer
 {
-	matrix worldMatrix;
-	matrix viewMatrix;
-	matrix projectionMatrix;
+    matrix worldMatrix;
+    matrix viewMatrix;
+    matrix projectionMatrix;
 };
 
 cbuffer CameraBuffer
 {
-	float3 cameraPosition;
-	float padding;
+    float3 cameraPosition;
+    float padding;
 };
 
 struct VertexInputType
 {
-	float4 position: POSITION;
-	float2 tex: TEXCOORD0;
-	float3 normal: NORMAL;
-	float3 tangent: TANGENT;
-	float3 binormal: BINORMAL;
+    float4 position : POSITION;
+    float2 tex : TEXCOORD0;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
 };
 
 struct PixelInputType
 {
-	float4 position: SV_POSITION;
-	float2 tex: TEXCOORD0;
-	float3 normal: NORMAL;
-	float3 tangent: TANGENT;
-	float3 binormal: BINORMAL;
-	float3 viewDirection: TEXCOORD1;
+    float4 position : SV_POSITION;
+    float2 tex : TEXCOORD0;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
+    float3 viewDirection : TEXCOORD1;
 };
 
 PixelInputType SpecMapVertexShader(VertexInputType input)
 {
-	PixelInputType output;
-	float4 worldPosition;
+    PixelInputType output;
+    float4 worldPosition;
 
-	input.position.w = 1.0f;
+    input.position.w = 1.0f;
 
-	output.position = mul(input.position, worldMatrix);
-	output.position = mul(output.position, viewMatrix);
-	output.position = mul(output.position, projectionMatrix);
+    output.position = mul(input.position, worldMatrix);
+    output.position = mul(output.position, viewMatrix);
+    output.position = mul(output.position, projectionMatrix);
 
-	output.tex = input.tex;
+    output.tex = input.tex;
 
-	output.normal = mul(input.normal, float(3x3)worldMatrix);
-	output.normal = normalize(output.normal);
+    // Extract the upper-left 3x3 matrix from the 4x4 worldMatrix
+    float3x3 worldMatrix3x3 = (float3x3)worldMatrix;
 
-	output.tangent = mul(input.tangent, float(3x3)worldMatrix);
-	output.tangent = normalize(output.tangent);
+    // Transform normal, tangent, and binormal vectors with the 3x3 matrix
+    output.normal = mul(input.normal, worldMatrix3x3);
+    output.normal = normalize(output.normal);
 
-	output.binormal = mul(input.binormal, float(3x3)worldMatrix);
-	output.binormal = normalize(output.binormal);
+    output.tangent = mul(input.tangent, worldMatrix3x3);
+    output.tangent = normalize(output.tangent);
 
-	worldPosition = mul(input.position, worldMatrix);
+    output.binormal = mul(input.binormal, worldMatrix3x3);
+    output.binormal = normalize(output.binormal);
 
-	output.viewDirection = cameraPosition.xyz - worldPosition.xyz;
-	output.viewDirection = normalize(output.viewDirection);
-	
-	return output;
+    worldPosition = mul(input.position, worldMatrix);
+
+    output.viewDirection = cameraPosition.xyz - worldPosition.xyz;
+    output.viewDirection = normalize(output.viewDirection);
+    
+    return output;
 }

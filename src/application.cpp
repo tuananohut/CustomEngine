@@ -5,7 +5,7 @@ Application::Application()
   m_Direct3D = nullptr;
   m_Camera = nullptr;
   m_Model = nullptr;
-  m_NormalMapShader = nullptr;
+  m_SpecMapShader = nullptr;
   m_Light = nullptr;
 }
 
@@ -25,6 +25,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
   char modelFilename[128];
   char textureFilename1[128];
   char textureFilename2[128];
+  char textureFilename3[128];
 
   bool result;
 
@@ -43,23 +44,24 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
   m_Camera->SetRotation(0.0f, 0.0f, 0.0f);
   m_Camera->Render();
 
-  m_NormalMapShader = new NormalMapShader;
+  m_SpecMapShader = new SpecMapShader;
 
-  result = m_NormalMapShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+  result = m_SpecMapShader->Initialize(m_Direct3D->GetDevice(), hwnd);
   if(!result)
   {
-      MessageBox(hwnd, L"Could not initialize the normal map shader object.", L"Error", MB_OK);
+      MessageBox(hwnd, L"Could not initialize the specular map shader object.", L"Error", MB_OK);
       return false;
   }
 
-  strcpy_s(modelFilename, "../CustomEngine/src/assets/models/sphere.txt");
+  strcpy_s(modelFilename, "../CustomEngine/src/assets/models/cube.txt");
 
-  strcpy_s(textureFilename1, "../CustomEngine/src/assets/shaders/stone01.tga");
-  strcpy_s(textureFilename2, "../CustomEngine/src/assets/shaders/normal01.tga");
+  strcpy_s(textureFilename1, "../CustomEngine/src/assets/shaders/stone02.tga");
+  strcpy_s(textureFilename2, "../CustomEngine/src/assets/shaders/normal02.tga");
+  strcpy_s(textureFilename3, "../CustomEngine/src/assets/shaders/spec02.tga");
 
   m_Model = new Model;
 
-  result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename1, textureFilename2);
+  result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename1, textureFilename2, textureFilename3);
   if(!result)
   {
       return false;
@@ -69,6 +71,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
   m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
   m_Light->SetDirection(0.0f, 0.0f, 1.0f);
+  m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
+  m_Light->SetSpecularPower(32.0f);
  
   return true;
 }
@@ -82,11 +86,11 @@ void Application::Shutdown()
       m_Model = nullptr;
     }
 
-  if(m_NormalMapShader)
+  if(m_SpecMapShader)
   {
-      m_NormalMapShader->Shutdown();
-      delete m_NormalMapShader;
-      m_NormalMapShader = nullptr;
+      m_SpecMapShader->Shutdown();
+      delete m_SpecMapShader;
+      m_SpecMapShader = nullptr;
   }
 
   if(m_Light)
@@ -173,7 +177,7 @@ bool Application::Render(float rotation, float translationX, float translationZ)
 
   m_Model->Render(m_Direct3D->GetDeviceContext());
 
-  result = m_NormalMapShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), m_Model->GetTexture(1), m_Light->GetDirection(), m_Light->GetDiffuseColor());
+  result = m_SpecMapShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), m_Model->GetTexture(1), m_Model->GetTexture(2),  m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
   if(!result)
   {
       return false;
