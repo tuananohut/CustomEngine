@@ -23,7 +23,7 @@ Completed lessons from RasterTek:
 - [x] Tutorial 18: Light Maps
 - [x] Tutorial 19: Alpha Mapping
 - [x] Tutorial 20: Normal Mapping
-- [ ] Tutorial 21: Specular Mapping
+- [x] Tutorial 21: Specular Mapping
 
 ## I made this with engine:
 
