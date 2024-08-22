@@ -24,6 +24,7 @@ Completed lessons from RasterTek:
 - [x] Tutorial 19: Alpha Mapping
 - [x] Tutorial 20: Normal Mapping
 - [x] Tutorial 21: Specular Mapping
+- [x] Tutorial 22: Managing Multiple Shaders
 
 ## I made this with engine:
 
