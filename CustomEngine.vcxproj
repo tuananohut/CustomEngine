@@ -134,6 +134,7 @@
     <ClInclude Include="src\headers\camera.h" />
     <ClInclude Include="src\headers\colorshader.h" />
     <ClInclude Include="src\headers\d3d.h" />
+    <ClInclude Include="src\headers\frustum.h" />
     <ClInclude Include="src\headers\input.h" />
     <ClInclude Include="src\headers\light.h" />
     <ClInclude Include="src\headers\lightmapshader.h" />
@@ -141,6 +142,7 @@
     <ClInclude Include="src\headers\model.h" />
     <ClInclude Include="src\headers\multitextureshader.h" />
     <ClInclude Include="src\headers\normalmapshader.h" />
+    <ClInclude Include="src\headers\shadermanager.h" />
     <ClInclude Include="src\headers\specmapshader.h" />
     <ClInclude Include="src\headers\sprite.h" />
     <ClInclude Include="src\headers\system.h" />
@@ -155,6 +157,7 @@
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\colorshader.cpp" />
     <ClCompile Include="src\d3d.cpp" />
+    <ClCompile Include="src\frustum.cpp" />
     <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\light.cpp" />
     <ClCompile Include="src\lightmapshader.cpp" />
@@ -163,6 +166,7 @@
     <ClCompile Include="src\model.cpp" />
     <ClCompile Include="src\multitextureshader.cpp" />
     <ClCompile Include="src\normalmapshader.cpp" />
+    <ClCompile Include="src\shadermanager.cpp" />
     <ClCompile Include="src\specmapshader.cpp" />
     <ClCompile Include="src\sprite.cpp" />
     <ClCompile Include="src\texture.cpp" />

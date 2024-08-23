@@ -2,15 +2,14 @@
 
 LightShader::LightShader()
 {
-	m_vertexShader = NULL;
-	m_pixelShader = NULL;
-	m_layout = NULL;
-	m_sampleState = NULL;
-	m_matrixBuffer = NULL;
-	m_lightColorBuffer = NULL;
-	m_lightPositionBuffer = NULL;
-	// m_cameraBuffer = NULL;
-	// m_lightBuffer = NULL;
+	m_vertexShader = nullptr;
+	m_pixelShader = nullptr;
+	m_layout = nullptr;
+	m_sampleState = nullptr;
+	m_matrixBuffer = nullptr;
+	m_lightColorBuffer = nullptr;
+	m_lightPositionBuffer = nullptr;
+	m_lightBuffer = nullptr;
 }
 
 LightShader::LightShader(const LightShader& other) {}
@@ -56,13 +55,13 @@ bool LightShader::Render(ID3D11DeviceContext* deviceContext,
 						 int indexCount, 
 						 XMMATRIX worldMatrix, XMMATRIX viewMatrix,XMMATRIX projectionMatrix, 
 						 ID3D11ShaderResourceView* texture,
-						 XMFLOAT4 diffuseColor[],
-						 XMFLOAT4 lightPosition[])
+						 XMFLOAT3 lightDirection,
+						 XMFLOAT4 diffuseColor)
 						 	     
 {
 	bool result;
 
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, diffuseColor, lightPosition);
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, diffuseColor, lightDirection);
 	if(!result)
 	{
 		return false;
@@ -355,24 +354,21 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 									  XMMATRIX viewMatrix,
 									  XMMATRIX projectionMatrix,
 									  ID3D11ShaderResourceView* texture,
-									  XMFLOAT4 diffuseColor[], 
-									  XMFLOAT4 lightPosition[])
+									  XMFLOAT4 diffuseColor, 
+									  XMFLOAT3 lightDirection)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber; 
 	MatrixBufferType* dataPtr;
-	LightPositionBufferType* dataPtr2;
-	LightColorBufferType* dataPtr3;
-	// LightBufferType* dataPtr2;
-	// CameraBufferType* dataPtr3;
+	LightBufferType* dataPtr2;
 
 	worldMatrix = XMMatrixTranspose(worldMatrix);
 	viewMatrix = XMMatrixTranspose(viewMatrix);
 	projectionMatrix = XMMatrixTranspose(projectionMatrix);
 
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if(FAILED(result))
+	if (FAILED(result))
 	{
 		return false;
 	}
@@ -389,84 +385,25 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
-	result = deviceContext->Map(m_lightPositionBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if(FAILED(result))
-	{
-		return false;
-	}
-
-	dataPtr2 = (LightPositionBufferType*)mappedResource.pData;
-
-	dataPtr2->lightPosition[0] = lightPosition[0];
-	dataPtr2->lightPosition[1] = lightPosition[1];
-	dataPtr2->lightPosition[2] = lightPosition[2];
-	dataPtr2->lightPosition[3] = lightPosition[3];
-
-	deviceContext->Unmap(m_lightPositionBuffer, 0);
-
-	bufferNumber = 1;
-
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_lightPositionBuffer);
-
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 
-	result = deviceContext->Map(m_lightColorBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if(FAILED(result))
+	result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
 	{
 		return false;
 	}
 
-	dataPtr3 = (LightColorBufferType*)mappedResource.pData;
+	dataPtr2 = (LightBufferType*)mappedResource.pData;
 
-	dataPtr3->diffuseColor[0] = diffuseColor[0];
-	dataPtr3->diffuseColor[1] = diffuseColor[1];
-	dataPtr3->diffuseColor[2] = diffuseColor[2];
-	dataPtr3->diffuseColor[3] = diffuseColor[3];
+	dataPtr2->diffuseColor = diffuseColor;
+	dataPtr2->lightDirection = lightDirection;
+	dataPtr2->padding = 0.0f;
 
-	deviceContext->Unmap(m_lightColorBuffer, 0);
+	deviceContext->Unmap(m_lightBuffer, 0);
 
 	bufferNumber = 0;
 
-	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightColorBuffer);
-
-	// result = deviceContext->Map(m_cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	// if(FAILED(result))
-	// {
-	// 	return false;
-	// }
-	// 
-	// dataPtr3 = (CameraBufferType*)mappedResource.pData;
-	// 	   
-	// dataPtr3->cameraPosition = cameraPosition;
-	// dataPtr3->padding = 0.0f;
-	// 
-	// deviceContext->Unmap(m_cameraBuffer, 0);
-	// 
-	// bufferNumber = 1;
-	// 
-	// deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_cameraBuffer);
-	// 
-	// deviceContext->PSSetShaderResources(0, 1, &texture);
-	// 
-	// result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	// if (FAILED(result))
-	// {
-	// 	return false;
-	// }
-	// 
-	// dataPtr2 = (LightBufferType*)mappedResource.pData;
-	// 
-	// dataPtr2->ambientColor = ambientColor;
-	// dataPtr2->diffuseColor = diffuseColor;
-	// dataPtr2->lightDirection = lightDirection;
-	// dataPtr2->specularColor = specularColor;
-	// dataPtr2->specularPower = specularPower;
-	// 
-	// deviceContext->Unmap(m_lightBuffer, 0);
-	// 
-	// bufferNumber = 0;
-	// 
-	// deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
+	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
 
 	return true;
 }
