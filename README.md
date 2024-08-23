@@ -25,6 +25,7 @@ Completed lessons from RasterTek:
 - [x] Tutorial 20: Normal Mapping
 - [x] Tutorial 21: Specular Mapping
 - [x] Tutorial 22: Managing Multiple Shaders
+- [ ] Tutorial 23: Frustum Culling
 
 ## I made this with engine:
 
