@@ -115,5 +115,167 @@ bool Frustum::CheckPoint(float x, float y, float z)
 
 bool Frustum::CheckCube(float xCenter, float yCenter, float zCenter, float radius)
 {
-	
+	int i;
+
+	for (i = 0; i < 6; i++)
+	{
+		if (m_planes[i].x * (xCenter - radius) + 
+			m_planes[i].y * (yCenter - radius) + 
+			m_planes[i].z * (zCenter - radius) + 
+			m_planes[i].w >= 0.0f)
+		{
+			continue;
+		}
+
+		if (m_planes[i].x * (xCenter + radius) +
+			m_planes[i].y * (yCenter - radius) +
+			m_planes[i].z * (zCenter - radius) +
+			m_planes[i].w >= 0.0f)
+		{
+			continue;
+		}
+
+		if (m_planes[i].x * (xCenter - radius) +
+			m_planes[i].y * (yCenter + radius) +
+			m_planes[i].z * (zCenter - radius) +
+			m_planes[i].w >= 0.0f)
+		{
+			continue;
+		}
+
+		if (m_planes[i].x * (xCenter + radius) +
+			m_planes[i].y * (yCenter + radius) +
+			m_planes[i].z * (zCenter - radius) +
+			m_planes[i].w >= 0.0f)
+		{
+			continue;
+		}
+
+		if (m_planes[i].x * (xCenter - radius) +
+			m_planes[i].y * (yCenter - radius) +
+			m_planes[i].z * (zCenter + radius) +
+			m_planes[i].w >= 0.0f)
+		{
+			continue;
+		}
+
+		if (m_planes[i].x * (xCenter + radius) +
+			m_planes[i].y * (yCenter - radius) +
+			m_planes[i].z * (zCenter + radius) +
+			m_planes[i].w >= 0.0f)
+		{
+			continue;
+		}
+
+		if (m_planes[i].x * (xCenter - radius) +
+			m_planes[i].y * (yCenter + radius) +
+			m_planes[i].z * (zCenter + radius) +
+			m_planes[i].w >= 0.0f)
+		{
+			continue;
+		}
+
+		if (m_planes[i].x * (xCenter + radius) +
+			m_planes[i].y * (yCenter + radius) +
+			m_planes[i].z * (zCenter + radius) +
+			m_planes[i].w >= 0.0f)
+		{
+			continue;
+		}
+
+		return false;
+	}
+
+	return true;
+}
+
+bool Frustum::CheckSphere(float xCenter, float yCenter, float zCenter, float radius)
+{
+	int i;
+
+	for (i = 0; i < 6; i++)
+	{
+		if ((m_planes[i].x * xCenter) + (m_planes[i].y * yCenter) + (m_planes[i].z * zCenter) + m_planes[i].w < -radius)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool Frustum::CheckRectangle(float xCenter, float yCenter, float zCenter, float xSize, float ySize, float zSize)
+{
+	int i;
+
+	for (i = 0; i < 6; i++)
+	{
+		if (m_planes[i].x * (xCenter - xSize) +
+			m_planes[i].y * (yCenter - ySize) +
+			m_planes[i].z * (zCenter - zSize) +
+			m_planes[i].w >= 0.0f)
+		{
+			continue;
+		}
+
+		if (m_planes[i].x * (xCenter + xSize) +
+			m_planes[i].y * (yCenter - ySize) +
+			m_planes[i].z * (zCenter - zSize) +
+			m_planes[i].w >= 0.0f)
+		{
+			continue;
+		}
+
+		if (m_planes[i].x * (xCenter - xSize) +
+			m_planes[i].y * (yCenter + ySize) +
+			m_planes[i].z * (zCenter - zSize) +
+			m_planes[i].w >= 0.0f)
+		{
+			continue;
+		}
+
+		if (m_planes[i].x * (xCenter + xSize) +
+			m_planes[i].y * (yCenter + ySize) +
+			m_planes[i].z * (zCenter - zSize) +
+			m_planes[i].w >= 0.0f)
+		{
+			continue;
+		}
+
+		if (m_planes[i].x * (xCenter - xSize) +
+			m_planes[i].y * (yCenter - ySize) +
+			m_planes[i].z * (zCenter + zSize) +
+			m_planes[i].w >= 0.0f)
+		{
+			continue;
+		}
+
+		if (m_planes[i].x * (xCenter + xSize) +
+			m_planes[i].y * (yCenter - ySize) +
+			m_planes[i].z * (zCenter + zSize) +
+			m_planes[i].w >= 0.0f)
+		{
+			continue;
+		}
+
+		if (m_planes[i].x * (xCenter - xSize) +
+			m_planes[i].y * (yCenter + ySize) +
+			m_planes[i].z * (zCenter + zSize) +
+			m_planes[i].w >= 0.0f)
+		{
+			continue;
+		}
+
+		if (m_planes[i].x * (xCenter + xSize) +
+			m_planes[i].y * (yCenter + ySize) +
+			m_planes[i].z * (zCenter + zSize) +
+			m_planes[i].w >= 0.0f)
+		{
+			continue;
+		}
+
+		return false;
+	}
+
+	return true;
 }
