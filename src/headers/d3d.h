@@ -38,6 +38,9 @@ public:
   
   void TurnZBufferOn();
   void TurnZBufferOff();
+
+  void EnableAlphaBlending();
+  void DisableAlphaBlending();
   
 private:
   bool m_vsync_enabled;
@@ -56,6 +59,8 @@ private:
   XMMATRIX m_worldMatrix;
   XMMATRIX m_orthoMatrix;
   D3D11_VIEWPORT m_viewport;
+  ID3D11BlendState* m_alphaEnableBlendingState;
+  ID3D11BlendState* m_alphaDisableBlendingState;
 };
 
 #endif

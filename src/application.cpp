@@ -5,8 +5,14 @@ Application::Application()
   m_Direct3D = nullptr;
   m_Camera = nullptr;
   m_Model = nullptr;
+  m_Model1 = nullptr;
+  m_Model2 = nullptr;
   m_ShaderManager = nullptr;
   m_Light = nullptr;
+  m_ModelList = nullptr;
+  m_Timer = nullptr;
+  m_Position = nullptr;
+  m_Frustum = nullptr;
 }
 
 Application::Application(const Application& other)
@@ -40,11 +46,12 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
   m_Camera = new Camera;
 
-  m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
+  m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
   m_Camera->SetRotation(0.0f, 0.0f, 0.0f);
   m_Camera->Render();
+  m_Camera->GetViewMatrix(m_baseViewMatrix);
 
-  strcpy_s(modelFilename, "../CustomEngine/src/assets/models/sphere.txt");
+  strcpy_s(modelFilename, "../CustomEngine/src/assets/models/cube.txt");
   
 
   strcpy_s(textureFilename1, "../CustomEngine/src/assets/shaders/stone01.tga");
@@ -54,6 +61,22 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
   m_Model = new Model;
 
   result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename1, textureFilename2, textureFilename3);
+  if (!result)
+  {
+      return false;
+  }
+
+  m_Model1 = new Model;
+
+  result = m_Model1->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename1, textureFilename2, textureFilename3);
+  if (!result)
+  {
+      return false;
+  }
+
+  m_Model2 = new Model;
+
+  result = m_Model2->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename1, textureFilename2, textureFilename3);
   if (!result)
   {
       return false;
@@ -72,79 +95,133 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
       return false;
   }
 
+  m_ModelList = new ModelList;
+  m_ModelList->Initialize(25);
+
+  m_Timer = new Timer;
+  result = m_Timer->Initialize();
+  if (!result)
+  {
+      return false;
+  }
+
+  m_Position = new Position;
+
+  m_Frustum = new Frustum;
+
   return true;
 }
 
 void Application::Shutdown()
 {
-  if(m_Model)
+    if (m_Frustum)
     {
-      m_Model->Shutdown();
-      delete m_Model;
-      m_Model = nullptr;
+        delete m_Frustum;
+        m_Frustum = nullptr;
+    }
+    
+    if (m_Position)
+    {
+        delete m_Position;
+        m_Position = nullptr;
     }
 
-  if(m_ShaderManager)
-  {
-      m_ShaderManager->Shutdown();
-      delete m_ShaderManager;
-      m_ShaderManager = nullptr;
-  }
-
-  if(m_Light)
-  {
-      delete m_Light;
-      m_Light = nullptr;
-  }
-
-  if(m_Camera)
+    if (m_Timer)
     {
-      delete m_Camera;
-      m_Camera = nullptr;
+        delete m_Timer;
+        m_Timer = nullptr;
     }
 
-  if(m_Direct3D)
+    if (m_ModelList)
     {
-      m_Direct3D->Shutdown();
-      delete m_Direct3D;
-      m_Direct3D = nullptr;
+        m_ModelList->Shutdown();
+        delete m_ModelList;
+        m_ModelList = nullptr;
     }
 
-  return;
+    if(m_Model)
+    {
+        m_Model->Shutdown();
+        delete m_Model;
+        m_Model = nullptr;
+    }
+    
+    if (m_Model1)
+    {
+        m_Model->Shutdown();
+        delete m_Model;
+        m_Model = nullptr;
+    }
+
+    if (m_Model2)
+    {
+        m_Model->Shutdown();
+        delete m_Model;
+        m_Model = nullptr;
+    }
+
+    if(m_ShaderManager)
+    {
+        m_ShaderManager->Shutdown();
+        delete m_ShaderManager;
+        m_ShaderManager = nullptr;
+    }
+       
+    if(m_Light)
+    {
+        delete m_Light;
+        m_Light = nullptr;
+    }
+       
+    if(m_Camera)
+    {
+        delete m_Camera;
+        m_Camera = nullptr;
+    }
+      
+    if(m_Direct3D)
+    {
+        m_Direct3D->Shutdown();
+        delete m_Direct3D;
+        m_Direct3D = nullptr;
+    }
 }
 
-bool Application::Frame()
+bool Application::Frame(Input* Input)
 {
   static float rotation = 360.0f;
-  static float translationX = 0.0f;
-  static float translationZ = 0.0f;
-  static float speedX = 0.1f;
-  static float speedZ = 0.1f;
+
+  float rotationY;
   bool result;
+  bool keyDown;
+
+  m_Timer->Frame();
+
+  if (Input->IsEscapePressed())
+  {
+      return false;
+  }
+
+  m_Position->SetFrameTime(m_Timer->GetTime());
+
+  keyDown = Input->IsLeftArrowPressed();
+  m_Position->TurnLeft(keyDown);
+
+  keyDown = Input->IsRightArrowPressed();
+  m_Position->TurnRight(keyDown);
+
+  m_Position->GetRotation(rotationY);
+
+  m_Camera->SetRotation(0.0f, rotationY, 0.0f);
+  m_Camera->Render();
 
   rotation -= 0.0174532925f * 0.25f;
-  if(rotation < 0.0f)
-    {
-      rotation += 360.0f;
-    }
-	
-    translationX += speedX * 0.5f; 
-    translationZ += speedZ * 0.2f;
-    
-    if (translationZ > 4.0f || translationZ < 0.0f) 
-    {
-    	speedZ *= -1.0f;
-    }
-    
-    if (translationX > 5.0f || translationX < -5.0f) 
-    {
-    	speedX *= -1.0f;
-    }	
+  if (rotation < 0.0f)
+  {
+      rotation += 360.f;
+  }
 
-  translationX = 4.f * std::cos(rotation);
-  translationZ = 4.f * std::sin(rotation);
-
-  result = Render(rotation, translationX, translationZ);
+  result = Render(rotation);
   if(!result)
     {
       return false;
@@ -153,10 +230,13 @@ bool Application::Frame()
   return true;
 }
 
-bool Application::Render(float rotation, float translationX, float translationZ)
+bool Application::Render(float rotation)
 {
-  XMMATRIX worldMatrix, viewMatrix, projectionMatrix, rotateMatrixX, rotateMatrixZ, rotateMatrix, translateMatrix;
+  XMMATRIX worldMatrix, viewMatrix, projectionMatrix, rotateMatrixX, rotateMatrixY, rotateMatrixZ, rotateMatrix, translateMatrix, orthoMatrix;
   XMFLOAT4 diffuseColor[4], lightPosition[4];
+  float positionX, positionY, positionZ, radius;
+  int modelCount, renderCount;
+  bool renderModel;
   int i;
   bool result;
 
@@ -167,45 +247,46 @@ bool Application::Render(float rotation, float translationX, float translationZ)
   m_Direct3D->GetWorldMatrix(worldMatrix);
   m_Camera->GetViewMatrix(viewMatrix);
   m_Direct3D->GetProjectionMatrix(projectionMatrix);
+  m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
-  rotateMatrixX = XMMatrixRotationX(rotation);
-  rotateMatrixZ = XMMatrixRotationZ(rotation);
-  translateMatrix = XMMatrixTranslation(0.0f, 1.0f, 0.0f);
+  m_Frustum->ConstructFrustum(viewMatrix, projectionMatrix, SCREEN_DEPTH);
 
-  worldMatrix = XMMatrixMultiply(rotateMatrixX, rotateMatrixZ);
+  modelCount = m_ModelList->GetModelCount();
 
-  m_Model->Render(m_Direct3D->GetDeviceContext());
+  renderCount = 0;
 
-  result = m_ShaderManager->RenderTextureShader(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0));
-  if(!result)
+  for (i = 0; i < modelCount; i += 1)
   {
-      return false;
+      m_ModelList->GetData(i, positionX, positionY, positionZ);
+
+      radius = 1.0f;
+
+      renderModel = m_Frustum->CheckCube(positionX, positionY, positionZ, radius);
+      if (renderModel)
+      {
+          rotateMatrixX = XMMatrixRotationX(rotation);
+          rotateMatrixY = XMMatrixRotationY(rotation);
+          rotateMatrixZ = XMMatrixRotationZ(rotation);
+
+          worldMatrix = XMMatrixMultiply(rotateMatrixX, rotateMatrixY);
+          worldMatrix = XMMatrixMultiply(worldMatrix, rotateMatrixZ);
+
+          worldMatrix = XMMatrixMultiply(worldMatrix, XMMatrixTranslation(positionX, positionY, positionZ));
+          
+          m_Model->Render(m_Direct3D->GetDeviceContext());
+          result = m_ShaderManager->RenderNormalMapShader(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+              m_Model->GetTexture(0), m_Model->GetTexture(1), m_Light->GetDirection(), m_Light->GetDiffuseColor());
+          if (!result)
+          {
+              return false;
+          }
+      }
   }
 
-  rotateMatrix = XMMatrixRotationY(rotation);
-  translateMatrix = XMMatrixTranslation(-1.5f, -1.0f, 0.0f);
-  worldMatrix = XMMatrixMultiply(rotateMatrix, translateMatrix);
+  m_Direct3D->TurnZBufferOff();
+  m_Direct3D->EnableAlphaBlending();
 
-  m_Model->Render(m_Direct3D->GetDeviceContext());
-
-  result = m_ShaderManager->RenderTextureShader(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(2));
-  if (!result)
-  {
-      return false;
-  }
-
-  rotateMatrix = XMMatrixRotationY(rotation);
-  translateMatrix = XMMatrixTranslation(1.5f, -1.0f, 0.0f);
-  worldMatrix = XMMatrixMultiply(rotateMatrix, translateMatrix);
-
-  m_Model->Render(m_Direct3D->GetDeviceContext());
-
-  result = m_ShaderManager->RenderNormalMapShader(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-      m_Model->GetTexture(0), m_Model->GetTexture(1), m_Light->GetDirection(), m_Light->GetDiffuseColor());
-  if (!result)
-  {
-      return false;
-  }
+  m_Direct3D->GetWorldMatrix(worldMatrix);
 
   m_Direct3D->EndScene();
 

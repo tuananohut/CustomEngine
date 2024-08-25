@@ -140,8 +140,10 @@
     <ClInclude Include="src\headers\lightmapshader.h" />
     <ClInclude Include="src\headers\lightshader.h" />
     <ClInclude Include="src\headers\model.h" />
+    <ClInclude Include="src\headers\modellist.h" />
     <ClInclude Include="src\headers\multitextureshader.h" />
     <ClInclude Include="src\headers\normalmapshader.h" />
+    <ClInclude Include="src\headers\position.h" />
     <ClInclude Include="src\headers\shadermanager.h" />
     <ClInclude Include="src\headers\specmapshader.h" />
     <ClInclude Include="src\headers\sprite.h" />
@@ -164,8 +166,10 @@
     <ClCompile Include="src\lightshader.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\model.cpp" />
+    <ClCompile Include="src\modellist.cpp" />
     <ClCompile Include="src\multitextureshader.cpp" />
     <ClCompile Include="src\normalmapshader.cpp" />
+    <ClCompile Include="src\position.cpp" />
     <ClCompile Include="src\shadermanager.cpp" />
     <ClCompile Include="src\specmapshader.cpp" />
     <ClCompile Include="src\sprite.cpp" />

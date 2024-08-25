@@ -78,6 +78,12 @@
     <ClInclude Include="src\headers\frustum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\headers\modellist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\position.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -144,6 +150,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\frustum.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\modellist.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\position.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

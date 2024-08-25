@@ -8,7 +8,7 @@ Position::Position()
 	m_rightTurnSpeed = 0.f;
 }
 
-Position::Position() {}
+Position::Position(const Position& other) {}
 
 Position::~Position() {}
 

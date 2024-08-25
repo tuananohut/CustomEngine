@@ -2,8 +2,8 @@
 
 System::System()
 {
-	m_Input = NULL;
-	m_Application = NULL;
+	m_Input = nullptr;
+	m_Application = nullptr;
 }
 
 System::System(const System& other)
@@ -27,11 +27,14 @@ bool System::Initialize()
 	InitializeWindows(screenWidth, screenHeight);
 
 	m_Input = new Input;
+	result = m_Input->Initialize(m_hInstance, m_hwnd, screenWidth, screenHeight);
+	if (!result)
+	{
+		return false;
+	}
 
-	m_Input->Initialize();
 
 	m_Application = new Application;
-
 	result = m_Application->Initialize(screenWidth, screenHeight, m_hwnd);
 	if (!result)
 	{
@@ -39,7 +42,6 @@ bool System::Initialize()
 	}
 
 	return true;
-
 }
 
 void System::Shutdown()
@@ -48,14 +50,16 @@ void System::Shutdown()
 	{
 		m_Application->Shutdown();
 		delete m_Application;
-		m_Application = NULL;
+		m_Application = nullptr;
 	}
 
 	if (m_Input)
 	{
 		delete m_Input;
-		m_Input = NULL;
+		m_Input = nullptr;
 	}
+
+	ShutdownWindows();
 }
 
 void System::Run()
@@ -87,20 +91,19 @@ void System::Run()
 			}
 		}
 	}
-
-	return;
 }
 
 bool System::Frame()
 {
 	bool result;
 
-	if (m_Input->IsKeyDown(VK_ESCAPE))
+	result = m_Input->Frame();
+	if (!result)
 	{
 		return false;
 	}
 
-	result = m_Application->Frame();
+	result = m_Application->Frame(m_Input);
 	if (!result)
 	{
 		return false;
@@ -111,29 +114,11 @@ bool System::Frame()
 
 LRESULT CALLBACK
 System::MessageHandler(HWND hwnd,
-	UINT umsg,
-	WPARAM wparam,
-	LPARAM lparam)
+					   UINT umsg,
+					   WPARAM wparam,
+					   LPARAM lparam)
 {
-	switch (umsg)
-	{
-	case WM_KEYDOWN:
-	{
-		m_Input->KeyDown((unsigned int)wparam);
-		return 0;
-	}
-
-	case WM_KEYUP:
-	{
-		m_Input->KeyUp((unsigned int)wparam);
-		return 0;
-	}
-
-	default:
-	{
-		return DefWindowProc(hwnd, umsg, wparam, lparam);
-	}
-	}
+	return DefWindowProc(hwnd, umsg, wparam, lparam);
 }
 
 void System::InitializeWindows(int& screenWidth, int& screenHeight)

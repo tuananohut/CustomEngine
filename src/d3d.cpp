@@ -11,6 +11,8 @@ D3D::D3D()
   m_depthDisabledStencilState = nullptr;
   m_depthStencilView = nullptr;
   m_rasterState = 0;
+  m_alphaEnableBlendingState = nullptr;
+  m_alphaDisableBlendingState = nullptr;
 }
 
 D3D::D3D(const D3D& other) {}
@@ -319,7 +321,19 @@ void D3D::Shutdown()
     {
       m_swapChain->SetFullscreenState(false, NULL);
     }
-	
+
+  if (m_alphaEnableBlendingState)
+  {
+      m_alphaEnableBlendingState->Release();
+      m_alphaEnableBlendingState = nullptr;
+  }
+
+  if (m_alphaDisableBlendingState)
+  {
+      m_alphaDisableBlendingState->Release();
+      m_alphaDisableBlendingState = nullptr;
+  }
+
   if(m_depthDisabledStencilState)
     {
       m_depthDisabledStencilState->Release();
@@ -373,8 +387,6 @@ void D3D::Shutdown()
       m_swapChain->Release();
       m_swapChain = nullptr;
     }
-
-  return;
 }
 
 void D3D::BeginScene(float red, float green, float blue, float alpha)
@@ -389,8 +401,6 @@ void D3D::BeginScene(float red, float green, float blue, float alpha)
   m_deviceContext->ClearRenderTargetView(m_renderTargetView, color);
 
   m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-  return;
 }
 
 void D3D::EndScene()
@@ -403,8 +413,6 @@ void D3D::EndScene()
     {
       m_swapChain->Present(0, 0);
     }
-
-  return;
 }
 
 ID3D11Device* D3D::GetDevice()
@@ -420,50 +428,64 @@ ID3D11DeviceContext* D3D::GetDeviceContext()
 void D3D::GetProjectionMatrix(XMMATRIX& projectionMatrix)
 {
   projectionMatrix = m_projectionMatrix;
-  return;
 }
 
 void D3D::GetWorldMatrix(XMMATRIX& worldMatrix)
 {
   worldMatrix = m_worldMatrix;
-  return;
 }
 
 void D3D::GetOrthoMatrix(XMMATRIX& orthoMatrix)
 {
   orthoMatrix = m_orthoMatrix;
-  return;
 }
 
 void D3D::GetVideoCardInfo(char* cardName, int& memory)
 {
   strcpy_s(cardName, 128, m_videoCardDescription);
   memory = m_videoCardMemory;
-  return;
 }
 
 void D3D::SetBackBufferRenderTarget()
 {
   m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
-
-  return;
 }
 
 void D3D::ResetViewport()
 {
   m_deviceContext->RSSetViewports(1, &m_viewport);
-
-  return;
 }
 
 void D3D::TurnZBufferOn()
 {
   m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
-  return;
 }
 
 void D3D::TurnZBufferOff()
 {
   m_deviceContext->OMSetDepthStencilState(m_depthDisabledStencilState, 1);
-  return;
+}
+
+void D3D::EnableAlphaBlending()
+{
+    float blendFactor[4];
+
+    blendFactor[0] = 0.0f;
+    blendFactor[1] = 0.0f;
+    blendFactor[1] = 0.0f;
+    blendFactor[1] = 0.0f;
+
+    m_deviceContext->OMSetBlendState(m_alphaEnableBlendingState, blendFactor, 0xffffffff);
+}
+
+void D3D::DisableAlphaBlending()
+{
+    float blendFactor[4];
+
+    blendFactor[0] = 0.0f;
+    blendFactor[1] = 0.0f;
+    blendFactor[1] = 0.0f;
+    blendFactor[1] = 0.0f;
+
+    m_deviceContext->OMSetBlendState(m_alphaDisableBlendingState, blendFactor, 0xffffffff);
 }
