@@ -26,6 +26,7 @@ Completed lessons from RasterTek:
 - [x] Tutorial 21: Specular Mapping
 - [x] Tutorial 22: Managing Multiple Shaders
 - [x] Tutorial 23: Frustum Culling
+- [x] Tutorial 24: Loading Maya Models
 
 ## I made this with engine:
 
