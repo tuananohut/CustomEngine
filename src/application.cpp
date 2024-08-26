@@ -5,14 +5,13 @@ Application::Application()
   m_Direct3D = nullptr;
   m_Camera = nullptr;
   m_Model = nullptr;
-  m_Model1 = nullptr;
-  m_Model2 = nullptr;
   m_ShaderManager = nullptr;
   m_Light = nullptr;
   m_ModelList = nullptr;
   m_Timer = nullptr;
   m_Position = nullptr;
   m_Frustum = nullptr;
+  m_ColorShader = nullptr;
 }
 
 Application::Application(const Application& other)
@@ -51,7 +50,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
   m_Camera->Render();
   m_Camera->GetViewMatrix(m_baseViewMatrix);
 
-  strcpy_s(modelFilename, "../CustomEngine/src/assets/models/cube.txt");
+  strcpy_s(modelFilename, "../CustomEngine/src/assets/models/torus.txt");
   
 
   strcpy_s(textureFilename1, "../CustomEngine/src/assets/shaders/stone01.tga");
@@ -61,22 +60,6 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
   m_Model = new Model;
 
   result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename1, textureFilename2, textureFilename3);
-  if (!result)
-  {
-      return false;
-  }
-
-  m_Model1 = new Model;
-
-  result = m_Model1->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename1, textureFilename2, textureFilename3);
-  if (!result)
-  {
-      return false;
-  }
-
-  m_Model2 = new Model;
-
-  result = m_Model2->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename1, textureFilename2, textureFilename3);
   if (!result)
   {
       return false;
@@ -109,11 +92,27 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
   m_Frustum = new Frustum;
 
+  m_ColorShader = new ColorShader;
+
+  result = m_ColorShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+  if (!result)
+  {
+      MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
+      return false;
+  }
+
   return true;
 }
 
 void Application::Shutdown()
 {
+    if (m_ColorShader)
+    {
+        m_ColorShader->Shutdown();
+        delete m_ColorShader;
+        m_ColorShader = nullptr;
+    }
+
     if (m_Frustum)
     {
         delete m_Frustum;
@@ -140,20 +139,6 @@ void Application::Shutdown()
     }
 
     if(m_Model)
-    {
-        m_Model->Shutdown();
-        delete m_Model;
-        m_Model = nullptr;
-    }
-    
-    if (m_Model1)
-    {
-        m_Model->Shutdown();
-        delete m_Model;
-        m_Model = nullptr;
-    }
-
-    if (m_Model2)
     {
         m_Model->Shutdown();
         delete m_Model;
@@ -258,28 +243,35 @@ bool Application::Render(float rotation)
   for (i = 0; i < modelCount; i += 1)
   {
       m_ModelList->GetData(i, positionX, positionY, positionZ);
-
+  
       radius = 1.0f;
-
+  
       renderModel = m_Frustum->CheckCube(positionX, positionY, positionZ, radius);
       if (renderModel)
       {
           rotateMatrixX = XMMatrixRotationX(rotation);
           rotateMatrixY = XMMatrixRotationY(rotation);
           rotateMatrixZ = XMMatrixRotationZ(rotation);
-
+  
           worldMatrix = XMMatrixMultiply(rotateMatrixX, rotateMatrixY);
           worldMatrix = XMMatrixMultiply(worldMatrix, rotateMatrixZ);
-
+  
           worldMatrix = XMMatrixMultiply(worldMatrix, XMMatrixTranslation(positionX, positionY, positionZ));
           
           m_Model->Render(m_Direct3D->GetDeviceContext());
-          result = m_ShaderManager->RenderNormalMapShader(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-              m_Model->GetTexture(0), m_Model->GetTexture(1), m_Light->GetDirection(), m_Light->GetDiffuseColor());
+          result = m_ColorShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
           if (!result)
           {
               return false;
           }
+
+          // m_Model->Render(m_Direct3D->GetDeviceContext());
+          // result = m_ShaderManager->RenderNormalMapShader(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+          //     m_Model->GetTexture(0), m_Model->GetTexture(1), m_Light->GetDirection(), m_Light->GetDiffuseColor());
+          // if (!result)
+          // {
+          //     return false;
+          // }
       }
   }
 

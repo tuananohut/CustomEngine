@@ -15,6 +15,7 @@
 #include "modellist.h"
 #include "timer.h"
 #include "position.h"
+#include "colorshader.h"
 #include "frustum.h"
 #include "shadermanager.h"
 
@@ -42,8 +43,6 @@ private:
   Camera* m_Camera;
   ShaderManager* m_ShaderManager;
   Model* m_Model;
-  Model* m_Model1;
-  Model* m_Model2;
   Light* m_Light;
   LightShader* m_LightShader;
   ModelList* m_ModelList;
@@ -51,6 +50,7 @@ private:
   Position* m_Position;
   Frustum* m_Frustum;
   XMMATRIX m_baseViewMatrix;
+  ColorShader* m_ColorShader;
 };
 
 #endif
