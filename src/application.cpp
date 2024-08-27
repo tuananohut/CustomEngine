@@ -48,9 +48,10 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
   m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
   m_Camera->SetRotation(0.0f, 0.0f, 0.0f);
   m_Camera->Render();
+
   m_Camera->GetViewMatrix(m_baseViewMatrix);
 
-  strcpy_s(modelFilename, "../CustomEngine/src/assets/models/torus.txt");
+  strcpy_s(modelFilename, "../CustomEngine/src/assets/models/monkey.txt");
   
 
   strcpy_s(textureFilename1, "../CustomEngine/src/assets/shaders/stone01.tga");
@@ -239,7 +240,7 @@ bool Application::Render(float rotation)
   modelCount = m_ModelList->GetModelCount();
 
   renderCount = 0;
-
+ 
   for (i = 0; i < modelCount; i += 1)
   {
       m_ModelList->GetData(i, positionX, positionY, positionZ);
@@ -264,7 +265,7 @@ bool Application::Render(float rotation)
           {
               return false;
           }
-
+          
           // m_Model->Render(m_Direct3D->GetDeviceContext());
           // result = m_ShaderManager->RenderNormalMapShader(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
           //     m_Model->GetTexture(0), m_Model->GetTexture(1), m_Light->GetDirection(), m_Light->GetDiffuseColor());

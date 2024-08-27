@@ -472,8 +472,8 @@ void D3D::EnableAlphaBlending()
 
     blendFactor[0] = 0.0f;
     blendFactor[1] = 0.0f;
-    blendFactor[1] = 0.0f;
-    blendFactor[1] = 0.0f;
+    blendFactor[2] = 0.0f;
+    blendFactor[3] = 0.0f;
 
     m_deviceContext->OMSetBlendState(m_alphaEnableBlendingState, blendFactor, 0xffffffff);
 }
@@ -484,8 +484,8 @@ void D3D::DisableAlphaBlending()
 
     blendFactor[0] = 0.0f;
     blendFactor[1] = 0.0f;
-    blendFactor[1] = 0.0f;
-    blendFactor[1] = 0.0f;
+    blendFactor[2] = 0.0f;
+    blendFactor[3] = 0.0f;
 
     m_deviceContext->OMSetBlendState(m_alphaDisableBlendingState, blendFactor, 0xffffffff);
 }
