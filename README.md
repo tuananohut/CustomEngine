@@ -4,6 +4,12 @@ I am making a render engine to learn render engine architecture. I am using Dire
 
 I am following this https://www.rastertek.com/tutdx11win10.html tutorial. 
 
+## Build
+
+I upload codes with solution file. You need  VS 22 to run it. 
+
+For other folder, you can use g++. 
+
 Completed lessons from RasterTek:
 
 - [x] Tutorial 1: Setting up DirectX11 with Visual Studio 2022
