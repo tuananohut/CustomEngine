@@ -10,7 +10,7 @@ I upload codes with solution file. You need  VS 22 to run it.
 
 For other folder, you can use g++. 
 
-Completed lessons from RasterTek:
+## Completed lessons from RasterTek:
 
 - [x] Tutorial 1: Setting up DirectX11 with Visual Studio 2022
 - [x] Tutorial 2: Creating a Framework and Window
