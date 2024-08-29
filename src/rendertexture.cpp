@@ -132,5 +132,81 @@ bool RenderTexture::Initialize(ID3D11Device* device,
 
 void RenderTexture::Shutdown()
 {
-	
+	if (m_depthStencilView)
+	{
+		m_depthStencilView->Release();
+		m_depthStencilView = nullptr;
+	}
+
+	if (m_depthStencilBuffer)
+	{
+		m_depthStencilBuffer->Release();
+		m_depthStencilBuffer = nullptr;
+	}
+
+	if (m_shaderResourceView)
+	{
+		m_shaderResourceView->Release();
+		m_shaderResourceView = nullptr;
+	}
+
+	if (m_renderTargetView)
+	{
+		m_renderTargetView->Release();
+		m_renderTargetView = nullptr;
+	}
+
+	if (m_renderTargetTexture)
+	{
+		m_renderTargetTexture->Release();
+		m_renderTargetTexture = nullptr;
+	}
+}
+
+void RenderTexture::SetRenderTarget(ID3D11DeviceContext* deviceContext)
+{
+	deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
+	deviceContext->RSSetViewports(1, &m_viewport);
+}
+
+void RenderTexture::ClearRenderTarget(ID3D11DeviceContext* deviceContext,
+									  float red,
+									  float green,
+									  float blue,
+									  float alpha)
+{
+	float color[4];
+
+	color[0] = red;
+	color[1] = green;
+	color[2] = blue;
+	color[3] = alpha;
+
+	deviceContext->ClearRenderTargetView(m_renderTargetView, color);
+	deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.f, 0);	
+}
+
+ID3D11ShaderResourceView* RenderTexture::GetShaderResourceView()
+{
+	return m_shaderResourceView;
+}
+
+void RenderTexture::GetProjectionMatrix(XMMATRIX& projectionMatrix)
+{
+	projectionMatrix = m_projectionMatrix;
+}
+
+void RenderTexture::GetOrthoMatrix(XMMATRIX& orthoMatrix)
+{
+	orthoMatrix = m_orthoMatrix;
+}
+
+int RenderTexture::GetTextureWidth()
+{
+	return m_textureWidth;
+}
+
+int RenderTexture::GetTextureHeight()
+{
+	return m_textureHeight;
 }
