@@ -10,14 +10,17 @@
 #include "input.h"
 #include "camera.h"
 #include "model.h"
-#include "light.h"
-#include "lightshader.h"
-#include "modellist.h"
-#include "timer.h"
-#include "position.h"
-#include "colorshader.h"
-#include "frustum.h"
-#include "shadermanager.h"
+// #include "light.h"
+// #include "lightshader.h"
+// #include "modellist.h"
+// #include "timer.h"
+// #include "position.h"
+// #include "colorshader.h"
+// #include "frustum.h"
+// #include "shadermanager.h"
+#include "textureshader.h"
+#include "rendertexture.h"
+#include "displayplane.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -37,20 +40,24 @@ public:
 
 private:
   bool Render(float);
+  bool RenderSceneToTexture(float);
 
 private:
   D3D* m_Direct3D;
   Camera* m_Camera;
-  ShaderManager* m_ShaderManager;
+  // ShaderManager* m_ShaderManager;
   Model* m_Model;
-  Light* m_Light;
-  LightShader* m_LightShader;
-  ModelList* m_ModelList;
-  Timer* m_Timer;
-  Position* m_Position;
-  Frustum* m_Frustum;
+  // Light* m_Light;
+  // LightShader* m_LightShader;
+  // ModelList* m_ModelList;
+  // Timer* m_Timer;
+  // Position* m_Position;
+  // Frustum* m_Frustum;
   XMMATRIX m_baseViewMatrix;
-  ColorShader* m_ColorShader;
+  // ColorShader* m_ColorShader;
+  RenderTexture* m_RenderTexture;
+  DisplayPlane* m_DisplayPlane;
+  TextureShader* m_TextureShader;
 };
 
 #endif

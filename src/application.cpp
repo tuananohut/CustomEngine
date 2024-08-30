@@ -5,13 +5,16 @@ Application::Application()
   m_Direct3D = nullptr;
   m_Camera = nullptr;
   m_Model = nullptr;
-  m_ShaderManager = nullptr;
-  m_Light = nullptr;
-  m_ModelList = nullptr;
-  m_Timer = nullptr;
-  m_Position = nullptr;
-  m_Frustum = nullptr;
-  m_ColorShader = nullptr;
+  // m_ShaderManager = nullptr;
+  // m_Light = nullptr;
+  // m_ModelList = nullptr;
+  // m_Timer = nullptr;
+  // m_Position = nullptr;
+  // m_Frustum = nullptr;
+  // m_ColorShader = nullptr;
+  m_RenderTexture = nullptr;
+  m_DisplayPlane = nullptr;
+  m_TextureShader = nullptr;
 }
 
 Application::Application(const Application& other)
@@ -51,7 +54,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
   m_Camera->GetViewMatrix(m_baseViewMatrix);
 
-  strcpy_s(modelFilename, "../CustomEngine/src/assets/models/monkey.txt");
+  strcpy_s(modelFilename, "../CustomEngine/src/assets/models/cube.txt");
   
 
   strcpy_s(textureFilename1, "../CustomEngine/src/assets/shaders/stone01.tga");
@@ -59,46 +62,65 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
   strcpy_s(textureFilename3, "../CustomEngine/src/assets/shaders/palestine.tga");
 
   m_Model = new Model;
-
   result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename1, textureFilename2, textureFilename3);
   if (!result)
   {
       return false;
   }
 
-  m_Light = new Light;
+  // m_Light = new Light;
+  // 
+  // m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+  // m_Light->SetDirection(0.0f, 0.0f, 1.0f);
+  // 
+  // m_ShaderManager = new ShaderManager;
+  // result = m_ShaderManager->Initialize(m_Direct3D->GetDevice(), hwnd);
+  // if (!result)
+  // {
+  //     return false;
+  // }
+  // 
+  // m_ModelList = new ModelList;
+  // m_ModelList->Initialize(25);
+  // 
+  // m_Timer = new Timer;
+  // result = m_Timer->Initialize();
+  // if (!result)
+  // {
+  //     return false;
+  // }
+  // 
+  // m_Position = new Position;
+  // 
+  // m_Frustum = new Frustum;
+  // 
+  // m_ColorShader = new ColorShader;
+  // result = m_ColorShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+  // if (!result)
+  // {
+  //     MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
+  //     return false;
+  // }
 
-  m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-  m_Light->SetDirection(0.0f, 0.0f, 1.0f);
+  m_TextureShader = new TextureShader;
+  result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+  if (!result)
+  {
+      MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
+      return false;
+  }
 
-  m_ShaderManager = new ShaderManager;
-
-  result = m_ShaderManager->Initialize(m_Direct3D->GetDevice(), hwnd);
+  m_RenderTexture = new RenderTexture;
+  result = m_RenderTexture->Initialize(m_Direct3D->GetDevice(), 256, 256, SCREEN_DEPTH, SCREEN_NEAR, 1);
   if (!result)
   {
       return false;
   }
 
-  m_ModelList = new ModelList;
-  m_ModelList->Initialize(25);
-
-  m_Timer = new Timer;
-  result = m_Timer->Initialize();
+  m_DisplayPlane = new DisplayPlane;
+  result = m_DisplayPlane->Initialize(m_Direct3D->GetDevice(), 1.0f, 1.0f);
   if (!result)
   {
-      return false;
-  }
-
-  m_Position = new Position;
-
-  m_Frustum = new Frustum;
-
-  m_ColorShader = new ColorShader;
-
-  result = m_ColorShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-  if (!result)
-  {
-      MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
       return false;
   }
 
@@ -107,37 +129,58 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Application::Shutdown()
 {
-    if (m_ColorShader)
+    if (m_TextureShader)
     {
-        m_ColorShader->Shutdown();
-        delete m_ColorShader;
-        m_ColorShader = nullptr;
+        m_TextureShader->Shutdown();
+        delete m_TextureShader;
+        m_TextureShader = nullptr;
     }
 
-    if (m_Frustum)
+    if (m_RenderTexture)
     {
-        delete m_Frustum;
-        m_Frustum = nullptr;
+        m_RenderTexture->Shutdown();
+        delete m_RenderTexture;
+        m_RenderTexture = nullptr;
     }
     
-    if (m_Position)
+    if (m_DisplayPlane)
     {
-        delete m_Position;
-        m_Position = nullptr;
+        m_DisplayPlane->Shutdown();
+        delete m_DisplayPlane;
+        m_DisplayPlane = nullptr;
     }
 
-    if (m_Timer)
-    {
-        delete m_Timer;
-        m_Timer = nullptr;
-    }
-
-    if (m_ModelList)
-    {
-        m_ModelList->Shutdown();
-        delete m_ModelList;
-        m_ModelList = nullptr;
-    }
+    // if (m_ColorShader)
+    // {
+    //     m_ColorShader->Shutdown();
+    //     delete m_ColorShader;
+    //     m_ColorShader = nullptr;
+    // }
+    // 
+    // if (m_Frustum)
+    // {
+    //     delete m_Frustum;
+    //     m_Frustum = nullptr;
+    // }
+    // 
+    // if (m_Position)
+    // {
+    //     delete m_Position;
+    //     m_Position = nullptr;
+    // }
+    // 
+    // if (m_Timer)
+    // {
+    //     delete m_Timer;
+    //     m_Timer = nullptr;
+    // }
+    // 
+    // if (m_ModelList)
+    // {
+    //     m_ModelList->Shutdown();
+    //     delete m_ModelList;
+    //     m_ModelList = nullptr;
+    // }
 
     if(m_Model)
     {
@@ -146,18 +189,18 @@ void Application::Shutdown()
         m_Model = nullptr;
     }
 
-    if(m_ShaderManager)
-    {
-        m_ShaderManager->Shutdown();
-        delete m_ShaderManager;
-        m_ShaderManager = nullptr;
-    }
-       
-    if(m_Light)
-    {
-        delete m_Light;
-        m_Light = nullptr;
-    }
+    // if(m_ShaderManager)
+    // {
+    //     m_ShaderManager->Shutdown();
+    //     delete m_ShaderManager;
+    //     m_ShaderManager = nullptr;
+    // }
+    //    
+    // if(m_Light)
+    // {
+    //     delete m_Light;
+    //     m_Light = nullptr;
+    // }
        
     if(m_Camera)
     {
@@ -175,36 +218,42 @@ void Application::Shutdown()
 
 bool Application::Frame(Input* Input)
 {
-  static float rotation = 360.0f;
+  static float rotation = 0.f;
 
   float rotationY;
   bool result;
   bool keyDown;
 
-  m_Timer->Frame();
+  // m_Timer->Frame();
 
   if (Input->IsEscapePressed())
   {
       return false;
   }
 
-  m_Position->SetFrameTime(m_Timer->GetTime());
+  // m_Position->SetFrameTime(m_Timer->GetTime());
 
-  keyDown = Input->IsLeftArrowPressed();
-  m_Position->TurnLeft(keyDown);
+  // keyDown = Input->IsLeftArrowPressed();
+  // m_Position->TurnLeft(keyDown);
+  // 
+  // keyDown = Input->IsRightArrowPressed();
+  // m_Position->TurnRight(keyDown);
 
-  keyDown = Input->IsRightArrowPressed();
-  m_Position->TurnRight(keyDown);
+  // m_Position->GetRotation(rotationY);
 
-  m_Position->GetRotation(rotationY);
-
-  m_Camera->SetRotation(0.0f, rotationY, 0.0f);
-  m_Camera->Render();
+  // m_Camera->SetRotation(0.0f, rotationY, 0.0f);
+  // m_Camera->Render();
 
   rotation -= 0.0174532925f * 0.25f;
   if (rotation < 0.0f)
   {
       rotation += 360.f;
+  }
+
+  result = RenderSceneToTexture(rotation);
+  if (!result)
+  {
+      return false;
   }
 
   result = Render(rotation);
@@ -215,6 +264,38 @@ bool Application::Frame(Input* Input)
 
   return true;
 }
+
+bool Application::RenderSceneToTexture(float rotation)
+{
+    XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+    bool result;
+
+    m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+    m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.5f, 1.f, 1.f);
+
+    m_Camera->SetPosition(0.f, 0.f, -5.f);
+    m_Camera->Render();
+
+    m_Direct3D->GetWorldMatrix(worldMatrix);
+    m_Camera->GetViewMatrix(viewMatrix);
+    m_RenderTexture->GetProjectionMatrix(projectionMatrix);
+    
+    worldMatrix = XMMatrixRotationY(rotation);
+
+    m_Model->Render(m_Direct3D->GetDeviceContext());
+    result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(2));
+    if (!result)
+    {
+        return false;
+    }
+
+    m_Direct3D->SetBackBufferRenderTarget();
+    m_Direct3D->ResetViewport();
+
+    return true;
+}
+
+
 
 bool Application::Render(float rotation)
 {
@@ -235,12 +316,46 @@ bool Application::Render(float rotation)
   m_Direct3D->GetProjectionMatrix(projectionMatrix);
   m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
+  worldMatrix = XMMatrixTranslation(0.0f, 1.5f, 0.0f);
+
+  m_DisplayPlane->Render(m_Direct3D->GetDeviceContext());
+  
+  result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_DisplayPlane->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_RenderTexture->GetShaderResourceView());
+  if (!result)
+  {
+      return false;
+  }
+
+  worldMatrix = XMMatrixTranslation(-1.5f, -1.5f, 0.0f);
+
+  m_DisplayPlane->Render(m_Direct3D->GetDeviceContext());
+
+  result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_DisplayPlane->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_RenderTexture->GetShaderResourceView());
+  if (!result)
+  {
+      return false;
+  }
+
+  worldMatrix = XMMatrixTranslation(1.5f, -1.5f, 0.0f);
+
+  m_DisplayPlane->Render(m_Direct3D->GetDeviceContext());
+  result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_DisplayPlane->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_RenderTexture->GetShaderResourceView());
+  if (!result)
+  {
+      return false;
+  }
+
+  m_Direct3D->EndScene();
+
+  return true;
+ 
+  /*
   m_Frustum->ConstructFrustum(viewMatrix, projectionMatrix, SCREEN_DEPTH);
 
   modelCount = m_ModelList->GetModelCount();
 
   renderCount = 0;
- 
+ /*
   for (i = 0; i < modelCount; i += 1)
   {
       m_ModelList->GetData(i, positionX, positionY, positionZ);
@@ -275,6 +390,13 @@ bool Application::Render(float rotation)
           // }
       }
   }
+  
+  m_Model->Render(m_Direct3D->GetDeviceContext());
+  result = m_ColorShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+  if (!result)
+  {
+      return false;
+  }
 
   m_Direct3D->TurnZBufferOff();
   m_Direct3D->EnableAlphaBlending();
@@ -282,6 +404,7 @@ bool Application::Render(float rotation)
   m_Direct3D->GetWorldMatrix(worldMatrix);
 
   m_Direct3D->EndScene();
+  */
 
   return true;
 }

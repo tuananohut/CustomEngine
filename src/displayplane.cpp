@@ -58,7 +58,7 @@ bool DisplayPlane::InitializeBuffers(ID3D11Device* device, float width, float he
 	vertices[0].position = XMFLOAT3(-width, height, 0.f);
 	vertices[0].texture = XMFLOAT2(0.f, 0.f);
 
-	vertices[1].position = XMFLOAT3(width, +height, 0.f);
+	vertices[1].position = XMFLOAT3(width, -height, 0.f);
 	vertices[1].texture = XMFLOAT2(1.f, 1.f);
 
 	vertices[2].position = XMFLOAT3(-width, -height, 0.f);
