@@ -33,7 +33,8 @@ For other folder, you can use g++.
 - [x] Tutorial 22: Managing Multiple Shaders
 - [x] Tutorial 23: Frustum Culling
 - [x] Tutorial 24: Loading Maya Models
-- [ ] Tutorial 25: Render to Texture
+- [x] Tutorial 25: Render to Texture
+- [ ] Tutorial 26: Fog
 
 ## I made this with engine:
 
