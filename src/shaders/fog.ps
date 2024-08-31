@@ -16,7 +16,7 @@ float4 FogPixelShader(PixelInputType input): SV_TARGET
 
 	textureColor = shaderTexture.Sample(SampleType, input.tex);
 
-	fogColor = float4(0.5f, 0.5f, 1.f);
+	fogColor = float4(0.5f, 0.5f, 0.5f, 1.f);
 
 	finalColor = input.fogFactor * textureColor + (1.0 - input.fogFactor) * fogColor;
 

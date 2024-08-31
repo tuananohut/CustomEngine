@@ -12,9 +12,7 @@ Application::Application()
   // m_Position = nullptr;
   // m_Frustum = nullptr;
   // m_ColorShader = nullptr;
-  m_RenderTexture = nullptr;
-  m_DisplayPlane = nullptr;
-  m_TextureShader = nullptr;
+  m_FogShader = nullptr;
 }
 
 Application::Application(const Application& other)
@@ -54,7 +52,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
   m_Camera->GetViewMatrix(m_baseViewMatrix);
 
-  strcpy_s(modelFilename, "../CustomEngine/src/assets/models/cube.txt");
+  strcpy_s(modelFilename, "../CustomEngine/src/assets/models/ico_sphere.txt");
   
 
   strcpy_s(textureFilename1, "../CustomEngine/src/assets/shaders/stone01.tga");
@@ -65,6 +63,15 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
   result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename1, textureFilename2, textureFilename3);
   if (!result)
   {
+      MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+      return false;
+  }
+
+  m_FogShader = new FogShader;
+  result = m_FogShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+  if (!result)
+  {
+      MessageBox(hwnd, L"Could not initialize the fog shader object.", L"Error", MB_OK);
       return false;
   }
 
@@ -102,52 +109,17 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
   //     return false;
   // }
 
-  m_TextureShader = new TextureShader;
-  result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-  if (!result)
-  {
-      MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
-      return false;
-  }
-
-  m_RenderTexture = new RenderTexture;
-  result = m_RenderTexture->Initialize(m_Direct3D->GetDevice(), 256, 256, SCREEN_DEPTH, SCREEN_NEAR, 1);
-  if (!result)
-  {
-      return false;
-  }
-
-  m_DisplayPlane = new DisplayPlane;
-  result = m_DisplayPlane->Initialize(m_Direct3D->GetDevice(), 1.0f, 1.0f);
-  if (!result)
-  {
-      return false;
-  }
 
   return true;
 }
 
 void Application::Shutdown()
 {
-    if (m_TextureShader)
+    if (m_FogShader)
     {
-        m_TextureShader->Shutdown();
-        delete m_TextureShader;
-        m_TextureShader = nullptr;
-    }
-
-    if (m_RenderTexture)
-    {
-        m_RenderTexture->Shutdown();
-        delete m_RenderTexture;
-        m_RenderTexture = nullptr;
-    }
-    
-    if (m_DisplayPlane)
-    {
-        m_DisplayPlane->Shutdown();
-        delete m_DisplayPlane;
-        m_DisplayPlane = nullptr;
+        m_FogShader->Shutdown();
+        delete m_FogShader;
+        m_FogShader = nullptr;
     }
 
     // if (m_ColorShader)
@@ -250,11 +222,7 @@ bool Application::Frame(Input* Input)
       rotation += 360.f;
   }
 
-  result = RenderSceneToTexture(rotation);
-  if (!result)
-  {
-      return false;
-  }
+
 
   result = Render(rotation);
   if(!result)
@@ -265,81 +233,34 @@ bool Application::Frame(Input* Input)
   return true;
 }
 
-bool Application::RenderSceneToTexture(float rotation)
-{
-    XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-    bool result;
-
-    m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
-    m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.5f, 1.f, 1.f);
-
-    m_Camera->SetPosition(0.f, 0.f, -5.f);
-    m_Camera->Render();
-
-    m_Direct3D->GetWorldMatrix(worldMatrix);
-    m_Camera->GetViewMatrix(viewMatrix);
-    m_RenderTexture->GetProjectionMatrix(projectionMatrix);
-    
-    worldMatrix = XMMatrixRotationY(rotation);
-
-    m_Model->Render(m_Direct3D->GetDeviceContext());
-    result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(2));
-    if (!result)
-    {
-        return false;
-    }
-
-    m_Direct3D->SetBackBufferRenderTarget();
-    m_Direct3D->ResetViewport();
-
-    return true;
-}
-
-
-
 bool Application::Render(float rotation)
 {
   XMMATRIX worldMatrix, viewMatrix, projectionMatrix, rotateMatrixX, rotateMatrixY, rotateMatrixZ, rotateMatrix, translateMatrix, orthoMatrix;
   XMFLOAT4 diffuseColor[4], lightPosition[4];
   float positionX, positionY, positionZ, radius;
+  float fogColor, fogStart, fogEnd;
   int modelCount, renderCount;
   bool renderModel;
   int i;
   bool result;
 
-  m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+  fogColor = 0.5f;
+  fogStart = 0.f;
+  fogEnd = 10.f;
+
+  m_Direct3D->BeginScene(fogColor, fogColor, fogColor, 1.0f);
 
   m_Camera->Render();
 
   m_Direct3D->GetWorldMatrix(worldMatrix);
   m_Camera->GetViewMatrix(viewMatrix);
   m_Direct3D->GetProjectionMatrix(projectionMatrix);
-  m_Direct3D->GetOrthoMatrix(orthoMatrix);
+  // m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
-  worldMatrix = XMMatrixTranslation(0.0f, 1.5f, 0.0f);
+  worldMatrix = XMMatrixRotationY(rotation);
 
-  m_DisplayPlane->Render(m_Direct3D->GetDeviceContext());
-  
-  result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_DisplayPlane->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_RenderTexture->GetShaderResourceView());
-  if (!result)
-  {
-      return false;
-  }
-
-  worldMatrix = XMMatrixTranslation(-1.5f, -1.5f, 0.0f);
-
-  m_DisplayPlane->Render(m_Direct3D->GetDeviceContext());
-
-  result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_DisplayPlane->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_RenderTexture->GetShaderResourceView());
-  if (!result)
-  {
-      return false;
-  }
-
-  worldMatrix = XMMatrixTranslation(1.5f, -1.5f, 0.0f);
-
-  m_DisplayPlane->Render(m_Direct3D->GetDeviceContext());
-  result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_DisplayPlane->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_RenderTexture->GetShaderResourceView());
+  m_Model->Render(m_Direct3D->GetDeviceContext());
+  result = m_FogShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), fogStart, fogEnd);
   if (!result)
   {
       return false;

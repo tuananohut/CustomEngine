@@ -18,9 +18,8 @@
 // #include "colorshader.h"
 // #include "frustum.h"
 // #include "shadermanager.h"
-#include "textureshader.h"
-#include "rendertexture.h"
-#include "displayplane.h"
+#include "model.h"
+#include "fogshader.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -40,7 +39,6 @@ public:
 
 private:
   bool Render(float);
-  bool RenderSceneToTexture(float);
 
 private:
   D3D* m_Direct3D;
@@ -55,9 +53,7 @@ private:
   // Frustum* m_Frustum;
   XMMATRIX m_baseViewMatrix;
   // ColorShader* m_ColorShader;
-  RenderTexture* m_RenderTexture;
-  DisplayPlane* m_DisplayPlane;
-  TextureShader* m_TextureShader;
+  FogShader* m_FogShader;
 };
 
 #endif
