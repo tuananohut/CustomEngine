@@ -5,10 +5,9 @@ cbuffer MatrixBuffer
 	matrix projectionMatrix;
 };
 
-cbuffer FogBuffer
+cbuffer ClipPlaneBuffer
 {
-	float fogStart;
-	float fogEnd;
+	float4 clipPlane;
 };
 
 struct VertexInputType
@@ -21,13 +20,12 @@ struct PixelInputType
 {
 	float4 position: SV_POSITION;
 	float2 tex: TEXCOORD0;
-	float fogFactor: FOG;
+	float clip: SV_ClipDistance0;
 };
 
-PixelInputType FogVertexShader(VertexInputType input)
+PixelInputType ClipPlaneVertexShader(VertexInputType input)
 {
 	PixelInputType output;
-	float4 cameraPosition;
 
 	input.position.w = 1.f;
 
@@ -37,10 +35,7 @@ PixelInputType FogVertexShader(VertexInputType input)
 
 	output.tex = input.tex;
 
-	cameraPosition = mul(input.position, worldMatrix);
-	cameraPosition = mul(cameraPosition, viewMatrix);
-
-	output.fogFactor = saturate((fogEnd - cameraPosition.z) / (fogEnd - fogStart));
+	output.clip = dot(mul(input.position, worldMatrix), clipPlane);
 
 	return output;
 }
