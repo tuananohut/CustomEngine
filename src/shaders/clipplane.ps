@@ -10,9 +10,20 @@ struct PixelInputType
 
 float4 ClipPlanePixelShader(PixelInputType input): SV_TARGET
 {
-	float4 textureColor;
+	// float4 textureColor;
+	// textureColor = shaderTexture.Sample(SampleType, input.tex);
+	// return textureColor;
 
-	textureColor = shaderTexture.Sample(SampleType, input.tex);
+	if (input.clip < 0)
+    {
+        discard; // Discards pixels that are below the clip plane
+    }
 
-	return textureColor;
+	float r = abs(sin(input.tex.x * 10.0)); 
+    float g = abs(sin(input.tex.y * 10.0 + 1.0)); 
+    float b = abs(sin((input.tex.x + input.tex.y) * 10.0 + 2.0));
+
+    float4 colorfulColor = float4(r, g, b, 1.0);
+	
+	return colorfulColor;
 }

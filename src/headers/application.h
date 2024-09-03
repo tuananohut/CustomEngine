@@ -10,16 +10,14 @@
 #include "input.h"
 #include "camera.h"
 #include "model.h"
+#include "clipplaneshader.h"
 // #include "light.h"
 // #include "lightshader.h"
 // #include "modellist.h"
 // #include "timer.h"
 // #include "position.h"
 // #include "colorshader.h"
-// #include "frustum.h"
 // #include "shadermanager.h"
-#include "model.h"
-#include "fogshader.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -38,22 +36,22 @@ public:
   bool Frame(Input*);
 
 private:
-  bool Render(float);
+  bool Render(float, float);
 
 private:
   D3D* m_Direct3D;
   Camera* m_Camera;
-  // ShaderManager* m_ShaderManager;
   Model* m_Model;
+  ClipPlaneShader* m_ClipPlaneShader;
+  // ShaderManager* m_ShaderManager;
   // Light* m_Light;
+  // XMMATRIX m_baseViewMatrix;
   // LightShader* m_LightShader;
   // ModelList* m_ModelList;
   // Timer* m_Timer;
   // Position* m_Position;
-  // Frustum* m_Frustum;
-  XMMATRIX m_baseViewMatrix;
   // ColorShader* m_ColorShader;
-  FogShader* m_FogShader;
+
 };
 
 #endif

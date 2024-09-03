@@ -5,6 +5,7 @@ Application::Application()
   m_Direct3D = nullptr;
   m_Camera = nullptr;
   m_Model = nullptr;
+  m_ClipPlaneShader = nullptr;
   // m_ShaderManager = nullptr;
   // m_Light = nullptr;
   // m_ModelList = nullptr;
@@ -12,7 +13,7 @@ Application::Application()
   // m_Position = nullptr;
   // m_Frustum = nullptr;
   // m_ColorShader = nullptr;
-  m_FogShader = nullptr;
+
 }
 
 Application::Application(const Application& other)
@@ -50,9 +51,9 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
   m_Camera->SetRotation(0.0f, 0.0f, 0.0f);
   m_Camera->Render();
 
-  m_Camera->GetViewMatrix(m_baseViewMatrix);
+  // m_Camera->GetViewMatrix(m_baseViewMatrix);
 
-  strcpy_s(modelFilename, "../CustomEngine/src/assets/models/ico_sphere.txt");
+  strcpy_s(modelFilename, "../CustomEngine/src/assets/models/monkey.txt");
   
 
   strcpy_s(textureFilename1, "../CustomEngine/src/assets/shaders/stone01.tga");
@@ -67,11 +68,11 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
       return false;
   }
 
-  m_FogShader = new FogShader;
-  result = m_FogShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+  m_ClipPlaneShader = new ClipPlaneShader;
+  result = m_ClipPlaneShader->Initialize(m_Direct3D->GetDevice(), hwnd);
   if (!result)
   {
-      MessageBox(hwnd, L"Could not initialize the fog shader object.", L"Error", MB_OK);
+      MessageBox(hwnd, L"Could not initialize the clip plane shader object.", L"Error", MB_OK);
       return false;
   }
 
@@ -115,11 +116,11 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Application::Shutdown()
 {
-    if (m_FogShader)
+    if (m_ClipPlaneShader)
     {
-        m_FogShader->Shutdown();
-        delete m_FogShader;
-        m_FogShader = nullptr;
+        m_ClipPlaneShader->Shutdown();
+        delete m_ClipPlaneShader;
+        m_ClipPlaneShader = nullptr;
     }
 
     // if (m_ColorShader)
@@ -191,6 +192,7 @@ void Application::Shutdown()
 bool Application::Frame(Input* Input)
 {
   static float rotation = 0.f;
+  static float clip = 1.f;
 
   float rotationY;
   bool result;
@@ -222,9 +224,13 @@ bool Application::Frame(Input* Input)
       rotation += 360.f;
   }
 
+  clip -= 0.0174532925f * 0.25f;
+  if (clip < 0.0f)
+  {
+      clip += 360.f;
+  }
 
-
-  result = Render(rotation);
+  result = Render(rotation, clip);
   if(!result)
     {
       return false;
@@ -233,22 +239,18 @@ bool Application::Frame(Input* Input)
   return true;
 }
 
-bool Application::Render(float rotation)
+bool Application::Render(float rotation, float clip)
 {
   XMMATRIX worldMatrix, viewMatrix, projectionMatrix, rotateMatrixX, rotateMatrixY, rotateMatrixZ, rotateMatrix, translateMatrix, orthoMatrix;
   XMFLOAT4 diffuseColor[4], lightPosition[4];
-  float positionX, positionY, positionZ, radius;
-  float fogColor, fogStart, fogEnd;
-  int modelCount, renderCount;
-  bool renderModel;
+  XMFLOAT4 clipPlane;
+
   int i;
   bool result;
 
-  fogColor = 0.5f;
-  fogStart = 0.f;
-  fogEnd = 10.f;
+  clipPlane = XMFLOAT4(0.1f, 0.58f, 0.f, 0.);
 
-  m_Direct3D->BeginScene(fogColor, fogColor, fogColor, 1.0f);
+  m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
   m_Camera->Render();
 
@@ -257,10 +259,15 @@ bool Application::Render(float rotation)
   m_Direct3D->GetProjectionMatrix(projectionMatrix);
   // m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
-  worldMatrix = XMMatrixRotationY(rotation);
+  rotateMatrixX = XMMatrixRotationX(rotation);
+  rotateMatrixY = XMMatrixRotationY(rotation);
+  rotateMatrixZ = XMMatrixRotationZ(rotation);
+
+  worldMatrix = XMMatrixMultiply(rotateMatrixX, rotateMatrixY);
+  worldMatrix = XMMatrixMultiply(worldMatrix, rotateMatrixZ);
 
   m_Model->Render(m_Direct3D->GetDeviceContext());
-  result = m_FogShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), fogStart, fogEnd);
+  result = m_ClipPlaneShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(2), clipPlane);
   if (!result)
   {
       return false;

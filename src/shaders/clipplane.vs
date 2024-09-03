@@ -8,6 +8,7 @@ cbuffer MatrixBuffer
 cbuffer ClipPlaneBuffer
 {
 	float4 clipPlane;
+	float rotationAngle; 
 };
 
 struct VertexInputType
@@ -34,6 +35,18 @@ PixelInputType ClipPlaneVertexShader(VertexInputType input)
 	output.position = mul(output.position, projectionMatrix);
 
 	output.tex = input.tex;
+
+	// float cosAngle = cos(rotationAngle);
+	// float sinAngle = sin(rotationAngle);
+	// 
+	// float3 rotatedNormal = float3(
+    //     clipPlane.x,
+    //     clipPlane.y * cosAngle - clipPlane.z * sinAngle,
+    //     clipPlane.y * sinAngle + clipPlane.z * cosAngle
+    // );
+	// 
+	// output.clip = dot(rotatedNormal, input.position.xyz) + clipPlane.w;
+	// 
 
 	output.clip = dot(mul(input.position, worldMatrix), clipPlane);
 

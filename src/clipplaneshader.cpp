@@ -275,5 +275,63 @@ bool ClipPlaneShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 										  ID3D11ShaderResourceView* texture,
 										  XMFLOAT4 clipPlane)
 {
+	HRESULT result;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	MatrixBufferType* dataPtr;
+	unsigned int bufferNumber;
+	ClipPlaneBufferType* dataPtr2;
 
+	worldMatrix = XMMatrixTranspose(worldMatrix);
+	viewMatrix = XMMatrixTranspose(viewMatrix);
+	projectionMatrix = XMMatrixTranspose(projectionMatrix);
+
+	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	dataPtr = (MatrixBufferType*)mappedResource.pData;
+
+	dataPtr->world = worldMatrix;
+	dataPtr->view = viewMatrix;
+	dataPtr->projection = projectionMatrix;
+	
+	deviceContext->Unmap(m_matrixBuffer, 0);
+
+	bufferNumber = 0;
+
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+
+	deviceContext->PSSetShaderResources(0, 1, &texture);
+
+	result = deviceContext->Map(m_clipPlaneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	dataPtr2 = (ClipPlaneBufferType*)mappedResource.pData;
+
+	dataPtr2->clipPlane = clipPlane;
+
+	deviceContext->Unmap(m_clipPlaneBuffer, 0);
+
+	bufferNumber = 1;
+
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_clipPlaneBuffer);
+
+	return true;
+}
+
+void ClipPlaneShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+{
+	deviceContext->IASetInputLayout(m_layout);
+
+	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
+	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
+
+	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
+
+	deviceContext->DrawIndexed(indexCount, 0, 0);
 }
