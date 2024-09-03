@@ -35,7 +35,7 @@ For other folder, you can use g++.
 - [x] Tutorial 24: Loading Maya Models
 - [x] Tutorial 25: Render to Texture
 - [x] Tutorial 26: Fog
-- [ ] Tutorial 27: Clipping Planes
+- [x] Tutorial 27: Clipping Planes
 
 ## I made this with engine:
 
