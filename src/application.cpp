@@ -5,7 +5,7 @@ Application::Application()
   m_Direct3D = nullptr;
   m_Camera = nullptr;
   m_Model = nullptr;
-  m_ClipPlaneShader = nullptr;
+  m_TranslateShader = nullptr;
   // m_ShaderManager = nullptr;
   // m_Light = nullptr;
   // m_ModelList = nullptr;
@@ -47,13 +47,13 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
   m_Camera = new Camera;
 
-  m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
+  m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
   m_Camera->SetRotation(0.0f, 0.0f, 0.0f);
   m_Camera->Render();
 
   // m_Camera->GetViewMatrix(m_baseViewMatrix);
 
-  strcpy_s(modelFilename, "../CustomEngine/src/assets/models/monkey.txt");
+  strcpy_s(modelFilename, "../CustomEngine/src/assets/models/square.txt");
   
 
   strcpy_s(textureFilename1, "../CustomEngine/src/assets/shaders/stone01.tga");
@@ -68,13 +68,14 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
       return false;
   }
 
-  m_ClipPlaneShader = new ClipPlaneShader;
-  result = m_ClipPlaneShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+  m_TranslateShader = new TranslateShader;
+  result = m_TranslateShader->Initialize(m_Direct3D->GetDevice(), hwnd);
   if (!result)
   {
-      MessageBox(hwnd, L"Could not initialize the clip plane shader object.", L"Error", MB_OK);
+      MessageBox(hwnd, L"Could not initialize the translate shader object.", L"Error", MB_OK);
       return false;
   }
+  
 
   // m_Light = new Light;
   // 
@@ -116,11 +117,11 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Application::Shutdown()
 {
-    if (m_ClipPlaneShader)
+    if (m_TranslateShader)
     {
-        m_ClipPlaneShader->Shutdown();
-        delete m_ClipPlaneShader;
-        m_ClipPlaneShader = nullptr;
+        m_TranslateShader->Shutdown();
+        delete m_TranslateShader;
+        m_TranslateShader = nullptr;
     }
 
     // if (m_ColorShader)
@@ -192,11 +193,9 @@ void Application::Shutdown()
 bool Application::Frame(Input* Input)
 {
   static float rotation = 0.f;
-  static float clip = 1.f;
-
-  float rotationY;
+  static float textureTranslation = 0.f;
   bool result;
-  bool keyDown;
+  // bool keyDown;
 
   // m_Timer->Frame();
 
@@ -224,13 +223,13 @@ bool Application::Frame(Input* Input)
       rotation += 360.f;
   }
 
-  clip -= 0.0174532925f * 0.25f;
-  if (clip < 0.0f)
+  textureTranslation += 0.01f;
+  if (textureTranslation > 1.f)
   {
-      clip += 360.f;
+      textureTranslation -= 1.f;
   }
 
-  result = Render(rotation, clip);
+  result = Render(rotation, textureTranslation);
   if(!result)
     {
       return false;
@@ -239,16 +238,13 @@ bool Application::Frame(Input* Input)
   return true;
 }
 
-bool Application::Render(float rotation, float clip)
+bool Application::Render(float rotation, float textureTranslation)
 {
   XMMATRIX worldMatrix, viewMatrix, projectionMatrix, rotateMatrixX, rotateMatrixY, rotateMatrixZ, rotateMatrix, translateMatrix, orthoMatrix;
   XMFLOAT4 diffuseColor[4], lightPosition[4];
-  XMFLOAT4 clipPlane;
 
   int i;
   bool result;
-
-  clipPlane = XMFLOAT4(0.1f, 0.58f, 0.f, 0.);
 
   m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -259,15 +255,15 @@ bool Application::Render(float rotation, float clip)
   m_Direct3D->GetProjectionMatrix(projectionMatrix);
   // m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
-  rotateMatrixX = XMMatrixRotationX(rotation);
-  rotateMatrixY = XMMatrixRotationY(rotation);
-  rotateMatrixZ = XMMatrixRotationZ(rotation);
-
-  worldMatrix = XMMatrixMultiply(rotateMatrixX, rotateMatrixY);
-  worldMatrix = XMMatrixMultiply(worldMatrix, rotateMatrixZ);
+  //rotateMatrixX = XMMatrixRotationX(rotation);
+  //rotateMatrixY = XMMatrixRotationY(rotation);
+  //rotateMatrixZ = XMMatrixRotationZ(rotation);
+//
+  //worldMatrix = XMMatrixMultiply(rotateMatrixX, rotateMatrixY);
+  //worldMatrix = XMMatrixMultiply(worldMatrix, rotateMatrixZ);
 
   m_Model->Render(m_Direct3D->GetDeviceContext());
-  result = m_ClipPlaneShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(2), clipPlane);
+  result = m_TranslateShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(2), textureTranslation);
   if (!result)
   {
       return false;

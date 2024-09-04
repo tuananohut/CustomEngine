@@ -10,7 +10,7 @@
 #include "input.h"
 #include "camera.h"
 #include "model.h"
-#include "clipplaneshader.h"
+#include "translateshader.h"
 // #include "light.h"
 // #include "lightshader.h"
 // #include "modellist.h"
@@ -42,7 +42,7 @@ private:
   D3D* m_Direct3D;
   Camera* m_Camera;
   Model* m_Model;
-  ClipPlaneShader* m_ClipPlaneShader;
+  TranslateShader* m_TranslateShader;
   // ShaderManager* m_ShaderManager;
   // Light* m_Light;
   // XMMATRIX m_baseViewMatrix;
