@@ -36,7 +36,7 @@ For other folder, you can use g++.
 - [x] Tutorial 25: Render to Texture
 - [x] Tutorial 26: Fog
 - [x] Tutorial 27: Clipping Planes
-- [ ] Tutorial 28: Texture Translation
+- [x] Tutorial 28: Texture Translation
 
 ## I made this with engine:
 
