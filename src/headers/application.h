@@ -36,7 +36,7 @@ public:
   bool Frame(Input*);
 
 private:
-  bool Render(float, float);
+  bool Render(float);
 
 private:
   D3D* m_Direct3D;
