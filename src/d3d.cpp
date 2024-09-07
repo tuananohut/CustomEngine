@@ -39,6 +39,7 @@ bool D3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd, b
   D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
   D3D11_RASTERIZER_DESC rasterDesc;
   float fieldOfView, screenAspect;
+  D3D11_BLEND_DESC blendStateDescription;
 
   m_vsync_enabled = vsync;
 
@@ -311,7 +312,30 @@ bool D3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd, b
     {
       return false;
     }
+
+  blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
+  blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+  blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+  blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+  blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+  blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+  blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+  blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
 	
+  result = m_device->CreateBlendState(&blendStateDescription, &m_alphaEnableBlendingState);
+  if (FAILED(result))
+  {
+      return false;
+  }
+
+  blendStateDescription.RenderTarget[0].BlendEnable = FALSE;
+
+  result = m_device->CreateBlendState(&blendStateDescription, &m_alphaEnableBlendingState);
+  if (FAILED(result))
+  {
+      return false;
+  }
+
   return true;
 }
 
