@@ -132,9 +132,11 @@
     <ClInclude Include="src\headers\application.h" />
     <ClInclude Include="src\headers\bitmap.h" />
     <ClInclude Include="src\headers\camera.h" />
+    <ClInclude Include="src\headers\clipplaneshader.h" />
     <ClInclude Include="src\headers\colorshader.h" />
     <ClInclude Include="src\headers\d3d.h" />
     <ClInclude Include="src\headers\displayplane.h" />
+    <ClInclude Include="src\headers\fogshader.h" />
     <ClInclude Include="src\headers\frustum.h" />
     <ClInclude Include="src\headers\input.h" />
     <ClInclude Include="src\headers\light.h" />
@@ -153,15 +155,19 @@
     <ClInclude Include="src\headers\texture.h" />
     <ClInclude Include="src\headers\textureshader.h" />
     <ClInclude Include="src\headers\timer.h" />
+    <ClInclude Include="src\headers\translateshader.h" />
+    <ClInclude Include="src\headers\transparentshader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\alphamapshader.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\bitmap.cpp" />
     <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\clipplaneshader.cpp" />
     <ClCompile Include="src\colorshader.cpp" />
     <ClCompile Include="src\d3d.cpp" />
     <ClCompile Include="src\displayplane.cpp" />
+    <ClCompile Include="src\fogshader.cpp" />
     <ClCompile Include="src\frustum.cpp" />
     <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\light.cpp" />
@@ -181,14 +187,22 @@
     <ClCompile Include="src\textureshader.cpp" />
     <ClCompile Include="src\system.cpp" />
     <ClCompile Include="src\timer.cpp" />
+    <ClCompile Include="src\translateshader.cpp" />
+    <ClCompile Include="src\transparentshader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\lights\light.ps" />
     <None Include="src\lights\light.vs" />
     <None Include="src\lights\lightmap.ps" />
     <None Include="src\lights\lightmap.vs" />
+    <None Include="src\shaders\clipplane.ps" />
+    <None Include="src\shaders\clipplane.vs" />
     <None Include="src\shaders\color.ps" />
     <None Include="src\shaders\color.vs" />
+    <None Include="src\shaders\fog.ps" />
+    <None Include="src\shaders\fog.vs" />
+    <None Include="src\shaders\transparent.ps" />
+    <None Include="src\shaders\transparent.vs" />
     <None Include="src\textures\alphamap.ps" />
     <None Include="src\textures\alphamap.vs" />
     <None Include="src\textures\multitexture.ps" />
@@ -199,6 +213,8 @@
     <None Include="src\textures\specmap.vs" />
     <None Include="src\textures\texture.ps" />
     <None Include="src\textures\texture.vs" />
+    <None Include="src\textures\translate.ps" />
+    <None Include="src\textures\translate.vs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\assets\models\cube.txt" />

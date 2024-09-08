@@ -90,6 +90,18 @@
     <ClInclude Include="src\headers\displayplane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\headers\fogshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\clipplaneshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\translateshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\transparentshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -170,6 +182,18 @@
     <ClCompile Include="src\displayplane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\fogshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\clipplaneshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\translateshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\transparentshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\color.vs" />
@@ -188,6 +212,14 @@
     <None Include="src\textures\normalmap.ps" />
     <None Include="src\textures\specmap.vs" />
     <None Include="src\textures\specmap.ps" />
+    <None Include="src\shaders\fog.vs" />
+    <None Include="src\shaders\fog.ps" />
+    <None Include="src\shaders\clipplane.vs" />
+    <None Include="src\shaders\clipplane.ps" />
+    <None Include="src\textures\translate.vs" />
+    <None Include="src\textures\translate.ps" />
+    <None Include="src\shaders\transparent.vs" />
+    <None Include="src\shaders\transparent.ps" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\assets\models\cube.txt" />
