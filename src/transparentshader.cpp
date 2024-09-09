@@ -10,7 +10,7 @@ TransparentShader::TransparentShader()
 	m_transparentBuffer = nullptr;
 }
 
-TransparentShader::TransparentShader() {}
+TransparentShader::TransparentShader(const TransparentShader& other) {}
 
 TransparentShader::~TransparentShader() {}
 
@@ -200,7 +200,7 @@ bool TransparentShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR*
 		return false;
 	}
 
-	return false;
+	return true;
 }
 
 void TransparentShader::ShutdownShader()
@@ -274,5 +274,63 @@ bool TransparentShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 											ID3D11ShaderResourceView* texture, 
 											float blend)
 {
+	HRESULT result;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	MatrixBufferType* dataPtr;
+	unsigned int bufferNumber;
+	TransparentBufferType* dataPtr2;
 
+	worldMatrix = XMMatrixTranspose(worldMatrix);
+	viewMatrix = XMMatrixTranspose(viewMatrix);
+	projectionMatrix = XMMatrixTranspose(projectionMatrix);
+
+	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	dataPtr = (MatrixBufferType*)mappedResource.pData;
+
+	dataPtr->world = worldMatrix;
+	dataPtr->view = viewMatrix;
+	dataPtr->projection = projectionMatrix;
+
+	deviceContext->Unmap(m_matrixBuffer, 0);
+
+	bufferNumber = 0;
+
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+
+	deviceContext->PSSetShaderResources(0, 1, &texture);
+
+	result = deviceContext->Map(m_transparentBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	dataPtr2 = (TransparentBufferType*)mappedResource.pData;
+
+	dataPtr2->blendAmount = blend;
+
+	deviceContext->Unmap(m_transparentBuffer, 0);
+
+	bufferNumber = 0;
+
+	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_transparentBuffer);
+
+	return true;
+}
+
+void TransparentShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+{
+	deviceContext->IASetInputLayout(m_layout);
+
+	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
+	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
+	
+	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
+
+	deviceContext->DrawIndexed(indexCount, 0, 0);
 }
