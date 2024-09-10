@@ -323,7 +323,7 @@ bool D3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd, b
   blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
   blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
   blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
-	
+
   result = m_device->CreateBlendState(&blendStateDescription, &m_alphaEnableBlendingState);
   if (FAILED(result))
   {
@@ -332,11 +332,11 @@ bool D3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd, b
 
   blendStateDescription.RenderTarget[0].BlendEnable = FALSE;
 
-  // result = m_device->CreateBlendState(&blendStateDescription, &m_alphaEnableBlendingState);
-  // if (FAILED(result))
-  // {
-  //     return false;
-  // }
+  result = m_device->CreateBlendState(&blendStateDescription, &m_alphaDisableBlendingState);
+  if (FAILED(result))
+  {
+      return false;
+  }
 
   return true;
 }
