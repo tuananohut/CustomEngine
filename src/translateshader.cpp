@@ -1,6 +1,6 @@
 #include "headers/translateshader.h"
 
-TranslateShader::TranslateShader() 
+TranslateShader::TranslateShader()
 {
 	m_vertexShader = nullptr;
 	m_pixelShader = nullptr;
@@ -10,9 +10,12 @@ TranslateShader::TranslateShader()
 	m_translateBuffer = nullptr;
 }
 
+
 TranslateShader::TranslateShader(const TranslateShader& other) {}
 
+
 TranslateShader::~TranslateShader() {}
+
 
 bool TranslateShader::Initialize(ID3D11Device* device, HWND hwnd)
 {
@@ -42,17 +45,19 @@ bool TranslateShader::Initialize(ID3D11Device* device, HWND hwnd)
 	return true;
 }
 
+
 void TranslateShader::Shutdown()
 {
 	ShutdownShader();
 }
 
-bool TranslateShader::Render(ID3D11DeviceContext* deviceContext,
-							 int indexCount,
-							 XMMATRIX worldMatrix,
+
+bool TranslateShader::Render(ID3D11DeviceContext* deviceContext, 
+							 int indexCount, 
+							 XMMATRIX worldMatrix, 
 							 XMMATRIX viewMatrix,
-							 XMMATRIX projectionMatrix,
-							 ID3D11ShaderResourceView* texture,
+							 XMMATRIX projectionMatrix, 
+							 ID3D11ShaderResourceView* texture, 
 							 float translation)
 {
 	bool result;
@@ -68,17 +73,22 @@ bool TranslateShader::Render(ID3D11DeviceContext* deviceContext,
 	return true;
 }
 
+
 bool TranslateShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	HRESULT result;
-	ID3D10Blob* errorMessage = nullptr;
-	ID3D10Blob* vertexShaderBuffer = nullptr;
-	ID3D10Blob* pixelShaderBuffer = nullptr;
+	ID3D10Blob* errorMessage;
+	ID3D10Blob* vertexShaderBuffer;
+	ID3D10Blob* pixelShaderBuffer;
 	D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
 	unsigned int numElements;
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC translateBufferDesc;
+
+	errorMessage = nullptr;
+	vertexShaderBuffer = nullptr;
+	pixelShaderBuffer = nullptr;
 
 	result = D3DCompileFromFile(vsFilename, NULL, NULL, "TranslateVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage);
 	if (FAILED(result))
@@ -171,7 +181,7 @@ bool TranslateShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.MipLODBias = 0.f;
+	samplerDesc.MipLODBias = 0.0f;
 	samplerDesc.MaxAnisotropy = 1;
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	samplerDesc.BorderColor[0] = 0;
@@ -202,6 +212,7 @@ bool TranslateShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 
 	return true;
 }
+
 
 void TranslateShader::ShutdownShader()
 {
@@ -242,6 +253,7 @@ void TranslateShader::ShutdownShader()
 	}
 }
 
+
 void TranslateShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
 {
 	char* compileErrors;
@@ -257,7 +269,6 @@ void TranslateShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hw
 	for (i = 0; i < bufferSize; i++)
 	{
 		fout << compileErrors[i];
-
 	}
 
 	fout.close();
@@ -265,14 +276,15 @@ void TranslateShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hw
 	errorMessage->Release();
 	errorMessage = nullptr;
 
-	MessageBox(hwnd, L"Error compiling shader. Check shader-error.txt for message.", shaderFilename, MB_OK);
+	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
 }
 
-bool TranslateShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
-										  XMMATRIX worldMatrix,
+
+bool TranslateShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
+										  XMMATRIX worldMatrix, 
 										  XMMATRIX viewMatrix,
-										  XMMATRIX projectionMatrix,
-										  ID3D11ShaderResourceView* texture,
+										  XMMATRIX projectionMatrix, 
+										  ID3D11ShaderResourceView* texture, 
 										  float translation)
 {
 	HRESULT result;
@@ -323,6 +335,7 @@ bool TranslateShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 
 	return true;
 }
+
 
 void TranslateShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
 {

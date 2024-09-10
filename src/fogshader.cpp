@@ -126,7 +126,6 @@ bool FogShader::InitializeShader(ID3D11Device* device,
 	if (FAILED(result))
 	{
 		return false;
-
 	}
 
 	polygonLayout[0].SemanticName = "POSITION";
@@ -308,8 +307,8 @@ bool FogShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	bufferNumber = 0;
 
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
-
 	deviceContext->PSSetShaderResources(0, 1, &texture);
+
 
 	result = deviceContext->Map(m_fogBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))

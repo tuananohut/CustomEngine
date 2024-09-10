@@ -78,8 +78,6 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-
-
 	return true;
 }
 
@@ -181,7 +179,6 @@ bool Application::Render(float textureTranslation)
 	m_Direct3D->EnableAlphaBlending();
 
 	m_Model1->Render(m_Direct3D->GetDeviceContext());
-
 	result = m_TransparentShader->Render(m_Direct3D->GetDeviceContext(), m_Model1->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model1->GetTexture(2), blendAmount);
 	if (!result)
 	{
