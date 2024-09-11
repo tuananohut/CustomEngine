@@ -220,6 +220,8 @@
     <None Include="src\textures\translate.ps" />
     <None Include="src\shaders\transparent.vs" />
     <None Include="src\shaders\transparent.ps" />
+    <None Include="src\shaders\reflection.vs" />
+    <None Include="src\shaders\reflection.ps" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\assets\models\cube.txt" />

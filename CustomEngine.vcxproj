@@ -201,8 +201,12 @@
     <None Include="src\shaders\color.vs" />
     <None Include="src\shaders\fog.ps" />
     <None Include="src\shaders\fog.vs" />
+    <None Include="src\shaders\reflection.ps" />
+    <None Include="src\shaders\reflection.vs" />
     <None Include="src\shaders\transparent.ps" />
-    <None Include="src\shaders\transparent.vs" />
+    <None Include="src\shaders\transparent.vs">
+      <FileType>Discomap</FileType>
+    </None>
     <None Include="src\textures\alphamap.ps" />
     <None Include="src\textures\alphamap.vs" />
     <None Include="src\textures\multitexture.ps" />
