@@ -37,7 +37,7 @@ For other folder, you can use g++.
 - [x] Tutorial 26: Fog
 - [x] Tutorial 27: Clipping Planes
 - [x] Tutorial 28: Texture Translation
-- [ ] Tutorial 29: Transparency
+- [x] Tutorial 29: Transparency
 
 ## I made this with engine:
 
