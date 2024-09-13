@@ -102,6 +102,9 @@
     <ClInclude Include="src\headers\transparentshader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\headers\reflectionshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -192,6 +195,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\transparentshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\reflectionshader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
