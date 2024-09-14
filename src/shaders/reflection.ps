@@ -6,7 +6,7 @@ struct PixelInputType
 {
 	float4 position: SV_POSITION;
 	float2 tex: TEXCOORD0;
-	float4 reflectPosition: TEXCOORD1;
+	float4 reflectionPosition: TEXCOORD1;
 };
 
 
@@ -20,7 +20,7 @@ float4 ReflectionPixelShader(PixelInputType input): SV_TARGET
 	textureColor = shaderTexture.Sample(SampleType, input.tex);
 
 	reflectTexCoord.x = input.reflectionPosition.x / input.reflectionPosition.w / 2.f + 0.5f;
-	reflectTexCoord.y = input.reflectionPosition.y / input.reflectionPosition.w / 2.f + 0.5f;
+	reflectTexCoord.y = -input.reflectionPosition.y / input.reflectionPosition.w / 2.f + 0.5f;
 
 	reflectionColor = reflectionTexture.Sample(SampleType, reflectTexCoord);
 
