@@ -38,7 +38,7 @@ For other folder, you can use g++.
 - [x] Tutorial 27: Clipping Planes
 - [x] Tutorial 28: Texture Translation
 - [x] Tutorial 29: Transparency
-- [ ] Tutorial 30: Reflection
+- [x] Tutorial 30: Reflection
 
 ## I made this with engine:
 
