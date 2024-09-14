@@ -11,14 +11,10 @@
 #include "camera.h"
 #include "model.h"
 #include "textureshader.h"
-#include "transparentshader.h"
-// #include "light.h"
-// #include "lightshader.h"
-// #include "modellist.h"
-// #include "timer.h"
-// #include "position.h"
-// #include "colorshader.h"
-// #include "shadermanager.h"
+#include "rendertexture.h"
+#include "reflectionshader.h"
+#include "colorshader.h"
+
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -37,24 +33,20 @@ public:
   bool Frame(Input*);
 
 private:
+  bool RenderReflectionToTexture(float);
   bool Render(float);
 
 private:
   D3D* m_Direct3D;
   Camera* m_Camera;
-  Model* m_Model;
-  Model* m_Model1;
-  TransparentShader* m_TransparentShader;
+  Model* m_CubeModel;
+  Model* m_FloorModel;
+  Model* m_ConeModel;
+  Model* m_SphereModel;
+  RenderTexture* m_RenderTexture;
   TextureShader* m_TextureShader;
-  // ShaderManager* m_ShaderManager;
-  // Light* m_Light;
-  // XMMATRIX m_baseViewMatrix;
-  // LightShader* m_LightShader;
-  // ModelList* m_ModelList;
-  // Timer* m_Timer;
-  // Position* m_Position;
-  // ColorShader* m_ColorShader;
-
+  ReflectionShader* m_ReflectionShader;
+  ColorShader* m_ColorShader;
 };
 
 #endif
