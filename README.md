@@ -39,6 +39,7 @@ For other folder, you can use g++.
 - [x] Tutorial 28: Texture Translation
 - [x] Tutorial 29: Transparency
 - [x] Tutorial 30: Reflection
+- [ ] Tutorial 31: Water
 
 ## I made this with engine:
 
