@@ -43,8 +43,6 @@ bool ColorShader::Initialize(ID3D11Device* device, HWND hwnd)
 void ColorShader::Shutdown()
 {
 	ShutdownShader();
-
-	return;
 }
 
 bool ColorShader::Render(ID3D11DeviceContext* deviceContext,
@@ -207,8 +205,6 @@ void ColorShader::ShutdownShader()
 		m_vertexShader->Release();
 		m_vertexShader = NULL;
 	}
-
-	return;
 }
 
 void ColorShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
@@ -234,8 +230,6 @@ void ColorShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, 
 	errorMessage = NULL;
 
 	MessageBox(hwnd, L"Error compiling shader. Check shader-error.txt for message.", shaderFilename, MB_OK);
-
-	return;
 }
 
 bool ColorShader::SetShaderParamteres(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
@@ -277,6 +271,4 @@ void ColorShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCoun
 	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
 
 	deviceContext->DrawIndexed(indexCount, 0, 0);
-
-	return;
 }
