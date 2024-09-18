@@ -51,8 +51,9 @@ void WaterShader::Shutdown()
 bool WaterShader::Render(ID3D11DeviceContext* deviceContext, 
 						 int indexCount, 
 						 XMMATRIX worldMatrix, 
-						 XMMATRIX viewMatirx, 
+						 XMMATRIX viewMatrix, 
 						 XMMATRIX projectionMatrix, 
+					     XMMATRIX reflectionMatrix,
 						 ID3D11ShaderResourceView* reflectionTexture, 
 						 ID3D11ShaderResourceView* refractionTexture, 
 						 ID3D11ShaderResourceView* normalTexture, 
@@ -61,7 +62,7 @@ bool WaterShader::Render(ID3D11DeviceContext* deviceContext,
 {
 	bool result; 
 
-	result = SetShaderParameters(deviceContext, indexCount, worldMatrix, viewMatirx, projectionMatrix, reflectionTexture, refractionTexture, normalTexture, waterTranslation, reflectRefractScale);
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, reflectionMatrix, reflectionTexture, refractionTexture, normalTexture, waterTranslation, reflectRefractScale);
 	if (!result)
 	{
 		return false;
@@ -172,5 +173,217 @@ bool WaterShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
 		return false;
 	}
 
-	/* not completed */
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerDesc.BorderColor[0] = 0;
+	samplerDesc.BorderColor[1] = 0;
+	samplerDesc.BorderColor[2] = 0;
+	samplerDesc.BorderColor[3] = 0;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	result = device->CreateSamplerState(&samplerDesc, &m_sampleState);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	reflectionBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	reflectionBufferDesc.ByteWidth = sizeof(ReflectionBufferType);
+	reflectionBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	reflectionBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	reflectionBufferDesc.MiscFlags = 0;
+	reflectionBufferDesc.StructureByteStride = 0;
+
+	result = device->CreateBuffer(&reflectionBufferDesc, NULL, &m_reflectionBuffer);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	waterBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	waterBufferDesc.ByteWidth = sizeof(WaterBufferType);
+	waterBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	waterBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	waterBufferDesc.MiscFlags = 0;
+	waterBufferDesc.StructureByteStride = 0;
+
+	result = device->CreateBuffer(&waterBufferDesc, NULL, &m_waterBuffer);
+	if (FAILED(result))
+	{
+		return false;
+	}
+	
+	return true;
+}
+
+void WaterShader::ShutdownShader()
+{
+	if (m_waterBuffer)
+	{
+		m_waterBuffer->Release();
+		m_waterBuffer = nullptr;
+	}
+
+	if (m_reflectionBuffer)
+	{
+		m_reflectionBuffer->Release();
+		m_reflectionBuffer = nullptr;
+	}
+
+	if (m_sampleState)
+	{
+		m_sampleState->Release();
+		m_sampleState = nullptr;
+	}
+
+	if (m_matrixBuffer)
+	{
+		m_matrixBuffer->Release();
+		m_matrixBuffer = nullptr;
+	}
+
+	if (m_layout)
+	{
+		m_layout->Release();
+		m_layout = nullptr;
+	}
+
+	if (m_pixelShader)
+	{
+		m_pixelShader->Release();
+		m_pixelShader = nullptr;
+	}
+
+	if (m_vertexShader)
+	{
+		m_vertexShader->Release();
+		m_vertexShader = nullptr;
+	}
+}
+
+void WaterShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
+{
+	char* compileErrors;
+	unsigned long long bufferSize, i;
+	ofstream fout;
+
+	compileErrors = (char*)(errorMessage->GetBufferPointer());
+
+	bufferSize = errorMessage->GetBufferSize();
+
+	fout.open("shader-error.txt");
+
+	for (i = 0; i < bufferSize; i++)
+	{
+		fout << compileErrors[i];
+	}
+	
+	fout.close();
+
+	errorMessage->Release();
+	errorMessage = nullptr;
+
+	MessageBox(hwnd, L"Error compiling shader. Check shader-error.txt for message.", shaderFilename, MB_OK | MB_ICONERROR);
+}
+
+bool WaterShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
+									  XMMATRIX worldMatrix, 
+									  XMMATRIX viewMatrix, 
+									  XMMATRIX projectionMatrix, 
+									  XMMATRIX reflectionMatrix,
+									  ID3D11ShaderResourceView* reflectionTexture, 
+									  ID3D11ShaderResourceView* refractionTexture, 
+									  ID3D11ShaderResourceView* normalTexture, 
+									  float waterTranslation, 
+									  float reflectRefractScale)
+{
+	HRESULT result;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	MatrixBufferType* dataPtr;
+	unsigned int bufferNumber;
+	ReflectionBufferType* dataPtr2;
+	WaterBufferType* dataPtr3;
+
+	worldMatrix = XMMatrixTranspose(worldMatrix);
+	viewMatrix = XMMatrixTranspose(viewMatrix);
+	projectionMatrix = XMMatrixTranspose(projectionMatrix);
+	reflectionMatrix = XMMatrixTranspose(reflectionMatrix);
+
+	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	dataPtr = (MatrixBufferType*)mappedResource.pData;
+
+	dataPtr->world = worldMatrix;
+	dataPtr->view = viewMatrix;
+	dataPtr->projection = projectionMatrix;
+
+	deviceContext->Unmap(m_matrixBuffer, 0);
+
+	bufferNumber = 0;
+
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+
+	result = deviceContext->Map(m_reflectionBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	dataPtr2 = (ReflectionBufferType*)mappedResource.pData;
+
+	dataPtr2->reflection = reflectionMatrix;
+
+	deviceContext->Unmap(m_reflectionBuffer, 0);
+
+	bufferNumber = 1;
+
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_reflectionBuffer);
+
+	deviceContext->PSSetShaderResources(0, 1, &reflectionTexture);
+
+	deviceContext->PSSetShaderResources(1, 1, &refractionTexture);
+
+	deviceContext->PSSetShaderResources(2, 1, &normalTexture);
+
+	result = deviceContext->Map(m_waterBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	dataPtr3 = (WaterBufferType*)mappedResource.pData;
+
+	dataPtr3->waterTranslation = waterTranslation;
+	dataPtr3->reflectRefractScale = reflectRefractScale;
+	dataPtr3->padding = XMFLOAT2(0.f, 0.f);
+
+	deviceContext->Unmap(m_waterBuffer, 0);
+
+	bufferNumber = 0;
+
+	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_waterBuffer);
+
+	return true;
+}
+
+void WaterShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+{
+	deviceContext->IASetInputLayout(m_layout);
+
+	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
+	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
+
+	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
+
+	deviceContext->DrawIndexed(indexCount, 0, 0);
 }
