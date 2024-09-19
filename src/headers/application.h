@@ -44,9 +44,10 @@ private:
   Model* m_WallModel;
   Model* m_BathModel;
   Model* m_WaterModel;
+  Light* m_Light;
   RenderTexture* m_RefractionTexture;
   RenderTexture* m_ReflectionTexture;
-  LightShader* m_Light;
+  LightShader* m_LightShader;
   RefractionShader* m_RefractionShader;
   WaterShader* m_WaterShader;
   float m_waterHeight, m_waterTranslation;
