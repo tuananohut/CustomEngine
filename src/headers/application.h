@@ -46,7 +46,7 @@ private:
   Model* m_WaterModel;
   RenderTexture* m_RefractionTexture;
   RenderTexture* m_ReflectionTexture;
-  LightShader* m_LightShader;
+  LightShader* m_Light;
   RefractionShader* m_RefractionShader;
   WaterShader* m_WaterShader;
   float m_waterHeight, m_waterTranslation;
