@@ -10,11 +10,11 @@
 #include "input.h"
 #include "camera.h"
 #include "model.h"
-#include "textureshader.h"
+#include "light.h"
 #include "rendertexture.h"
-#include "reflectionshader.h"
-#include "colorshader.h"
-
+#include "lightshader.h"
+#include "refractionshader.h"
+#include "watershader.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -33,20 +33,23 @@ public:
   bool Frame(Input*);
 
 private:
-  bool RenderReflectionToTexture(float);
-  bool Render(float);
+  bool RenderRefractionToTexture();
+  bool RenderReflectionToTexture();
+  bool Render();
 
 private:
   D3D* m_Direct3D;
   Camera* m_Camera;
-  Model* m_CubeModel;
-  Model* m_FloorModel;
-  Model* m_ConeModel;
-  Model* m_SphereModel;
-  RenderTexture* m_RenderTexture;
-  TextureShader* m_TextureShader;
-  ReflectionShader* m_ReflectionShader;
-  ColorShader* m_ColorShader;
+  Model* m_GroundModel;
+  Model* m_WallModel;
+  Model* m_BathModel;
+  Model* m_WaterModel;
+  RenderTexture* m_RefractionTexture;
+  RenderTexture* m_ReflectionTexture;
+  LightShader* m_LightShader;
+  RefractionShader* m_RefractionShader;
+  WaterShader* m_WaterShader;
+  float m_waterHeight, m_waterTranslation;
 };
 
 #endif
