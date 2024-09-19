@@ -7,7 +7,7 @@ ReflectionShader::ReflectionShader()
 	m_layout = nullptr;
 	m_matrixBuffer = nullptr;
 	m_sampleState = nullptr;
-	m_reflectionBuffer;
+	m_reflectionBuffer = nullptr;
 }
 
 
@@ -225,7 +225,7 @@ void ReflectionShader::ShutdownShader()
 	if (m_matrixBuffer)
 	{
 		m_matrixBuffer->Release();
-		m_matrixBuffer = 0;
+		m_matrixBuffer = nullptr;
 	}
 
 	if (m_layout)
