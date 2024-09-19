@@ -91,11 +91,12 @@ bool ShaderManager::RenderLightShader(ID3D11DeviceContext* deviceContext,
 									  XMMATRIX projectionMatrix,
 									  ID3D11ShaderResourceView* texture,
 									  XMFLOAT3 lightDirection,
+									  XMFLOAT4 ambientColor,
 									  XMFLOAT4 diffuseColor)
 {
 	bool result;
 
-	result = m_LightShader->Render(deviceContext, indexCount, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, diffuseColor);
+	result = m_LightShader->Render(deviceContext, indexCount, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, diffuseColor, ambientColor);
 	if (!result)
 	{
 		return false;
