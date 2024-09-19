@@ -1,34 +1,34 @@
-#include "headers/reflectionshader.h"
+#include "headers/refractionshader.h"
 
-ReflectionShader::ReflectionShader()
+RefractionShader::RefractionShader()
 {
 	m_vertexShader = nullptr;
 	m_pixelShader = nullptr;
 	m_layout = nullptr;
 	m_matrixBuffer = nullptr;
 	m_sampleState = nullptr;
-	m_reflectionBuffer = nullptr;
+	m_lightBuffer = nullptr;
 }
 
 
-ReflectionShader::ReflectionShader(const ReflectionShader& other) {}
+RefractionShader::RefractionShader(const RefractionShader& other) {}
 
-ReflectionShader::~ReflectionShader() {}
+RefractionShader::~RefractionShader() {}
 
-bool ReflectionShader::Initialize(ID3D11Device* device, HWND hwnd)
+bool RefractionShader::Initialize(ID3D11Device* device, HWND hwnd)
 {
 	bool result;
 	wchar_t vsFilename[128];
 	wchar_t psFilename[128];
-	int error; 
+	int error;
 
-	error = wcscpy_s(vsFilename, 128, L"../CustomEngine/src/shaders/reflection.vs");
+	error = wcscpy_s(vsFilename, 128, L"../CustomEngine/src/shaders/refraction.vs");
 	if (error != 0)
 	{
 		return false;
 	}
 
-	error = wcscpy_s(psFilename, 128, L"../CustomEngine/src/shaders/reflection.ps");
+	error = wcscpy_s(psFilename, 128, L"../CustomEngine/src/shaders/refraction.ps");
 	if (error != 0)
 	{
 		return false;
@@ -43,23 +43,25 @@ bool ReflectionShader::Initialize(ID3D11Device* device, HWND hwnd)
 	return true;
 }
 
-void ReflectionShader::Shutdown()
+void RefractionShader::Shutdown()
 {
 	ShutdownShader();
 }
 
-bool ReflectionShader::Render(ID3D11DeviceContext* deviceContext, 
-							  int indexCount, 
-							  XMMATRIX worldMatrix, 
-							  XMMATRIX viewMatrix, 
+bool RefractionShader::Render(ID3D11DeviceContext* deviceContext,
+							  int indexCount,
+							  XMMATRIX worldMatrix,
+							  XMMATRIX viewMatrix,
 							  XMMATRIX projectionMatrix,
 							  ID3D11ShaderResourceView* texture,
-							  ID3D11ShaderResourceView* reflectionTexture, 
-							  XMMATRIX reflectionMatrix)
+							  XMFLOAT3 lightDirection,
+							  XMFLOAT4 ambientColor, 
+							  XMFLOAT4 diffuseColor,
+							  XMFLOAT4 clipPlane)
 {
 	bool result;
 
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, reflectionTexture, reflectionMatrix);
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, ambientColor, diffuseColor, clipPlane);
 	if (!result)
 	{
 		return false;
@@ -70,8 +72,8 @@ bool ReflectionShader::Render(ID3D11DeviceContext* deviceContext,
 	return true;
 }
 
-bool ReflectionShader::InitializeShader(ID3D11Device* device, 
-										HWND hwnd, 
+bool RefractionShader::InitializeShader(ID3D11Device* device,
+										HWND hwnd,
 										WCHAR* vsFilename,
 										WCHAR* psFilename)
 {
@@ -79,36 +81,37 @@ bool ReflectionShader::InitializeShader(ID3D11Device* device,
 	ID3D10Blob* errorMessage = nullptr;
 	ID3D10Blob* vertexShaderBuffer = nullptr;
 	ID3D10Blob* pixelShaderBuffer = nullptr;
-	D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
+	D3D11_INPUT_ELEMENT_DESC polygonLayout[3];
 	unsigned int numElements;
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
-	D3D11_BUFFER_DESC reflectionBufferDesc;
+	D3D11_BUFFER_DESC lightBufferDesc;
+	D3D11_BUFFER_DESC clipPlaneBufferDesc;
 
-	result = D3DCompileFromFile(vsFilename, NULL, NULL, "ReflectionVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage);
+	result = D3DCompileFromFile(vsFilename, NULL, NULL, "RefractionVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage);
 	if (FAILED(result))
 	{
 		if (errorMessage)
 		{
 			OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
 		}
-	
+
 		else
 		{
 			MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
 		}
-		
+
 		return false;
 	}
 
-	result = D3DCompileFromFile(psFilename, NULL, NULL, "ReflectionPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage);
+	result = D3DCompileFromFile(psFilename, NULL, NULL, "RefractionPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage);
 	if (FAILED(result))
 	{
 		if (errorMessage)
 		{
 			OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
 		}
-	
+
 		else
 		{
 			MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
@@ -145,6 +148,14 @@ bool ReflectionShader::InitializeShader(ID3D11Device* device,
 	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[1].InstanceDataStepRate = 0;
 
+	polygonLayout[2].SemanticName = "NORMAL";
+	polygonLayout[2].SemanticIndex = 0;
+	polygonLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	polygonLayout[2].InputSlot = 0;
+	polygonLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	polygonLayout[2].InstanceDataStepRate = 0;
+
 	numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
 	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_layout);
@@ -158,7 +169,7 @@ bool ReflectionShader::InitializeShader(ID3D11Device* device,
 
 	pixelShaderBuffer->Release();
 	pixelShaderBuffer = nullptr;
-	
+
 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
 	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -192,14 +203,27 @@ bool ReflectionShader::InitializeShader(ID3D11Device* device,
 		return false;
 	}
 
-	reflectionBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	reflectionBufferDesc.ByteWidth = sizeof(ReflectionBufferType);
-	reflectionBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	reflectionBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	reflectionBufferDesc.MiscFlags = 0;
-	reflectionBufferDesc.StructureByteStride = 0;
+	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
+	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	lightBufferDesc.MiscFlags = 0;
+	lightBufferDesc.StructureByteStride = 0;
 
-	result = device->CreateBuffer(&reflectionBufferDesc, NULL, &m_reflectionBuffer);
+	result = device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	clipPlaneBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	clipPlaneBufferDesc.ByteWidth = sizeof(ClipPlaneBufferType);
+	clipPlaneBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	clipPlaneBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	clipPlaneBufferDesc.MiscFlags = 0;
+	clipPlaneBufferDesc.StructureByteStride = 0;
+
+	result = device->CreateBuffer(&clipPlaneBufferDesc, NULL, &m_clipPlaneBuffer);
 	if (FAILED(result))
 	{
 		return false;
@@ -208,12 +232,18 @@ bool ReflectionShader::InitializeShader(ID3D11Device* device,
 	return true;
 }
 
-void ReflectionShader::ShutdownShader()
+void RefractionShader::ShutdownShader()
 {
-	if (m_reflectionBuffer)
+	if (m_clipPlaneBuffer)
 	{
-		m_reflectionBuffer->Release();
-		m_reflectionBuffer = nullptr;
+		m_clipPlaneBuffer->Release();
+		m_clipPlaneBuffer = nullptr;
+	}
+
+	if (m_lightBuffer)
+	{
+		m_lightBuffer->Release();
+		m_lightBuffer = nullptr;
 	}
 
 	if (m_sampleState)
@@ -247,7 +277,7 @@ void ReflectionShader::ShutdownShader()
 	}
 }
 
-void ReflectionShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
+void RefractionShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
 {
 	char* compileErrors;
 	unsigned long long bufferSize, i;
@@ -272,24 +302,26 @@ void ReflectionShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND h
 	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
 }
 
-bool ReflectionShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
-	XMMATRIX worldMatrix,
-	XMMATRIX viewMatrix,
-	XMMATRIX projectionMatrix,
-	ID3D11ShaderResourceView* texture,
-	ID3D11ShaderResourceView* reflectionTexture,
-	XMMATRIX reflectionMatrix)
+bool RefractionShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
+										   XMMATRIX worldMatrix,
+										   XMMATRIX viewMatrix,
+										   XMMATRIX projectionMatrix,
+										   ID3D11ShaderResourceView* texture,
+										   XMFLOAT3 lightDirection,
+										   XMFLOAT4 ambientColor,
+										   XMFLOAT4 diffuseColor,
+										   XMFLOAT4 clipPlane)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
 	unsigned int bufferNumber;
-	ReflectionBufferType* dataPtr2;
+	ClipPlaneBufferType* dataPtr2;
+	LightBufferType* dataPtr3;
 
 	worldMatrix = XMMatrixTranspose(worldMatrix);
 	viewMatrix = XMMatrixTranspose(viewMatrix);
 	projectionMatrix = XMMatrixTranspose(projectionMatrix);
-	reflectionMatrix = XMMatrixTranspose(reflectionMatrix);
 
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
@@ -309,30 +341,46 @@ bool ReflectionShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
-	result = deviceContext->Map(m_reflectionBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = deviceContext->Map(m_clipPlaneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 	{
 		return false;
 	}
 
-	dataPtr2 = (ReflectionBufferType*)mappedResource.pData;
+	dataPtr2 = (ClipPlaneBufferType*)mappedResource.pData;
 
-	dataPtr2->reflectionMatrix = reflectionMatrix;
+	dataPtr2->clipPlane = clipPlane;
 
-	deviceContext->Unmap(m_reflectionBuffer, 0);
+	deviceContext->Unmap(m_clipPlaneBuffer, 0);
 
 	bufferNumber = 1;
 
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_reflectionBuffer);
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_clipPlaneBuffer);
 
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 
-	deviceContext->PSSetShaderResources(1, 1, &reflectionTexture);
-	
+	result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	dataPtr3 = (LightBufferType*)mappedResource.pData;
+
+	dataPtr3->ambientColor = ambientColor;
+	dataPtr3->diffuseColor = diffuseColor;
+	dataPtr3->lightDirection = lightDirection;
+
+	deviceContext->Unmap(m_lightBuffer, 0);
+
+	bufferNumber = 0;
+
+	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
+
 	return true;
 }
 
-void ReflectionShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+void RefractionShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
 {
 	deviceContext->IASetInputLayout(m_layout);
 
