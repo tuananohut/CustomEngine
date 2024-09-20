@@ -5,14 +5,16 @@ Application::Application()
 {
 	m_Direct3D = nullptr;
 	m_Camera = nullptr;
-	m_CubeModel = nullptr;
-	m_FloorModel = nullptr;
-	m_ConeModel = nullptr;
-	m_SphereModel = nullptr;
-	m_RenderTexture = nullptr;
-	m_TextureShader = nullptr;
-	m_ReflectionShader = nullptr;
-	m_ColorShader = nullptr;
+	m_GroundModel = nullptr;
+	m_WallModel = nullptr;
+	m_BathModel = nullptr;
+	m_WaterModel = nullptr;
+	m_RefractionTexture = nullptr;
+	m_ReflectionTexture = nullptr;
+	m_Light = nullptr;
+	m_LightShader = nullptr;
+	m_RefractionShader = nullptr;
+	m_WaterShader = nullptr;
 }
 
 
@@ -44,92 +46,105 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
 	m_Camera->Render();
 
-	strcpy_s(modelFilename, "../CustomEngine/src/assets/models/cube.txt");
+	m_Camera->SetPosition(10.0f, 6.0f, -10.0f);
+	m_Camera->SetRotation(0.0f, -40.0f, 0.0f);
 
-	strcpy_s(textureFilename, "../CustomEngine/src/assets/shaders/stone01.tga");
+	strcpy_s(modelFilename, "../CustomEngine/src/assets/models/ground.txt");
+	strcpy_s(textureFilename, "../CustomEngine/src/assets/shaders/ground01.tga");
+
 	strcpy_s(textureFilename1, "../CustomEngine/src/assets/shaders/palestine.tga");
 	strcpy_s(textureFilename2, "../CustomEngine/src/assets/shaders/dirt02.tga");
 
-	m_CubeModel = new Model;
-	result = m_CubeModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
+	m_GroundModel = new Model;
+	result = m_GroundModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
 
-	strcpy_s(modelFilename, "../CustomEngine/src/assets/models/floor.txt");
+	strcpy_s(modelFilename, "../CustomEngine/src/assets/models/wall.txt");
+	strcpy_s(textureFilename, "../CustomEngine/src/assets/shaders/wall01.tga");
 	
-	strcpy_s(textureFilename, "../CustomEngine/src/assets/shaders/blue01.tga");
 
-	m_FloorModel = new Model;
-	result = m_FloorModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
+	m_WallModel = new Model;
+	result = m_WallModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
 
-	strcpy_s(modelFilename, "../CustomEngine/src/assets/models/cone.txt");
+	strcpy_s(modelFilename, "../CustomEngine/src/assets/models/bath.txt");
+	strcpy_s(textureFilename, "../CustomEngine/src/assets/shaders/marble01.tga");
 
-	m_ConeModel = new Model;
-	result = m_ConeModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
+	m_BathModel = new Model;
+	result = m_BathModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
 
-	strcpy_s(modelFilename, "../CustomEngine/src/assets/models/sphere.txt");
+	strcpy_s(modelFilename, "../CustomEngine/src/assets/models/water.txt");
+	strcpy_s(textureFilename, "../CustomEngine/src/assets/shaders/water01.tga");
 
-	m_SphereModel = new Model;
-	result = m_SphereModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
+	m_WaterModel = new Model;
+	result = m_WaterModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
 
+	m_Light = new Light;
+	
+	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+	m_Light->SetDiffuseColor(1.f, 1.f, 1.f, 1.f);
+	m_Light->SetDirection(0.f, -1.f, 0.5f);
 
-	m_TextureShader = new TextureShader;
-	result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	m_RefractionTexture = new RenderTexture;
+	result = m_RefractionTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR, 1);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the refraction render texture object.", L"Error", MB_OK | MB_ICONERROR);
 		return false;
 	}
 
-	m_RenderTexture = new RenderTexture;
-	result = m_RenderTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR, 1);
+	m_ReflectionTexture = new RenderTexture;
+	result = m_ReflectionTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR, 1);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the render texture object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the reflection render texture object.", L"Error", MB_OK | MB_ICONERROR);
 		return false;
 	}
 
-	m_TextureShader = new TextureShader;
-	result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	m_LightShader = new LightShader;
+	result = m_LightShader->Initialize(m_Direct3D->GetDevice(), hwnd);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK | MB_ICONERROR);
 		return false;
 	}
 
-	m_ReflectionShader = new ReflectionShader;
-	result = m_ReflectionShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	m_RefractionShader = new RefractionShader;
+	result = m_RefractionShader->Initialize(m_Direct3D->GetDevice(), hwnd);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the reflection shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the refraction shader object.", L"Error", MB_OK | MB_ICONERROR);
 		return false;
 	}
 
-	m_ColorShader = new ColorShader;
-	result = m_ColorShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	m_WaterShader = new WaterShader;
+	result = m_WaterShader->Initialize(m_Direct3D->GetDevice(), hwnd);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the water shader object.", L"Error", MB_OK | MB_ICONERROR);
 		return false;
 	}
+
+	m_waterHeight = 2.75f;
+	m_waterTranslation = 0.f;
 
 	return true;
 }
@@ -137,60 +152,73 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Application::Shutdown()
 {
-	if (m_ReflectionShader)
+	if (m_WaterShader)
 	{
-		m_ReflectionShader->Shutdown();
-		delete m_ReflectionShader;
-		m_ReflectionShader = nullptr;
+		m_WaterShader->Shutdown();
+		delete m_WaterShader;
+		m_WaterShader = nullptr;
 	}
 
-	if (m_ColorShader)
+	if (m_RefractionShader)
 	{
-		m_ColorShader->Shutdown();
-		delete m_ColorShader;
-		m_ColorShader = nullptr;
+		m_RefractionShader->Shutdown();
+		delete m_RefractionShader;
+		m_RefractionShader = nullptr;
 	}
 
-	if (m_TextureShader)
+	if (m_LightShader)
 	{
-		m_TextureShader->Shutdown();
-		delete m_TextureShader;
-		m_TextureShader = nullptr;
+		m_LightShader->Shutdown();
+		delete m_LightShader;
+		m_LightShader = nullptr;
 	}
 
-	if (m_RenderTexture)
+	if (m_ReflectionTexture)
 	{
-		m_RenderTexture->Shutdown();
-		delete m_RenderTexture;
-		m_RenderTexture = nullptr;
+		m_ReflectionTexture->Shutdown();
+		delete m_ReflectionTexture;
+		m_ReflectionTexture = nullptr;
 	}
 
-	if (m_CubeModel)
+	if (m_RefractionTexture)
 	{
-		m_CubeModel->Shutdown();
-		delete m_CubeModel;
-		m_CubeModel = nullptr;
+		m_RefractionTexture->Shutdown();
+		delete m_RefractionTexture;
+		m_RefractionTexture = nullptr;
 	}
 
-	if (m_FloorModel)
+	if (m_Light)
 	{
-		m_FloorModel->Shutdown();
-		delete m_FloorModel;
-		m_FloorModel = nullptr;
+		delete m_Light;
+		m_Light = nullptr;
 	}
 
-	if (m_ConeModel)
+	if (m_WaterModel)
 	{
-		m_ConeModel->Shutdown();
-		delete m_ConeModel;
-		m_ConeModel = nullptr;
+		m_WaterModel->Shutdown();
+		delete m_WaterModel;
+		m_WaterModel = nullptr;
 	}
 
-	if (m_SphereModel)
+	if (m_BathModel)
 	{
-		m_SphereModel->Shutdown();
-		delete m_SphereModel;
-		m_SphereModel = nullptr;
+		m_BathModel->Shutdown();
+		delete m_BathModel;
+		m_BathModel = nullptr;
+	}
+
+	if (m_WallModel)
+	{
+		m_WallModel->Shutdown();
+		delete m_WallModel;
+		m_WallModel = nullptr;
+	}
+
+	if (m_GroundModel)
+	{
+		m_GroundModel->Shutdown();
+		delete m_GroundModel;
+		m_GroundModel = nullptr;
 	}
 
 	if (m_Camera)
@@ -210,28 +238,32 @@ void Application::Shutdown()
 
 bool Application::Frame(Input* Input)
 {
-	static float rotation = 0.0f;
 	bool result;
-
 
 	if (Input->IsEscapePressed())
 	{
 		return false;
 	}
 
-	rotation -= 0.0174532925f * 0.25f;
-	if (rotation < 0.0f)
+	m_waterTranslation += 0.001f;
+	if (m_waterTranslation > 1.f)
 	{
-		rotation += 360.0f;
+		m_waterTranslation -= 1.f;
 	}
 
-	result = RenderReflectionToTexture(rotation);
+	result = RenderRefractionToTexture();
 	if (!result)
 	{
 		return false;
 	}
 
-	result = Render(rotation);
+	result = RenderReflectionToTexture();
+	if (!result)
+	{
+		return false;
+	}
+
+	result = Render();
 	if (!result)
 	{
 		return false;
@@ -240,42 +272,58 @@ bool Application::Frame(Input* Input)
 	return true;
 }
 
+bool Application::RenderRefractionToTexture()
+{
+	XMMATRIX worldMatrix;
+	XMMATRIX viewMatrix;
+	XMMATRIX projectionMatrix;
+	XMFLOAT4 clipPlane;
+	bool result;
 
-bool Application::RenderReflectionToTexture(float rotation)
+	clipPlane = XMFLOAT4(0.f, -1.f, 0.f, m_waterHeight + 0.1f);
+
+	m_RefractionTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+	m_RefractionTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.f);
+
+	m_Camera->Render();
+
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	m_Camera->GetViewMatrix(viewMatrix);
+	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+
+	worldMatrix = XMMatrixTranslation(0.f, 2.f, 0.f);
+
+	m_BathModel->Render(m_Direct3D->GetDeviceContext());
+	result = m_RefractionShader->Render(m_Direct3D->GetDeviceContext(), m_BathModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_BathModel->GetTexture(0), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), clipPlane);
+	if (!result)
+	{
+		return false;
+	}
+
+	m_Direct3D->SetBackBufferRenderTarget();
+	m_Direct3D->ResetViewport();
+
+	return true;
+}
+
+bool Application::RenderReflectionToTexture()
 {
 	XMMATRIX worldMatrix, reflectionViewMatrix, projectionMatrix;
 	bool result;
-	float blendAmount = 0.5f;
 
-	m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
-	m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.f);
+	m_ReflectionTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+	m_ReflectionTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.f);
 
-	m_Camera->RenderReflection(-1.5f);
+	m_Camera->RenderReflection(m_waterHeight);
 
 	m_Camera->GetReflectionViewMatrix(reflectionViewMatrix);
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-	worldMatrix = XMMatrixRotationY(rotation) * worldMatrix;
+	worldMatrix = XMMatrixTranslation(0.f, 6.f, 8.f);
 
-	m_CubeModel->Render(m_Direct3D->GetDeviceContext());
-	result = m_ColorShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, reflectionViewMatrix, projectionMatrix);
-	if (!result)
-	{
-		return false;
-	}
-
-	worldMatrix = XMMatrixRotationY(rotation) * XMMatrixTranslation(-5.f, 0.f, 0.f);
-	m_ConeModel->Render(m_Direct3D->GetDeviceContext());
-	result = m_ColorShader->Render(m_Direct3D->GetDeviceContext(), m_ConeModel->GetIndexCount(), worldMatrix, reflectionViewMatrix, projectionMatrix);
-	if (!result)
-	{
-		return false;
-	}
-
-	worldMatrix = XMMatrixRotationY(rotation) * XMMatrixTranslation(5.f, 0.f, 0.f);
-	m_SphereModel->Render(m_Direct3D->GetDeviceContext());
-	result = m_ColorShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, reflectionViewMatrix, projectionMatrix);
+	m_WallModel->Render(m_Direct3D->GetDeviceContext());
+	result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_WallModel->GetIndexCount(), worldMatrix, reflectionViewMatrix, projectionMatrix, m_WallModel->GetTexture(0), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor());
 	if (!result)
 	{
 		return false;
@@ -287,49 +335,58 @@ bool Application::RenderReflectionToTexture(float rotation)
 	return true;
 }
 
-bool Application::Render(float rotation)
+bool Application::Render()
 {
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, reflectionViewMatrix;
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, reflectionMatrix;
 	bool result;
 
 	m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.f);
+
+	m_Camera->Render();
 
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-	worldMatrix = XMMatrixRotationY(rotation);
+	worldMatrix = XMMatrixTranslation(0.f, 1.f, 0.f);
 
-	m_CubeModel->Render(m_Direct3D->GetDeviceContext());
-	result = m_ColorShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
-	if (!result)
-	{
-		return false;
-	}
-
-	worldMatrix = XMMatrixRotationY(rotation) * XMMatrixTranslation(-5.f, 0.f, 0.f);
-	m_ConeModel->Render(m_Direct3D->GetDeviceContext());
-	result = m_ColorShader->Render(m_Direct3D->GetDeviceContext(), m_ConeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
-	if (!result)
-	{
-		return false;
-	}
-
-	worldMatrix = XMMatrixRotationY(rotation) * XMMatrixTranslation(5.f, 0.f, 0.f);
-	m_SphereModel->Render(m_Direct3D->GetDeviceContext());
-	result = m_ColorShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+	m_GroundModel->Render(m_Direct3D->GetDeviceContext());
+	result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_GroundModel->GetTexture(0), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor());
 	if (!result)
 	{
 		return false;
 	}
 
 	m_Direct3D->GetWorldMatrix(worldMatrix);
-	worldMatrix = XMMatrixTranslation(0.f, -1.5f, 0.f);
 
-	m_Camera->GetReflectionViewMatrix(reflectionViewMatrix);
+	worldMatrix = XMMatrixTranslation(0.f, 6.f, 8.f);
 
-	m_FloorModel->Render(m_Direct3D->GetDeviceContext());
-	result = m_ReflectionShader->Render(m_Direct3D->GetDeviceContext(), m_FloorModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_FloorModel->GetTexture(0), m_RenderTexture->GetShaderResourceView(), reflectionViewMatrix);
+	m_WallModel->Render(m_Direct3D->GetDeviceContext());
+	result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_WallModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_WallModel->GetTexture(0), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor());
+	if (!result)
+	{
+		return false;
+	}
+
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+
+	worldMatrix = XMMatrixTranslation(0.f, 2.f, 0.f);
+
+	m_BathModel->Render(m_Direct3D->GetDeviceContext());
+	result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_BathModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_BathModel->GetTexture(0), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor());
+	if (!result)
+	{
+		return false;
+	}
+
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+
+	m_Camera->GetReflectionViewMatrix(reflectionMatrix);
+
+	worldMatrix = XMMatrixTranslation(0.f, m_waterHeight, 0.f);
+
+	m_WaterModel->Render(m_Direct3D->GetDeviceContext());
+	result = m_WaterShader->Render(m_Direct3D->GetDeviceContext(), m_WaterModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, reflectionMatrix, m_ReflectionTexture->GetShaderResourceView(), m_RefractionTexture->GetShaderResourceView(), m_WaterModel->GetTexture(0), m_waterTranslation, 0.01f);
 	if (!result)
 	{
 		return false;
