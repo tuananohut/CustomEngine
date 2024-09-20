@@ -87,10 +87,9 @@ bool LightShader::InitializeShader(ID3D11Device* device,
 	unsigned int numElements;
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC matrixBufferDesc;
-	// D3D11_BUFFER_DESC cameraBufferDesc;
-	// D3D11_BUFFER_DESC lightBufferDesc;
-	D3D11_BUFFER_DESC lightColorBufferDesc;
-	D3D11_BUFFER_DESC lightPositionBufferDesc;
+	D3D11_BUFFER_DESC lightBufferDesc;
+	
+	
 	
 	errorMessage = NULL;
 	vertexShaderBuffer = NULL;
@@ -209,53 +208,14 @@ bool LightShader::InitializeShader(ID3D11Device* device,
 		return false;
 	}
 
-	// cameraBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	// cameraBufferDesc.ByteWidth = sizeof(CameraBufferType);
-	// cameraBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	// cameraBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	// cameraBufferDesc.MiscFlags = 0;
-	// cameraBufferDesc.StructureByteStride = 0;
-	// 
-	// result = device->CreateBuffer(&cameraBufferDesc, NULL, &m_cameraBuffer);
-	// if(FAILED(result))
-	// {
-	// 	return false;
-	// }
-	// 
-	// lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	// lightBufferDesc.ByteWidth = sizeof(LightBufferType);
-	// lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	// lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	// lightBufferDesc.MiscFlags = 0;
-	// lightBufferDesc.StructureByteStride = 0;
-	// 
-	// result = device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer);
-	// if(FAILED(result))
-	// {
-	// 	return false;
-	// }
-
-	lightColorBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	lightColorBufferDesc.ByteWidth = sizeof(LightColorBufferType);
-	lightColorBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	lightColorBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	lightColorBufferDesc.MiscFlags = 0;
-	lightColorBufferDesc.StructureByteStride = 0;
-
-	result = device->CreateBuffer(&lightColorBufferDesc, NULL, &m_lightColorBuffer);
-	if(FAILED(result))
-	{
-		return false;
-	}
-
-	lightPositionBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	lightPositionBufferDesc.ByteWidth = sizeof(LightPositionBufferType);
-	lightPositionBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	lightPositionBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	lightPositionBufferDesc.MiscFlags = 0;
-	lightPositionBufferDesc.StructureByteStride = 0;
-
-	result = device->CreateBuffer(&lightPositionBufferDesc, NULL, &m_lightPositionBuffer);
+	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
+	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	lightBufferDesc.MiscFlags = 0;
+	lightBufferDesc.StructureByteStride = 0;
+	
+	result = device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer);
 	if(FAILED(result))
 	{
 		return false;
