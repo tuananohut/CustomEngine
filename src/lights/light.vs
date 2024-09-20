@@ -1,15 +1,8 @@
-#define NUM_LIGHTS 4
-
 cbuffer MatrixBuffer
 {	
 	matrix worldMatrix;
 	matrix viewMatrix;
 	matrix projectionMatrix;
-};
-
-cbuffer LightPositionBuffer
-{
-	float4 lightPosition[NUM_LIGHTS];
 };
 
 struct VertexInputType
