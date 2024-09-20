@@ -105,6 +105,12 @@
     <ClInclude Include="src\headers\reflectionshader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\headers\watershader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\refractionshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -200,6 +206,12 @@
     <ClCompile Include="src\reflectionshader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\watershader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\refractionshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\color.vs" />
@@ -228,6 +240,10 @@
     <None Include="src\shaders\transparent.ps" />
     <None Include="src\shaders\reflection.vs" />
     <None Include="src\shaders\reflection.ps" />
+    <None Include="src\shaders\water.vs" />
+    <None Include="src\shaders\water.ps" />
+    <None Include="src\shaders\refraction.vs" />
+    <None Include="src\shaders\refraction.ps" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\assets\models\cube.txt" />
