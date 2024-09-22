@@ -40,7 +40,7 @@ For other folder, you can use g++.
 - [x] Tutorial 29: Transparency
 - [x] Tutorial 30: Reflection
 - [x] Tutorial 31: Water
-- [ ] Tutorial 32: Glass and Ice
+- [x] Tutorial 32: Glass and Ice
 
 ## I made this with engine:
 
