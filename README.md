@@ -41,6 +41,7 @@ For other folder, you can use g++.
 - [x] Tutorial 30: Reflection
 - [x] Tutorial 31: Water
 - [x] Tutorial 32: Glass and Ice
+- [ ] Tutorial 33: Fire
 
 ## I made this with engine:
 
