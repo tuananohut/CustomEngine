@@ -24,7 +24,7 @@ float4 ReflectionPixelShader(PixelInputType input): SV_TARGET
 
 	reflectionColor = reflectionTexture.Sample(SampleType, reflectTexCoord);
 
-	color = lerp(textureColor, reflectionColor, 0.15f);
+	color = lerp(textureColor, reflectionColor, 0.35f);
 
 	return color;
 }
