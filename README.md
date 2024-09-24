@@ -6,9 +6,13 @@ I am following this https://www.rastertek.com/tutdx11win10.html tutorial.
 
 ## Build
 
-I upload codes with solution file. You need  VS 22 to run it. 
+Requirements: 
 
-For other folder, you can use g++. 
+- VS 2022
+
+git clone https://github.com/tuananohut/CustomEngine.git
+
+open CustomEngine.sln file and build the project. If you encounter any issues, let me know.
 
 ## Completed lessons from RasterTek:
 
@@ -42,6 +46,8 @@ For other folder, you can use g++.
 - [x] Tutorial 31: Water
 - [x] Tutorial 32: Glass and Ice
 - [ ] Tutorial 33: Fire
+- [ ] ... I will complete the tutorials from Fire to Direct Sound.  
+- [ ] Tutorial 55: Direct Sound
 
 ## I made this with engine:
 
