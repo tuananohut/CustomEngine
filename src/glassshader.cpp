@@ -202,7 +202,7 @@ bool GlassShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
 		return false;
 	}
 
-	return false;
+	return true;
 }
 
 void GlassShader::ShutdownShader()

@@ -22,13 +22,13 @@ bool SpecMapShader::Initialize(ID3D11Device* device, HWND hwnd)
 	wchar_t psFilename[128];
 	int error;
 
-	error = wcscpy_s(vsFilename, 128, L"../CustomEngine/src/textures/specmap.vs");
+	error = wcscpy_s(vsFilename, 128, L"../CustomEngine/src/shaders/specmap.vs");
 	if (error != 0)
 	{
 		return false;
 	}
 
-	error = wcscpy_s(psFilename, 128, L"../CustomEngine/src/textures/specmap.ps");
+	error = wcscpy_s(psFilename, 128, L"../CustomEngine/src/shaders/specmap.ps");
 	if (error)
 	{
 		return false;

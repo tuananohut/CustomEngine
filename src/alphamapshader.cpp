@@ -20,13 +20,13 @@ bool AlphaMapShader::Initialize(ID3D11Device* device, HWND hwnd)
 	wchar_t psFilename[128];
 	int error;
 
-	error = wcscpy_s(vsFilename, 128, L"../CustomEngine/src/textures/alphamap.vs");
+	error = wcscpy_s(vsFilename, 128, L"../CustomEngine/src/shaders/alphamap.vs");
 	if (error != 0)
 	{
 		return false;
 	}
 
-	error = wcscpy_s(psFilename, 128, L"../CustomEngine/src/textures/alphamap.ps");
+	error = wcscpy_s(psFilename, 128, L"../CustomEngine/src/shaders/alphamap.ps");
 	if (error != 0)
 	{
 		return false;

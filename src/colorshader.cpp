@@ -2,10 +2,10 @@
 
 ColorShader::ColorShader()
 {
-	m_vertexShader = NULL;
-	m_pixelShader = NULL;
-	m_layout = NULL;
-	m_matrixBuffer = NULL;
+	m_vertexShader = nullptr;
+	m_pixelShader = nullptr;
+	m_layout = nullptr;
+	m_matrixBuffer = nullptr;
 }
 
 ColorShader::ColorShader(const ColorShader& other) {}
@@ -185,25 +185,25 @@ void ColorShader::ShutdownShader()
 	if(m_matrixBuffer)
 	{
 		m_matrixBuffer->Release();
-		m_matrixBuffer = NULL;
+		m_matrixBuffer = nullptr;
 	}
 
 	if(m_layout)
 	{
 		m_layout->Release();
-		m_layout = NULL;
+		m_layout = nullptr;
 	}
 
 	if(m_pixelShader)
 	{
 		m_pixelShader->Release();
-		m_pixelShader = NULL;
+		m_pixelShader = nullptr;
 	}
 
 	if(m_vertexShader)
 	{
 		m_vertexShader->Release();
-		m_vertexShader = NULL;
+		m_vertexShader = nullptr;
 	}
 }
 

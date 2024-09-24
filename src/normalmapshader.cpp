@@ -21,13 +21,13 @@ bool NormalMapShader::Initialize(ID3D11Device* device, HWND hwnd)
 	wchar_t psFilename[128];
 	int error;
 
-	error = wcscpy_s(vsFilename, 128, L"../CustomEngine/src/textures/normalmap.vs");
+	error = wcscpy_s(vsFilename, 128, L"../CustomEngine/src/shaders/normalmap.vs");
 	if (error != 0)
 	{
 		return false;
 	}
 
-	error = wcscpy_s(psFilename, 128, L"../CustomEngine/src/textures/normalmap.ps");
+	error = wcscpy_s(psFilename, 128, L"../CustomEngine/src/shaders/normalmap.ps");
 	if (error != 0)
 	{
 		return false;

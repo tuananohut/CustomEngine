@@ -20,13 +20,13 @@ bool TextureShader::Initialize(ID3D11Device* device, HWND hwnd)
 	wchar_t psFilename[128];
 	int error;
 
-	error = wcscpy_s(vsFilename, 128, L"src/textures/texture.vs");
+	error = wcscpy_s(vsFilename, 128, L"src/shaders/texture.vs");
 	if(error != 0)
 	{
 		return false;
 	}
 
-	error = wcscpy_s(psFilename, 128, L"src/textures/texture.ps");
+	error = wcscpy_s(psFilename, 128, L"src/shaders/texture.ps");
 	if (error != 0)
 	{
 		return false;

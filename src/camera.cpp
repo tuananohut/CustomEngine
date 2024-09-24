@@ -104,7 +104,7 @@ void Camera::RenderReflection(float height)
 	upVector = XMLoadFloat3(&up);
 
 	position.x = m_positionX;
-	position.y = -m_positionY + (height * 2.f);
+	position.y = -m_positionY + (height * 2.0f);
 	position.z = m_positionZ;
 
 	positionVector = XMLoadFloat3(&position);

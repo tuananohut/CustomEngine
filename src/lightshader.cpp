@@ -23,13 +23,13 @@ bool LightShader::Initialize(ID3D11Device* device, HWND hwnd)
 	int error;
 	bool result;
 
-	error = wcscpy_s(vsFilename, 128, L"src/lights/light.vs");
+	error = wcscpy_s(vsFilename, 128, L"src/shaders/light.vs");
 	if(error != 0)
 	{
 		return false;
 	}
 
-	error = wcscpy_s(psFilename, 128, L"src/lights/light.ps");
+	error = wcscpy_s(psFilename, 128, L"src/shaders/light.ps");
 	if (error != 0)
 	{
 		return false;

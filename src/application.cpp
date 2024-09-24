@@ -37,15 +37,15 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	m_Camera = new Camera;
-
+	
 	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
 	m_Camera->Render();
 
-	strcpy_s(modelFilename, "../CustomEngine/src/assets/models/cube.txt");
+	strcpy_s(modelFilename, "../CustomEngine/assets/models/cube.txt");
 	
-	strcpy_s(textureFilename, "../CustomEngine/src/assets/shaders/stone01.tga");
-	strcpy_s(textureFilename1, "../CustomEngine/src/assets/shaders/icebump01.tga");
-	strcpy_s(textureFilename2, "../CustomEngine/src/assets/shaders/dirt02.tga");
+	strcpy_s(textureFilename, "../CustomEngine/assets/textures/stone01.tga");
+	strcpy_s(textureFilename1, "../CustomEngine/assets/textures/icebump01.tga");
+	strcpy_s(textureFilename2, "../CustomEngine/assets/textures/dirt02.tga");
 
 	m_Model = new Model;
 	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
@@ -55,9 +55,9 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	strcpy_s(modelFilename, "../CustomEngine/src/assets/models/square.txt");
-	strcpy_s(textureFilename, "../CustomEngine/src/assets/shaders/ice01.tga");
-	strcpy_s(textureFilename1, "../CustomEngine/src/assets/shaders/icebump01.tga");
+	strcpy_s(modelFilename, "../CustomEngine/assets/models/square.txt");
+	strcpy_s(textureFilename, "../CustomEngine/assets/textures/ice01.tga");
+	strcpy_s(textureFilename1, "../CustomEngine/assets/textures/icebump01.tga");
 	
 	m_WindowModel = new Model;
 	result = m_WindowModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
