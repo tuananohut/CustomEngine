@@ -323,3 +323,107 @@ void FireShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, W
 
 	MessageBox(hwnd, L"Error compiling shader. Check shader-error.txt for message.", shaderFilename, MB_OK | MB_ICONERROR);
 }
+
+bool FireShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
+									 XMMATRIX worldMatrix, 
+									 XMMATRIX viewMatrix, 
+									 XMMATRIX projectionMatrix, 
+									 ID3D11ShaderResourceView* fireTexture,
+									 ID3D11ShaderResourceView* noiseTexture,
+									 ID3D11ShaderResourceView* alphaTexture,
+									 float frameTime,
+									 XMFLOAT3 scrollSpeeds, 
+									 XMFLOAT3 scales,
+									 XMFLOAT2 distortion1,
+									 XMFLOAT2 distortion2,
+									 XMFLOAT2 distortion3,
+									 float distortionScale,
+									 float distortionBias)
+{
+	HRESULT result;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	MatrixBufferType* dataPtr;
+	NoiseBufferType* dataPtr2;
+	DistortionBufferType* dataPtr3;
+	unsigned int bufferNumber;
+
+	worldMatrix = XMMatrixTranspose(worldMatrix);
+	viewMatrix = XMMatrixTranspose(viewMatrix);
+	projectionMatrix = XMMatrixTranspose(projectionMatrix);
+
+	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	dataPtr = (MatrixBufferType*)mappedResource.pData;
+
+	dataPtr->world = worldMatrix;
+	dataPtr->view = viewMatrix;
+	dataPtr->projection = projectionMatrix;
+
+	deviceContext->Unmap(m_matrixBuffer, 0);
+
+	bufferNumber = 0;
+
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+
+	result = deviceContext->Map(m_noiseBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	dataPtr2 = (NoiseBufferType*)mappedResource.pData;
+
+	dataPtr2->frameTime = frameTime;
+	dataPtr2->scrollSpeeds = scrollSpeeds;
+	dataPtr2->scales = scales;
+	dataPtr2->padding = 0.f;
+
+	deviceContext->Unmap(m_noiseBuffer, 0);
+
+	bufferNumber = 1;
+
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_noiseBuffer);
+
+	deviceContext->PSSetShaderResources(0, 1, &fireTexture);
+	deviceContext->PSSetShaderResources(1, 1, &noiseTexture);
+	deviceContext->PSSetShaderResources(2, 1, &alphaTexture);
+
+	result = deviceContext->Map(m_distortionBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	dataPtr3 = (DistortionBufferType*)mappedResource.pData;
+
+	dataPtr3->distortion1 = distortion1;
+	dataPtr3->distortion2 = distortion2;
+	dataPtr3->distortion3 = distortion3;
+	dataPtr3->distortionScale = distortionScale;
+	dataPtr3->distortionBias = distortionBias;
+	
+	deviceContext->Unmap(m_distortionBuffer, 0);
+
+	bufferNumber = 0;
+
+	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_distortionBuffer);
+
+	return true;
+}
+
+void FireShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+{
+	deviceContext->IASetInputLayout(m_layout);
+
+	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
+	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
+
+	deviceContext->PSSetSamplers(0, 1, &m_sampleStateWrap);
+	deviceContext->PSSetSamplers(1, 1, &m_sampleStateClamp);
+
+	deviceContext->DrawIndexed(indexCount, 0, 0);
+}
