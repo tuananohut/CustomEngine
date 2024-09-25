@@ -38,7 +38,7 @@ bool Sound::PlayTrack()
 		return false;
 	}
 
-	result = m_secondaryBuffer->Play(0, 0, 0);
+	result = m_secondaryBuffer->Play(0, 0, DSBPLAY_LOOPING);
 	if (FAILED(result))
 	{
 		return false;
