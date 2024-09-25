@@ -8,7 +8,8 @@ I am following this https://www.rastertek.com/tutdx11win10.html tutorial.
 
 Requirements: 
 
-- VS 2022
+- Windows 
+- Visual Studio 2022
 
 git clone https://github.com/tuananohut/CustomEngine.git
 
@@ -47,7 +48,8 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [x] Tutorial 32: Glass and Ice
 - [ ] Tutorial 33: Fire
 - [ ] ... I will complete the tutorials from Fire to Direct Sound.  
-- [ ] Tutorial 55: Direct Sound
+- [x] Tutorial 55: Direct Sound
+- [ ] Tutorial 56: 3D Sound
 
 ## I made this with engine:
 
