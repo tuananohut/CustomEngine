@@ -106,18 +106,59 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	m_TestSound1 = new Sound;
-	
-	strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound02.wav");
-	
-	result = m_TestSound1->LoadTrack(m_DirectSound->GetDirectSound(), soundFilename, 0);
+	// m_TestSound1 = new Sound3D;
+	// 
+	// strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound01.wav");
+	// 
+	// result = m_TestSound1->LoadTrack(m_DirectSound->GetDirectSound(), soundFilename, 0);
+	// if (!result)
+	// {
+	// 	MessageBox(hwnd, L"Could not load the test 1 sound.", L"Error", MB_ICONERROR | MB_OK);
+	// 	return false;
+	// }
+	// 
+	// m_TestSound1->Update3DPosition(-1.f, 0.f, -1.f);
+	// 
+	// m_TestSound1->PlayTrack();
+
+
+
+
+
+	// m_TestSound2 = new Sound3D;
+	// 
+	// strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound02.wav");
+	// 
+	// result = m_TestSound2->LoadTrack(m_DirectSound->GetDirectSound(), soundFilename, 0);
+	// if (!result)
+	// {
+	// 	MessageBox(hwnd, L"Could not load the test 2 sound.", L"Error", MB_ICONERROR | MB_OK);
+	// 	return false;
+	// }
+	// 
+	// m_TestSound2->Update3DPosition(1.f, 0.f, -1.f);
+	// 
+	// m_TestSound2->PlayTrack();
+
+
+
+
+
+	m_TestSound3 = new Sound3D;
+
+	strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound03.wav");
+
+	result = m_TestSound3->LoadTrack(m_DirectSound->GetDirectSound(), soundFilename, 0);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not load the test sound.", L"Error", MB_ICONERROR | MB_OK);
+		MessageBox(hwnd, L"Could not load the test 3 sound.", L"Error", MB_ICONERROR | MB_OK);
 		return false;
 	}
 
-	m_TestSound1->PlayTrack();
+	m_TestSound3->Update3DPosition(-1.f, 0.f, 1.f);
+
+	m_TestSound3->PlayTrack();
+	
 
 	/*  */
 
@@ -136,6 +177,24 @@ void Application::Shutdown()
 		m_TestSound1->ReleaseTrack();
 		delete m_TestSound1;
 		m_TestSound1 = nullptr;
+	}
+
+	if (m_TestSound2)
+	{
+		m_TestSound2->StopTrack();
+
+		m_TestSound2->ReleaseTrack();
+		delete m_TestSound2;
+		m_TestSound2 = nullptr;
+	}
+
+	if (m_TestSound1)
+	{
+		m_TestSound3->StopTrack();
+
+		m_TestSound3->ReleaseTrack();
+		delete m_TestSound3;
+		m_TestSound3 = nullptr;
 	}
 
 	if (m_DirectSound)
