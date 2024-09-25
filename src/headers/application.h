@@ -14,6 +14,11 @@
 #include "textureshader.h"
 #include "glassshader.h"
 
+
+/* Trying wave file player */
+#include "directsound.h"
+#include "sound.h"
+
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
@@ -42,6 +47,9 @@ private:
 	RenderTexture* m_RenderTexture;
 	TextureShader* m_TextureShader;
 	GlassShader* m_GlassShader;
+
+	DirectSound* m_DirectSound;
+	Sound* m_TestSound1;
 };
 
 #endif
