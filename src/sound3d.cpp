@@ -191,7 +191,7 @@ bool Sound3D::LoadMonoWaveFile(IDirectSound8* DirectSound, char* filename, long 
 		return false;
 	}
 
-	result = tempBuffer->QueryInterface(IID_IDirectSound8, (void**)&m_secondaryBuffer);
+	result = tempBuffer->QueryInterface(IID_IDirectSoundBuffer8, (void**)&m_secondaryBuffer);
 	if (FAILED(result))
 	{
 		return false;
