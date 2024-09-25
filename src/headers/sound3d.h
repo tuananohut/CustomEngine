@@ -46,7 +46,7 @@ private:
 	void ReleaseWaveFile();
 
 private:
-	IDirectSound8* m_secondaryBuffer;
+	IDirectSoundBuffer8* m_secondaryBuffer;
 	IDirectSound3DBuffer8* m_secondary3DBuffer;
 };
 
