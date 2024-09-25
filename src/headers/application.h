@@ -17,7 +17,7 @@
 
 /* Trying wave file player */
 #include "directsound.h"
-#include "sound.h"
+#include "sound3d.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -47,9 +47,15 @@ private:
 	RenderTexture* m_RenderTexture;
 	TextureShader* m_TextureShader;
 	GlassShader* m_GlassShader;
-
+	
+	/* */
+	
 	DirectSound* m_DirectSound;
-	Sound* m_TestSound1;
+	Sound3D* m_TestSound1;
+	Sound3D* m_TestSound2;
+	Sound3D* m_TestSound3;
+
+	/* */
 };
 
 #endif
