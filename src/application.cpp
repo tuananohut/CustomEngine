@@ -10,6 +10,9 @@ Application::Application()
 	m_RenderTexture = nullptr;
 	m_TextureShader = nullptr;
 	m_GlassShader = nullptr;
+
+	m_DirectSound = nullptr;
+	m_TestSound1 = nullptr;
 }
 
 
@@ -25,6 +28,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	char textureFilename[128];
 	char textureFilename1[128];
 	char textureFilename2[128];
+	char soundFilename[128];
 
 	bool result;
 
@@ -91,12 +95,58 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
+
+	/*  */
+
+	m_DirectSound = new DirectSound;
+	result = m_DirectSound->Initialize(hwnd);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize direct sound.", L"Error", MB_ICONERROR | MB_OK);
+		return false;
+	}
+
+	m_TestSound1 = new Sound;
+	
+	strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound02.wav");
+	
+	result = m_TestSound1->LoadTrack(m_DirectSound->GetDirectSound(), soundFilename, 0);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not load the test sound.", L"Error", MB_ICONERROR | MB_OK);
+		return false;
+	}
+
+	m_TestSound1->PlayTrack();
+
+	/*  */
+
 	return true;
 }
 
 
 void Application::Shutdown()
 {
+	/**/
+
+	if (m_TestSound1)
+	{
+		m_TestSound1->StopTrack();
+
+		m_TestSound1->ReleaseTrack();
+		delete m_TestSound1;
+		m_TestSound1 = nullptr;
+	}
+
+	if (m_DirectSound)
+	{
+		m_DirectSound->Shutdown();
+		delete m_DirectSound;
+		m_DirectSound = nullptr;
+	}
+
+	/**/
+
 	if (m_GlassShader)
 	{
 		m_GlassShader->Shutdown();
@@ -151,6 +201,7 @@ bool Application::Frame(Input* Input)
 {
 	static float rotation = 0.f;
 	bool result;
+
 
 	if (Input->IsEscapePressed())
 	{
