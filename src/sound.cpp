@@ -170,8 +170,81 @@ bool Sound::LoadStereoWaveFile(IDirectSound8* DirectSound, char* filename, long 
 
 	dataSize = subChunkHeader.subChunkSize;
 
-	/* not completed */
+	waveFormat.wFormatTag = WAVE_FORMAT_PCM;
+	waveFormat.nSamplesPerSec = fmtData.sampleRate;
+	waveFormat.wBitsPerSample = fmtData.bitsPerSample;
+	waveFormat.nChannels = fmtData.numChannels;
+	waveFormat.nBlockAlign = (waveFormat.wBitsPerSample / 8) * waveFormat.nChannels;
+	waveFormat.nAvgBytesPerSec = waveFormat.nSamplesPerSec * waveFormat.nBlockAlign;
+	waveFormat.cbSize = 0;
 
+	bufferDesc.dwSize = sizeof(DSBUFFERDESC);
+	bufferDesc.dwBufferBytes = dataSize;
+	bufferDesc.dwReserved = 0;
+	bufferDesc.lpwfxFormat = &waveFormat;
+	bufferDesc.guid3DAlgorithm = GUID_NULL;
+	bufferDesc.dwFlags = DSBCAPS_CTRLVOLUME;
+		
+	result = DirectSound->CreateSoundBuffer(&bufferDesc, &tempBuffer, NULL);
+	if (FAILED(result))
+	{
+		return false;
+	}
 
+	result = tempBuffer->QueryInterface(IID_IDirectSoundBuffer8, (void**)&m_secondaryBuffer);
+	if (FAILED(result))
+	{
+		return false;
+	}
 
+	tempBuffer->Release();
+	tempBuffer = nullptr;
+
+	waveData = new unsigned char[dataSize];
+
+	count = fread(waveData, 1, dataSize, filePtr);
+	if (count != dataSize)
+	{
+		return false;
+	}
+
+	error = fclose(filePtr);
+	if (error != 0)
+	{
+		return false;
+	}
+
+	result = m_secondaryBuffer->Lock(0, dataSize, (void**)&bufferPtr, (DWORD*)&bufferSize, NULL, 0, 0);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	memcpy(bufferPtr, waveData, dataSize);
+
+	result = m_secondaryBuffer->Unlock((void*)bufferPtr, bufferSize, NULL, 0);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	delete[] waveData;
+	waveData = nullptr;
+
+	result = m_secondaryBuffer->SetVolume(volume);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void Sound::ReleaseWaveFile()
+{
+	if (m_secondaryBuffer)
+	{
+		m_secondaryBuffer->Release();
+		m_secondaryBuffer = nullptr;
+	}
 }
