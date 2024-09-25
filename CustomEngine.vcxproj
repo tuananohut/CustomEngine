@@ -135,9 +135,12 @@
     <ClInclude Include="src\headers\clipplaneshader.h" />
     <ClInclude Include="src\headers\colorshader.h" />
     <ClInclude Include="src\headers\d3d.h" />
+    <ClInclude Include="src\headers\directsound.h" />
     <ClInclude Include="src\headers\displayplane.h" />
+    <ClInclude Include="src\headers\fireshader.h" />
     <ClInclude Include="src\headers\fogshader.h" />
     <ClInclude Include="src\headers\frustum.h" />
+    <ClInclude Include="src\headers\glassshader.h" />
     <ClInclude Include="src\headers\input.h" />
     <ClInclude Include="src\headers\light.h" />
     <ClInclude Include="src\headers\lightmapshader.h" />
@@ -151,6 +154,7 @@
     <ClInclude Include="src\headers\refractionshader.h" />
     <ClInclude Include="src\headers\rendertexture.h" />
     <ClInclude Include="src\headers\shadermanager.h" />
+    <ClInclude Include="src\headers\sound.h" />
     <ClInclude Include="src\headers\specmapshader.h" />
     <ClInclude Include="src\headers\sprite.h" />
     <ClInclude Include="src\headers\system.h" />
@@ -169,9 +173,12 @@
     <ClCompile Include="src\clipplaneshader.cpp" />
     <ClCompile Include="src\colorshader.cpp" />
     <ClCompile Include="src\d3d.cpp" />
+    <ClCompile Include="src\directsound.cpp" />
     <ClCompile Include="src\displayplane.cpp" />
+    <ClCompile Include="src\fireshader.cpp" />
     <ClCompile Include="src\fogshader.cpp" />
     <ClCompile Include="src\frustum.cpp" />
+    <ClCompile Include="src\glassshader.cpp" />
     <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\light.cpp" />
     <ClCompile Include="src\lightmapshader.cpp" />
@@ -186,6 +193,7 @@
     <ClCompile Include="src\refractionshader.cpp" />
     <ClCompile Include="src\rendertexture.cpp" />
     <ClCompile Include="src\shadermanager.cpp" />
+    <ClCompile Include="src\sound.cpp" />
     <ClCompile Include="src\specmapshader.cpp" />
     <ClCompile Include="src\sprite.cpp" />
     <ClCompile Include="src\texture.cpp" />
@@ -205,8 +213,12 @@
     <None Include="src\shaders\clipplane.vs" />
     <None Include="src\shaders\color.ps" />
     <None Include="src\shaders\color.vs" />
+    <None Include="src\shaders\fire.ps" />
+    <None Include="src\shaders\fire.vs" />
     <None Include="src\shaders\fog.ps" />
     <None Include="src\shaders\fog.vs" />
+    <None Include="src\shaders\glass.ps" />
+    <None Include="src\shaders\glass.vs" />
     <None Include="src\shaders\reflection.ps" />
     <None Include="src\shaders\reflection.vs" />
     <None Include="src\shaders\refraction.ps" />
