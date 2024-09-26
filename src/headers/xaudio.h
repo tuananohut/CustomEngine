@@ -14,7 +14,7 @@ public:
 	~XAudio();
 	
 	bool Initialize();
-	bool Shutdown();
+	void Shutdown();
 
 	IXAudio2* GetXAudio2();
 
