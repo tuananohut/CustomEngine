@@ -49,7 +49,9 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [ ] Tutorial 33: Fire
 - [ ] ... I will complete the tutorials from Fire to Direct Sound.  
 - [x] Tutorial 55: Direct Sound
-- [ ] Tutorial 56: 3D Sound
+- [x] Tutorial 56: 3D Sound
+- [ ] Tutorial 57: XAudio2
+
 
 ## I made this with engine:
 
