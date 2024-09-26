@@ -106,39 +106,39 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	// m_TestSound1 = new Sound3D;
-	// 
-	// strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound01.wav");
-	// 
-	// result = m_TestSound1->LoadTrack(m_DirectSound->GetDirectSound(), soundFilename, 0);
-	// if (!result)
-	// {
-	// 	MessageBox(hwnd, L"Could not load the test 1 sound.", L"Error", MB_ICONERROR | MB_OK);
-	// 	return false;
-	// }
-	// 
-	// m_TestSound1->Update3DPosition(-1.f, 0.f, -1.f);
-	// 
-	// m_TestSound1->PlayTrack();
-
-
-
-
-
-	// m_TestSound2 = new Sound3D;
-	// 
-	// strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound02.wav");
-	// 
-	// result = m_TestSound2->LoadTrack(m_DirectSound->GetDirectSound(), soundFilename, 0);
-	// if (!result)
-	// {
-	// 	MessageBox(hwnd, L"Could not load the test 2 sound.", L"Error", MB_ICONERROR | MB_OK);
-	// 	return false;
-	// }
-	// 
-	// m_TestSound2->Update3DPosition(1.f, 0.f, -1.f);
-	// 
-	// m_TestSound2->PlayTrack();
+	m_TestSound1 = new Sound3D;
+	
+	strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound03.wav");
+	
+	result = m_TestSound1->LoadTrack(m_DirectSound->GetDirectSound(), soundFilename, 0);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not load the test 1 sound.", L"Error", MB_ICONERROR | MB_OK);
+		return false;
+	}
+	
+ 	m_TestSound1->Update3DPosition(-1.f, 0.f, -1.f);
+	
+	m_TestSound1->PlayTrack();
+	
+	
+	
+	
+	
+	m_TestSound2 = new Sound3D;
+	
+	strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound04.wav");
+	
+	result = m_TestSound2->LoadTrack(m_DirectSound->GetDirectSound(), soundFilename, 0);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not load the test 2 sound.", L"Error", MB_ICONERROR | MB_OK);
+		return false;
+	}
+	
+ 	m_TestSound2->Update3DPosition(1.f, 0.f, -1.f);
+	
+	m_TestSound2->PlayTrack();
 
 
 
@@ -146,7 +146,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	m_TestSound3 = new Sound3D;
 
-	strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound03.wav");
+	strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound05.wav");
 
 	result = m_TestSound3->LoadTrack(m_DirectSound->GetDirectSound(), soundFilename, 0);
 	if (!result)
