@@ -11,8 +11,10 @@ Application::Application()
 	m_TextureShader = nullptr;
 	m_GlassShader = nullptr;
 
-	m_DirectSound = nullptr;
+	m_XAudio = nullptr;
 	m_TestSound1 = nullptr;
+	m_TestSound2 = nullptr;
+	m_TestSound3 = nullptr;
 }
 
 
@@ -98,67 +100,70 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	/*  */
 
-	m_DirectSound = new DirectSound;
-	result = m_DirectSound->Initialize(hwnd);
+	m_XAudio = new XAudio;
+	result = m_XAudio->Initialize();
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize direct sound.", L"Error", MB_ICONERROR | MB_OK);
+		MessageBox(hwnd, L"Could not initialize XAudio.", L"Error", MB_ICONERROR | MB_OK);
 		return false;
 	}
 
-	m_TestSound1 = new Sound3D;
+	m_TestSound1 = new XAudioSound;
 	
-	strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound03.wav");
-	
-	result = m_TestSound1->LoadTrack(m_DirectSound->GetDirectSound(), soundFilename, 0);
+	strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound01.wav");
+
+	result = m_TestSound1->LoadTrack(m_XAudio->GetXAudio2(), soundFilename, 1.f);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not load the test 1 sound.", L"Error", MB_ICONERROR | MB_OK);
 		return false;
 	}
+		
+	result = m_TestSound1->PlayTrack();
+	if (!result)
+	{
+		return false;
+	}
 	
- 	m_TestSound1->Update3DPosition(-1.f, 0.f, -1.f);
-	
-	m_TestSound1->PlayTrack();
 	
 	
 	
-	
-	
-	m_TestSound2 = new Sound3D;
+	m_TestSound2 = new XAudioSound;
 	
 	strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound04.wav");
 	
-	result = m_TestSound2->LoadTrack(m_DirectSound->GetDirectSound(), soundFilename, 0);
+	result = m_TestSound2->LoadTrack(m_XAudio->GetXAudio2(), soundFilename, 1.f);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not load the test 2 sound.", L"Error", MB_ICONERROR | MB_OK);
 		return false;
 	}
-	
- 	m_TestSound2->Update3DPosition(1.f, 0.f, -1.f);
-	
-	m_TestSound2->PlayTrack();
+		
+	result = m_TestSound2->PlayTrack();
+	if (!result)
+	{
+		return false;
+	}
 
 
 
 
-
-	m_TestSound3 = new Sound3D;
+	m_TestSound3 = new XAudioSound;
 
 	strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound05.wav");
 
-	result = m_TestSound3->LoadTrack(m_DirectSound->GetDirectSound(), soundFilename, 0);
+	result = m_TestSound3->LoadTrack(m_XAudio->GetXAudio2(), soundFilename, 1.f);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not load the test 3 sound.", L"Error", MB_ICONERROR | MB_OK);
 		return false;
 	}
 
-	m_TestSound3->Update3DPosition(-1.f, 0.f, 1.f);
-
-	m_TestSound3->PlayTrack();
-	
+	result = m_TestSound3->PlayTrack();
+	if (!result)
+	{
+		return false;
+	}
 
 	/*  */
 
@@ -197,11 +202,11 @@ void Application::Shutdown()
 		m_TestSound3 = nullptr;
 	}
 
-	if (m_DirectSound)
+	if (m_XAudio)
 	{
-		m_DirectSound->Shutdown();
-		delete m_DirectSound;
-		m_DirectSound = nullptr;
+		m_XAudio->Shutdown();
+		delete m_XAudio;
+		m_XAudio = nullptr;
 	}
 
 	/**/
