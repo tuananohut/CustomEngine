@@ -89,7 +89,7 @@ bool Sound::LoadStereoWaveFile(IDirectSound8* DirectSound, char* filename, long 
 		return false;
 	}
 
-	if ((riffWaveFileHeader.chunkId[0] != 'R') || (riffWaveFileHeader.chunkId[1] != 'I') || (riffWaveFileHeader.chunkId[2] != 'F'), (riffWaveFileHeader.chunkId[3] != 'F'))
+	if ((riffWaveFileHeader.chunkId[0] != 'R') || (riffWaveFileHeader.chunkId[1] != 'I') || (riffWaveFileHeader.chunkId[2] != 'F') || (riffWaveFileHeader.chunkId[3] != 'F'))
 	{
 		return false;
 	}
