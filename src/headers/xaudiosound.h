@@ -24,7 +24,7 @@ class XAudioSound
 		unsigned short numChannels;
 		unsigned long sampleRate;
 		unsigned long bytesPerSecond;
-		unsigned long blockAlign;
+		unsigned short blockAlign;
 		unsigned short bitsPerSample;
 	};
 
