@@ -64,3 +64,7 @@ https://screamingbrainstudios.itch.io/tiny-texture-pack-2
 ### Sound
 
 https://pixabay.com/sound-effects/pianos-by-jtwayne-7-174717/
+
+https://pixabay.com/sound-effects/violin-phrase-marina-short-99956/
+
+https://pixabay.com/sound-effects/woodland-footsteps-mono-69553/
