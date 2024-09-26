@@ -40,7 +40,7 @@ public:
 	bool StopTrack();
 
 private:
-	bool LoadStereoWaveFile(IXAudio2*, char, float);
+	bool LoadStereoWaveFile(IXAudio2*, char*, float);
 	void ReleaseWaveFile();
 
 private:
