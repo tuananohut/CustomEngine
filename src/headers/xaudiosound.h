@@ -20,7 +20,7 @@ class XAudioSound
 
 	struct FmtType
 	{
-		unsigned short auidoFormat;
+		unsigned short audioFormat;
 		unsigned short numChannels;
 		unsigned long sampleRate;
 		unsigned long bytesPerSecond;
