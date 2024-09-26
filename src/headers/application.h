@@ -16,8 +16,8 @@
 
 
 /* Trying wave file player */
-#include "directsound.h"
-#include "sound3d.h"
+#include "xaudio.h"
+#include "xaudiosound.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -50,10 +50,10 @@ private:
 	
 	/* */
 	
-	DirectSound* m_DirectSound;
-	Sound3D* m_TestSound1;
-	Sound3D* m_TestSound2;
-	Sound3D* m_TestSound3;
+	XAudio* m_XAudio;
+	XAudioSound* m_TestSound1;
+	XAudioSound* m_TestSound2;
+	XAudioSound* m_TestSound3;
 
 	/* */
 };
