@@ -18,6 +18,7 @@
 /* Trying wave file player */
 #include "xaudio.h"
 #include "xaudiosound.h"
+#include "xaudiosound3d.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -52,8 +53,8 @@ private:
 	
 	XAudio* m_XAudio;
 	XAudioSound* m_TestSound1;
-	XAudioSound* m_TestSound2;
-	XAudioSound* m_TestSound3;
+	XAudioSound3D* m_TestSound2;
+	XAudioSound3D* m_TestSound3;
 
 	/* */
 };
