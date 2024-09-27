@@ -261,7 +261,7 @@ bool XAudioSound3D::LoadMonoWaveFile(IXAudio2* xAudio2, char* filename, float vo
 	return true;
 }
 
-void XAudioSound3D::ReleaseTrack()
+void XAudioSound3D::ReleaseWaveFile()
 {
 	if (m_waveData)
 	{
