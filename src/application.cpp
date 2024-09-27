@@ -128,7 +128,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	
 	
 	
-	m_TestSound2 = new XAudioSound;
+	m_TestSound2 = new XAudioSound3D;
 	
 	strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound04.wav");
 	
@@ -138,6 +138,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not load the test 2 sound.", L"Error", MB_ICONERROR | MB_OK);
 		return false;
 	}
+
+	m_TestSound2->Update3DPosition(-2.f, 0.f, 0.f);
 		
 	result = m_TestSound2->PlayTrack();
 	if (!result)
@@ -148,7 +150,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 
 
-	m_TestSound3 = new XAudioSound;
+	m_TestSound3 = new XAudioSound3D;
 
 	strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound05.wav");
 
@@ -158,6 +160,9 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not load the test 3 sound.", L"Error", MB_ICONERROR | MB_OK);
 		return false;
 	}
+
+	m_TestSound3->Update3DPosition(2.f, 0.f, 0.f);
+
 
 	result = m_TestSound3->PlayTrack();
 	if (!result)
