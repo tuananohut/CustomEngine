@@ -167,6 +167,7 @@
     <ClInclude Include="src\headers\watershader.h" />
     <ClInclude Include="src\headers\xaudio.h" />
     <ClInclude Include="src\headers\xaudiosound.h" />
+    <ClInclude Include="src\headers\xaudiosound3d.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\alphamapshader.cpp" />
@@ -209,6 +210,7 @@
     <ClCompile Include="src\watershader.cpp" />
     <ClCompile Include="src\xaudio.cpp" />
     <ClCompile Include="src\xaudiosound.cpp" />
+    <ClCompile Include="src\xaudiosound3d.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\lights\light.ps" />
