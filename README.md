@@ -51,7 +51,7 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [x] Tutorial 55: Direct Sound
 - [x] Tutorial 56: 3D Sound
 - [x] Tutorial 57: XAudio2
-- [ ] Tutorial 58: X3DAudio
+- [x] Tutorial 58: X3DAudio
 
 
 ## I made this with engine:
