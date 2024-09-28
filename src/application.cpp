@@ -1,5 +1,6 @@
 #include "headers/application.h"
 
+float Application::positionX = 0.f;
 
 Application::Application()
 {
@@ -8,11 +9,8 @@ Application::Application()
 	m_Model = nullptr;
 	m_WindowModel = nullptr;
 	m_FireShader = nullptr;
-
 	m_XAudio = nullptr;
-	m_TestSound1 = nullptr;
 	m_TestSound2 = nullptr;
-	m_TestSound3 = nullptr;
 }
 
 
@@ -67,36 +65,13 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-
-	/*  */
-
 	m_XAudio = new XAudio;
 	result = m_XAudio->Initialize();
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize XAudio.", L"Error", MB_ICONERROR | MB_OK);
 		return false;
-	}
-
-	m_TestSound1 = new XAudioSound;
-	
-	strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound01.wav");
-
-	result = m_TestSound1->LoadTrack(m_XAudio->GetXAudio2(), soundFilename, 1.f);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not load the test 1 sound.", L"Error", MB_ICONERROR | MB_OK);
-		return false;
-	}
-		
-	// result = m_TestSound1->PlayTrack();
-	// if (!result)
-	// {
-	// 	return false;
-	// }
-	
-	
-	
+	}	
 	
 	m_TestSound2 = new XAudioSound3D;
 	
@@ -109,11 +84,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	m_TestSound2->Update3DPosition(0.f, 0.f, 0.f);
 		
 	result = m_TestSound2->PlayTrack();
-
-	/* */
 
 	return true;
 }
@@ -121,17 +93,6 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Application::Shutdown()
 {
-	/**/
-
-	if (m_TestSound1)
-	{
-		m_TestSound1->StopTrack();
-
-		m_TestSound1->ReleaseTrack();
-		delete m_TestSound1;
-		m_TestSound1 = nullptr;
-	}
-
 	if (m_TestSound2)
 	{
 		m_TestSound2->StopTrack();
@@ -148,8 +109,6 @@ void Application::Shutdown()
 		delete m_XAudio;
 		m_XAudio = nullptr;
 	}
-
-	/**/
 
 	if (m_FireShader)
 	{
@@ -192,11 +151,22 @@ bool Application::Frame(Input* Input)
 	static float rotation = 0.f;
 	bool result;
 
-
 	if (Input->IsEscapePressed())
 	{
 		return false;
 	}
+
+	if (Input->IsRightArrowPressed())
+	{
+		positionX += 0.1f;
+	}
+
+	if (Input->IsLeftArrowPressed())
+	{
+		positionX -= 0.1f;
+	}
+
+	m_TestSound2->Update3DPosition(positionX, 0.f, 0.f);
 
 	rotation -= 0.0174532925f * 0.25f;
 	if (rotation < 0.0f)
@@ -301,7 +271,7 @@ bool Application::Render(float rotation)
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
 	m_Direct3D->EnableAlphaBlending();
-
+	
 	m_Model->Render(m_Direct3D->GetDeviceContext());
 
 	result = m_FireShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), m_Model->GetTexture(1), m_Model->GetTexture(2), frameTime, scrollSpeeds, scales, distortion1, distortion2, distortion3, distortionScale, distortionBias);
