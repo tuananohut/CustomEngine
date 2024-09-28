@@ -36,6 +36,7 @@ public:
 
 private:
 	// bool RenderSceneToTexture(float);
+	bool SoundProcessing();
 	bool Render(float);
 
 private:
