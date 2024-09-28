@@ -46,8 +46,9 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [x] Tutorial 30: Reflection
 - [x] Tutorial 31: Water
 - [x] Tutorial 32: Glass and Ice
-- [ ] Tutorial 33: Fire
-- [ ] ... I will complete the tutorials from Fire to Direct Sound.  
+- [x] Tutorial 33: Fire
+- [ ] Tutorial 34: Billboarding
+- [ ] ... 
 - [x] Tutorial 55: Direct Sound
 - [x] Tutorial 56: 3D Sound
 - [x] Tutorial 57: XAudio2
@@ -71,3 +72,5 @@ https://pixabay.com/sound-effects/pianos-by-jtwayne-7-174717/
 https://pixabay.com/sound-effects/violin-phrase-marina-short-99956/
 
 https://pixabay.com/sound-effects/woodland-footsteps-mono-69553/
+
+https://pixabay.com/sound-effects/fire-sound-222359/
