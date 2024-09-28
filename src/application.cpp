@@ -7,9 +7,7 @@ Application::Application()
 	m_Camera = nullptr;
 	m_Model = nullptr;
 	m_WindowModel = nullptr;
-	m_RenderTexture = nullptr;
-	m_TextureShader = nullptr;
-	m_GlassShader = nullptr;
+	m_FireShader = nullptr;
 
 	m_XAudio = nullptr;
 	m_TestSound1 = nullptr;
@@ -47,11 +45,11 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
 	m_Camera->Render();
 
-	strcpy_s(modelFilename, "../CustomEngine/assets/models/cube.txt");
+	strcpy_s(modelFilename, "../CustomEngine/assets/models/square.txt");
 	
-	strcpy_s(textureFilename, "../CustomEngine/assets/textures/stone01.tga");
-	strcpy_s(textureFilename1, "../CustomEngine/assets/textures/icebump01.tga");
-	strcpy_s(textureFilename2, "../CustomEngine/assets/textures/dirt02.tga");
+	strcpy_s(textureFilename, "../CustomEngine/assets/textures/fire01.tga");
+	strcpy_s(textureFilename1, "../CustomEngine/assets/textures/noise01.tga");
+	strcpy_s(textureFilename2, "../CustomEngine/assets/textures/alpha01.tga");
 
 	m_Model = new Model;
 	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
@@ -60,40 +58,12 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
-
-	strcpy_s(modelFilename, "../CustomEngine/assets/models/square.txt");
-	strcpy_s(textureFilename, "../CustomEngine/assets/textures/ice01.tga");
-	strcpy_s(textureFilename1, "../CustomEngine/assets/textures/icebump01.tga");
 	
-	m_WindowModel = new Model;
-	result = m_WindowModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
+	m_FireShader = new FireShader;
+	result = m_FireShader->Initialize(m_Direct3D->GetDevice(), hwnd);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
-		return false;
-	}
-
-	m_RenderTexture = new RenderTexture;
-	result = m_RenderTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR, 1);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the render texture object.", L"Error", MB_OK | MB_ICONERROR);
-		return false;
-	}
-
-	m_TextureShader = new TextureShader;
-	result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK | MB_ICONERROR);
-		return false;
-	}
-
-	m_GlassShader = new GlassShader;
-	result = m_GlassShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the glass shader object.", L"Error", MB_OK | MB_ICONERROR);
+		MessageBox(hwnd, L"Could not initialize the fire shader object.", L"Error", MB_OK | MB_ICONERROR);
 		return false;
 	}
 
@@ -119,18 +89,18 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 		
-	result = m_TestSound1->PlayTrack();
-	if (!result)
-	{
-		return false;
-	}
+	// result = m_TestSound1->PlayTrack();
+	// if (!result)
+	// {
+	// 	return false;
+	// }
 	
 	
 	
 	
 	m_TestSound2 = new XAudioSound3D;
 	
-	strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound04.wav");
+	strcpy_s(soundFilename, "../CustomEngine/assets/sounds/fire_sound.wav");
 	
 	result = m_TestSound2->LoadTrack(m_XAudio->GetXAudio2(), soundFilename, 1.f);
 	if (!result)
@@ -139,38 +109,11 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	m_TestSound2->Update3DPosition(-2.f, 0.f, 0.f);
+	m_TestSound2->Update3DPosition(0.f, 0.f, 0.f);
 		
 	result = m_TestSound2->PlayTrack();
-	if (!result)
-	{
-		return false;
-	}
 
-
-
-
-	m_TestSound3 = new XAudioSound3D;
-
-	strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound05.wav");
-
-	result = m_TestSound3->LoadTrack(m_XAudio->GetXAudio2(), soundFilename, 1.f);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not load the test 3 sound.", L"Error", MB_ICONERROR | MB_OK);
-		return false;
-	}
-
-	m_TestSound3->Update3DPosition(2.f, 0.f, 0.f);
-
-
-	result = m_TestSound3->PlayTrack();
-	if (!result)
-	{
-		return false;
-	}
-
-	/*  */
+	/* */
 
 	return true;
 }
@@ -198,14 +141,6 @@ void Application::Shutdown()
 		m_TestSound2 = nullptr;
 	}
 
-	if (m_TestSound1)
-	{
-		m_TestSound3->StopTrack();
-
-		m_TestSound3->ReleaseTrack();
-		delete m_TestSound3;
-		m_TestSound3 = nullptr;
-	}
 
 	if (m_XAudio)
 	{
@@ -216,25 +151,11 @@ void Application::Shutdown()
 
 	/**/
 
-	if (m_GlassShader)
+	if (m_FireShader)
 	{
-		m_GlassShader->Shutdown();
-		delete m_GlassShader;
-		m_GlassShader = nullptr;
-	}
-
-	if (m_TextureShader)
-	{
-		m_TextureShader->Shutdown();
-		delete m_TextureShader;
-		m_TextureShader = nullptr;
-	}
-
-	if (m_RenderTexture)
-	{
-		m_RenderTexture->Shutdown();
-		delete m_RenderTexture;
-		m_RenderTexture = nullptr;
+		m_FireShader->Shutdown();
+		delete m_FireShader;
+		m_FireShader = nullptr;
 	}
 
 	if (m_WindowModel)
@@ -283,11 +204,17 @@ bool Application::Frame(Input* Input)
 		rotation += 360.0f;
 	}
 
-	result = RenderSceneToTexture(rotation);
+	result = SoundProcessing();
 	if (!result)
 	{
 		return false;
 	}
+
+	// result = RenderSceneToTexture(rotation);
+	// if (!result)
+	// {
+	// 	return false;
+	// }
 
 	result = Render(rotation);
 	if (!result)
@@ -298,6 +225,20 @@ bool Application::Frame(Input* Input)
 	return true;
 }
 
+bool Application::SoundProcessing()
+{
+	bool result;
+
+	result = m_XAudio->Frame(m_TestSound2->GetEmitter(), m_TestSound2->GetSourceVoice());
+	if (!result)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+/*
 bool Application::RenderSceneToTexture(float rotation)
 {
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
@@ -325,15 +266,33 @@ bool Application::RenderSceneToTexture(float rotation)
 
 	return true;
 }
-
+*/
 
 bool Application::Render(float rotation)
 {
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	float refractionScale;
+	XMFLOAT3 scrollSpeeds, scales;
+	XMFLOAT2 distortion1, distortion2, distortion3;
+	float distortionScale, distortionBias;
 	bool result;
+	static float frameTime = 0.f;
 
-	refractionScale = 0.1f;
+	frameTime += 0.01f;
+	if (frameTime > 1000.f)
+	{
+		frameTime = 0.f;
+	}
+
+	scrollSpeeds = XMFLOAT3(1.3f, 2.1f, 2.3f);
+
+	scales = XMFLOAT3(1.f, 2.f, 3.f);
+
+	distortion1 = XMFLOAT2(0.1f, 0.2f);
+	distortion2 = XMFLOAT2(0.1f, 0.3f);
+	distortion3 = XMFLOAT2(0.1f, 0.1f);
+
+	distortionScale = 0.8f;
+	distortionBias = 0.5f;
 
 	m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.f);
 
@@ -341,23 +300,17 @@ bool Application::Render(float rotation)
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-	worldMatrix = XMMatrixRotationY(rotation);
+	m_Direct3D->EnableAlphaBlending();
 
 	m_Model->Render(m_Direct3D->GetDeviceContext());
-	result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0));
+
+	result = m_FireShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), m_Model->GetTexture(1), m_Model->GetTexture(2), frameTime, scrollSpeeds, scales, distortion1, distortion2, distortion3, distortionScale, distortionBias);
 	if (!result)
 	{
 		return false;
 	}
-
-	worldMatrix = XMMatrixTranslation(0.f, 0.f, -1.5f);
-
-	m_WindowModel->Render(m_Direct3D->GetDeviceContext());
-	result = m_GlassShader->Render(m_Direct3D->GetDeviceContext(), m_WindowModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_WindowModel->GetTexture(0), m_WindowModel->GetTexture(1), m_RenderTexture->GetShaderResourceView(), refractionScale);
-	if (!result)
-	{
-		return false;
-	}
+	
+	m_Direct3D->DisableAlphaBlending();
 
 	m_Direct3D->EndScene();
 
