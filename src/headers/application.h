@@ -12,7 +12,6 @@
 #include "model.h"
 #include "fireshader.h"
 
-
 /* Trying wave file player */
 #include "xaudio.h"
 #include "xaudiosound.h"
@@ -44,16 +43,10 @@ private:
 	Camera* m_Camera;
 	Model* m_Model;
 	Model* m_WindowModel;
-	FireShader* m_FireShader;
-	
-	/* */
-	
+	FireShader* m_FireShader;	
 	XAudio* m_XAudio;
-	XAudioSound* m_TestSound1;
 	XAudioSound3D* m_TestSound2;
-	XAudioSound3D* m_TestSound3;
-
-	/* */
+	static float positionX;
 };
 
 #endif
