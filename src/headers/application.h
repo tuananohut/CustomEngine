@@ -10,9 +10,7 @@
 #include "input.h"
 #include "camera.h"
 #include "model.h"
-#include "rendertexture.h"
-#include "textureshader.h"
-#include "glassshader.h"
+#include "fireshader.h"
 
 
 /* Trying wave file player */
@@ -37,7 +35,7 @@ public:
 	bool Frame(Input*);
 
 private:
-	bool RenderSceneToTexture(float);
+	// bool RenderSceneToTexture(float);
 	bool Render(float);
 
 private:
@@ -45,9 +43,7 @@ private:
 	Camera* m_Camera;
 	Model* m_Model;
 	Model* m_WindowModel;
-	RenderTexture* m_RenderTexture;
-	TextureShader* m_TextureShader;
-	GlassShader* m_GlassShader;
+	FireShader* m_FireShader;
 	
 	/* */
 	
