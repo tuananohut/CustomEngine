@@ -47,7 +47,7 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [x] Tutorial 31: Water
 - [x] Tutorial 32: Glass and Ice
 - [x] Tutorial 33: Fire
-- [ ] Tutorial 34: Billboarding
+- [x] Tutorial 34: Billboarding
 - [ ] ... 
 - [x] Tutorial 55: Direct Sound
 - [x] Tutorial 56: 3D Sound
