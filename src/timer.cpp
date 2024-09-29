@@ -35,8 +35,6 @@ void Timer::Frame()
   m_frameTime = (float)elapsedTicks / m_frequency;
 
   m_startTime = currentTime;
-
-  return;
 }
 
 float Timer::GetTime()
