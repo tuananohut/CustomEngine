@@ -10,17 +10,24 @@ public:
 	Position(const Position&);
 	~Position();
 
-	void SetFrameTime(float);
-	void GetRotation(float&);
+	void SetPosition(float, float, float);
+	void SetRotation(float, float, float);
 
-	void TurnLeft(bool);
-	void TurnRight(bool);
+	void GetPosition(float&, float&, float&);
+	void GetRotation(float&, float&, float&);
+
+	void SetFrameTime(float);
+
+	void MoveLeft(bool);
+	void MoveRight(bool);
 
 private:
+	float m_positionX, m_positionY, m_positionZ;
+	float m_rotationX, m_rotationY, m_rotationZ;
+
 	float m_frameTime;
-	float m_rotationY;
-	float m_leftTurnSpeed;
-	float m_rightTurnSpeed;
+
+	float m_leftSpeed, m_rightSpeed;
 };
 
 #endif
