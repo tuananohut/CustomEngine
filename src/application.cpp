@@ -1,14 +1,15 @@
 #include "headers/application.h"
 
-float Application::positionX = 0.f;
-
 Application::Application()
 {
 	m_Direct3D = nullptr;
 	m_Camera = nullptr;
-	m_Model = nullptr;
-	m_WindowModel = nullptr;
-	m_FireShader = nullptr;
+	m_TextureShader = nullptr;
+	m_FloorModel = nullptr;
+	m_BillboardModel = nullptr;
+	m_Position = nullptr;
+	m_Timer = nullptr;
+
 	m_XAudio = nullptr;
 	m_TestSound2 = nullptr;
 }
@@ -42,26 +43,37 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	
 	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
 	m_Camera->Render();
-
-	strcpy_s(modelFilename, "../CustomEngine/assets/models/square.txt");
 	
-	strcpy_s(textureFilename, "../CustomEngine/assets/textures/fire01.tga");
+	m_TextureShader = new TextureShader;
+	result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
+		return false;
+	}
+
+	strcpy_s(modelFilename, "../CustomEngine/assets/models/floor.txt");
+	
+	strcpy_s(textureFilename, "../CustomEngine/assets/textures/grid01.tga");
 	strcpy_s(textureFilename1, "../CustomEngine/assets/textures/noise01.tga");
 	strcpy_s(textureFilename2, "../CustomEngine/assets/textures/alpha01.tga");
 
-	m_Model = new Model;
-	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
+	m_FloorModel = new Model;
+	result = m_FloorModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the floor model object.", L"Error", MB_OK);
 		return false;
 	}
 	
-	m_FireShader = new FireShader;
-	result = m_FireShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	strcpy_s(modelFilename, "../CustomEngine/assets/models/square.txt");
+	strcpy_s(textureFilename, "../CustomEngine/assets/textures/stone01.tga");
+
+	m_BillboardModel = new Model;
+	result = m_BillboardModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the fire shader object.", L"Error", MB_OK | MB_ICONERROR);
+		MessageBox(hwnd, L"Could not initialize the billboard model object.", L"Error", MB_OK | MB_ICONERROR);
 		return false;
 	}
 
@@ -71,12 +83,12 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	{
 		MessageBox(hwnd, L"Could not initialize XAudio.", L"Error", MB_ICONERROR | MB_OK);
 		return false;
-	}	
-	
+	}
+
 	m_TestSound2 = new XAudioSound3D;
-	
-	strcpy_s(soundFilename, "../CustomEngine/assets/sounds/fire_sound.wav");
-	
+
+	strcpy_s(soundFilename, "../CustomEngine/assets/sounds/sound04.wav");
+
 	result = m_TestSound2->LoadTrack(m_XAudio->GetXAudio2(), soundFilename, 1.f);
 	if (!result)
 	{
@@ -84,8 +96,15 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-		
+	m_TestSound2->Update3DPosition(0.0f, 0.0f, 0.0f);
+
 	result = m_TestSound2->PlayTrack();
+
+	m_Position = new Position;
+	m_Position->SetPosition(0.f, 1.5f, -11.f);
+
+	m_Timer = new Timer;
+	m_Timer->Initialize();
 
 	return true;
 }
@@ -110,25 +129,37 @@ void Application::Shutdown()
 		m_XAudio = nullptr;
 	}
 
-	if (m_FireShader)
+	if (m_Position)
 	{
-		m_FireShader->Shutdown();
-		delete m_FireShader;
-		m_FireShader = nullptr;
+		delete m_Position;
+		m_Position = nullptr;
 	}
 
-	if (m_WindowModel)
+	if (m_Timer)
 	{
-		m_WindowModel->Shutdown();
-		delete m_WindowModel;
-		m_WindowModel = nullptr;
+		delete m_Timer;
+		m_Timer = nullptr;
 	}
 
-	if (m_Model)
+	if (m_BillboardModel)
 	{
-		m_Model->Shutdown();
-		delete m_Model;
-		m_Model = nullptr;
+		m_BillboardModel->Shutdown();
+		delete m_BillboardModel;
+		m_BillboardModel = nullptr;
+	}
+
+	if (m_FloorModel)
+	{
+		m_FloorModel->Shutdown();
+		delete m_FloorModel;
+		m_FloorModel = nullptr;
+	}
+
+	if (m_TextureShader)
+	{
+		m_TextureShader->Shutdown();
+		delete m_TextureShader;
+		m_TextureShader = nullptr;
 	}
 
 	if (m_Camera)
@@ -149,24 +180,29 @@ void Application::Shutdown()
 bool Application::Frame(Input* Input)
 {
 	static float rotation = 0.f;
-	bool result;
+	
+	float positionX, positionY, positionZ; 
+	bool result, keyDown;
+
+	m_Timer->Frame();
 
 	if (Input->IsEscapePressed())
 	{
 		return false;
 	}
 
-	if (Input->IsRightArrowPressed())
-	{
-		positionX += 0.1f;
-	}
+	m_Position->SetFrameTime(m_Timer->GetTime());
 
-	if (Input->IsLeftArrowPressed())
-	{
-		positionX -= 0.1f;
-	}
+	keyDown = Input->IsLeftArrowPressed();
+	m_Position->MoveLeft(keyDown);
+	
+	keyDown = Input->IsRightArrowPressed();
+	m_Position->MoveRight(keyDown);
+	
+	m_Position->GetPosition(positionX, positionY, positionZ);
 
-	m_TestSound2->Update3DPosition(positionX, 0.f, 0.f);
+	m_Camera->SetPosition(positionX, positionY, positionZ);
+	m_Camera->Render();
 
 	rotation -= 0.0174532925f * 0.25f;
 	if (rotation < 0.0f)
@@ -195,6 +231,7 @@ bool Application::Frame(Input* Input)
 	return true;
 }
 
+
 bool Application::SoundProcessing()
 {
 	bool result;
@@ -207,6 +244,7 @@ bool Application::SoundProcessing()
 
 	return true;
 }
+
 
 /*
 bool Application::RenderSceneToTexture(float rotation)
@@ -240,29 +278,11 @@ bool Application::RenderSceneToTexture(float rotation)
 
 bool Application::Render(float rotation)
 {
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	XMFLOAT3 scrollSpeeds, scales;
-	XMFLOAT2 distortion1, distortion2, distortion3;
-	float distortionScale, distortionBias;
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, translateMatrix;
+	XMFLOAT3 cameraPosition, modelPosition;
+	double angle;
+	float pi, rotationY;
 	bool result;
-	static float frameTime = 0.f;
-
-	frameTime += 0.01f;
-	if (frameTime > 1000.f)
-	{
-		frameTime = 0.f;
-	}
-
-	scrollSpeeds = XMFLOAT3(1.3f, 2.1f, 2.3f);
-
-	scales = XMFLOAT3(1.f, 2.f, 3.f);
-
-	distortion1 = XMFLOAT2(0.1f, 0.2f);
-	distortion2 = XMFLOAT2(0.1f, 0.3f);
-	distortion3 = XMFLOAT2(0.1f, 0.1f);
-
-	distortionScale = 0.8f;
-	distortionBias = 0.5f;
 
 	m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.f);
 
@@ -271,15 +291,38 @@ bool Application::Render(float rotation)
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
 	m_Direct3D->EnableAlphaBlending();
-	
-	m_Model->Render(m_Direct3D->GetDeviceContext());
 
-	result = m_FireShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), m_Model->GetTexture(1), m_Model->GetTexture(2), frameTime, scrollSpeeds, scales, distortion1, distortion2, distortion3, distortionScale, distortionBias);
+	m_FloorModel->Render(m_Direct3D->GetDeviceContext());
+	result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_FloorModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_FloorModel->GetTexture(0));
 	if (!result)
 	{
 		return false;
 	}
-	
+
+	cameraPosition = m_Camera->GetPosition();
+
+	modelPosition.x = 0.f;
+	modelPosition.y = 1.5f;
+	modelPosition.z = 0.f;
+
+	pi = 3.14159265358979323846f;
+	angle = atan2(modelPosition.x - cameraPosition.x, modelPosition.y - cameraPosition.z) * (180.0f / pi);
+
+	rotationY = (float)angle * 0.0174532925f;
+
+	worldMatrix = XMMatrixRotationY(rotationY);
+
+	translateMatrix = XMMatrixTranslation(modelPosition.x, modelPosition.y, modelPosition.z);
+
+	worldMatrix = XMMatrixMultiply(worldMatrix, translateMatrix);
+
+	m_BillboardModel->Render(m_Direct3D->GetDeviceContext());
+	result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_BillboardModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_BillboardModel->GetTexture(0));
+	if (!result)
+	{
+		return false;
+	}
+
 	m_Direct3D->DisableAlphaBlending();
 
 	m_Direct3D->EndScene();
