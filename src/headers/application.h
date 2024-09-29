@@ -10,7 +10,9 @@
 #include "input.h"
 #include "camera.h"
 #include "model.h"
-#include "fireshader.h"
+#include "position.h"
+#include "textureshader.h"
+#include "timer.h"
 
 /* Trying wave file player */
 #include "xaudio.h"
@@ -41,12 +43,14 @@ private:
 private:
 	D3D* m_Direct3D;
 	Camera* m_Camera;
-	Model* m_Model;
-	Model* m_WindowModel;
-	FireShader* m_FireShader;	
+	Model* m_BillboardModel;
+	Model* m_FloorModel;
+	Position* m_Position;
+	Timer* m_Timer;
+	TextureShader* m_TextureShader;
+
 	XAudio* m_XAudio;
 	XAudioSound3D* m_TestSound2;
-	static float positionX;
 };
 
 #endif
