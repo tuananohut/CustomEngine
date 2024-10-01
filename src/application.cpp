@@ -40,10 +40,10 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	m_Camera = new Camera;
-	
+
 	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
 	m_Camera->Render();
-	
+
 	m_TextureShader = new TextureShader;
 	result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
 	if (!result)
@@ -53,8 +53,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	strcpy_s(modelFilename, "../CustomEngine/assets/models/floor.txt");
-	
-	strcpy_s(textureFilename, "../CustomEngine/assets/textures/grid01.tga");
+
+	strcpy_s(textureFilename, "../CustomEngine/assets/textures/dirt.tga");
 	strcpy_s(textureFilename1, "../CustomEngine/assets/textures/noise01.tga");
 	strcpy_s(textureFilename2, "../CustomEngine/assets/textures/alpha01.tga");
 
@@ -65,9 +65,9 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize the floor model object.", L"Error", MB_OK);
 		return false;
 	}
-	
+
 	strcpy_s(modelFilename, "../CustomEngine/assets/models/square.txt");
-	strcpy_s(textureFilename, "../CustomEngine/assets/textures/stone01.tga");
+	strcpy_s(textureFilename, "../CustomEngine/assets/textures/tree.tga");
 
 	m_BillboardModel = new Model;
 	result = m_BillboardModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
@@ -98,7 +98,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	m_TestSound2->Update3DPosition(0.0f, 0.0f, 0.0f);
 
-	result = m_TestSound2->PlayTrack();
+	//result = m_TestSound2->PlayTrack();
 
 	m_Position = new Position;
 	m_Position->SetPosition(0.f, 1.5f, -11.f);
@@ -180,8 +180,8 @@ void Application::Shutdown()
 bool Application::Frame(Input* Input)
 {
 	static float rotation = 0.f;
-	
-	float positionX, positionY, positionZ; 
+
+	float positionX, positionY, positionZ;
 	bool result, keyDown;
 
 	m_Timer->Frame();
@@ -195,10 +195,10 @@ bool Application::Frame(Input* Input)
 
 	keyDown = Input->IsLeftArrowPressed();
 	m_Position->MoveLeft(keyDown);
-	
+
 	keyDown = Input->IsRightArrowPressed();
 	m_Position->MoveRight(keyDown);
-	
+
 	m_Position->GetPosition(positionX, positionY, positionZ);
 
 	m_Camera->SetPosition(positionX, positionY, positionZ);
@@ -290,8 +290,6 @@ bool Application::Render(float rotation)
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-	m_Direct3D->EnableAlphaBlending();
-
 	m_FloorModel->Render(m_Direct3D->GetDeviceContext());
 	result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_FloorModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_FloorModel->GetTexture(0));
 	if (!result)
@@ -299,16 +297,102 @@ bool Application::Render(float rotation)
 		return false;
 	}
 
+	m_Direct3D->EnableAlphaBlending();
+	m_Direct3D->TurnZBufferOff();
+
 	cameraPosition = m_Camera->GetPosition();
 
 	modelPosition.x = 0.f;
 	modelPosition.y = 1.5f;
-	modelPosition.z = 0.f;
+	modelPosition.z = 3.f;
 
 	pi = 3.14159265358979323846f;
 	angle = atan2(modelPosition.x - cameraPosition.x, modelPosition.y - cameraPosition.z) * (180.0f / pi);
 
 	rotationY = (float)angle * 0.0174532925f;
+
+	worldMatrix = XMMatrixRotationY(rotationY);
+
+	translateMatrix = XMMatrixTranslation(modelPosition.x, modelPosition.y, modelPosition.z);
+
+	worldMatrix = XMMatrixMultiply(worldMatrix, translateMatrix);
+
+	m_Direct3D->EnableAlphaBlending();
+
+	m_BillboardModel->Render(m_Direct3D->GetDeviceContext());
+	result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_BillboardModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_BillboardModel->GetTexture(0));
+	if (!result)
+	{
+		return false;
+	}
+
+	// m_Direct3D->TurnZBufferOn();
+
+
+
+
+	modelPosition.x = 1.f;
+	modelPosition.y = 1.5f;
+	modelPosition.z = 0.f;
+
+	worldMatrix = XMMatrixRotationY(rotationY);
+
+	translateMatrix = XMMatrixTranslation(modelPosition.x, modelPosition.y, modelPosition.z);
+
+	worldMatrix = XMMatrixMultiply(worldMatrix, translateMatrix);
+
+	m_BillboardModel->Render(m_Direct3D->GetDeviceContext());
+	result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_BillboardModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_BillboardModel->GetTexture(0));
+	if (!result)
+	{
+		return false;
+	}
+
+
+
+
+	modelPosition.x = -1.f;
+	modelPosition.y = 1.5f;
+	modelPosition.z = 2.f;
+
+	worldMatrix = XMMatrixRotationY(rotationY);
+
+	translateMatrix = XMMatrixTranslation(modelPosition.x, modelPosition.y, modelPosition.z);
+
+	worldMatrix = XMMatrixMultiply(worldMatrix, translateMatrix);
+
+	m_BillboardModel->Render(m_Direct3D->GetDeviceContext());
+	result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_BillboardModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_BillboardModel->GetTexture(0));
+	if (!result)
+	{
+		return false;
+	}
+
+
+
+	modelPosition.x = -2.f;
+	modelPosition.y = 1.5f;
+	modelPosition.z = 1.5f;
+
+	worldMatrix = XMMatrixRotationY(rotationY);
+
+	translateMatrix = XMMatrixTranslation(modelPosition.x, modelPosition.y, modelPosition.z);
+
+	worldMatrix = XMMatrixMultiply(worldMatrix, translateMatrix);
+
+	m_BillboardModel->Render(m_Direct3D->GetDeviceContext());
+	result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_BillboardModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_BillboardModel->GetTexture(0));
+	if (!result)
+	{
+		return false;
+	}
+
+
+
+
+	modelPosition.x = 2.f;
+	modelPosition.y = 1.5f;
+	modelPosition.z = 1.f;
 
 	worldMatrix = XMMatrixRotationY(rotationY);
 
@@ -329,3 +413,4 @@ bool Application::Render(float rotation)
 
 	return true;
 }
+
