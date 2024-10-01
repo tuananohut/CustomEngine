@@ -1,5 +1,3 @@
-#pragma once
-
 #ifndef _APPLICATION_H_
 #define _APPLICATION_H_
 
@@ -10,9 +8,11 @@
 #include "input.h"
 #include "camera.h"
 #include "model.h"
-#include "position.h"
-#include "textureshader.h"
-#include "timer.h"
+// #include "position.h"
+// #include "textureshader.h"
+// #include "timer.h"
+
+#include "depthshader.h"
 
 /* Trying wave file player */
 #include "xaudio.h"
@@ -21,8 +21,8 @@
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
-const float SCREEN_DEPTH = 1000.0f;
-const float SCREEN_NEAR = 0.3f;
+const float SCREEN_DEPTH = 100.0f;
+const float SCREEN_NEAR = 1.f;
 
 class Application
 {
@@ -43,11 +43,12 @@ private:
 private:
 	D3D* m_Direct3D;
 	Camera* m_Camera;
-	Model* m_BillboardModel;
-	Model* m_FloorModel;
-	Position* m_Position;
-	Timer* m_Timer;
-	TextureShader* m_TextureShader;
+	Model* m_Model;
+	// Position* m_Position;
+	// Timer* m_Timer;
+	// TextureShader* m_TextureShader;
+
+	DepthShader* m_DepthShader;
 
 	XAudio* m_XAudio;
 	XAudioSound3D* m_TestSound2;
