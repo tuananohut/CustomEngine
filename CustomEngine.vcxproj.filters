@@ -138,6 +138,9 @@
     <ClInclude Include="src\headers\depthshader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\headers\blurshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -266,6 +269,9 @@
     <ClCompile Include="src\depthshader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\blurshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\color.vs" />
@@ -320,6 +326,8 @@
     <None Include="src\shaders\alphamap.ps" />
     <None Include="src\shaders\depth.vs" />
     <None Include="src\shaders\depth.ps" />
+    <None Include="src\shaders\blur.vs" />
+    <None Include="src\shaders\blur.ps" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\assets\models\cube.txt" />
