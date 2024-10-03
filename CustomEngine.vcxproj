@@ -151,6 +151,7 @@
     <ClInclude Include="src\headers\modellist.h" />
     <ClInclude Include="src\headers\multitextureshader.h" />
     <ClInclude Include="src\headers\normalmapshader.h" />
+    <ClInclude Include="src\headers\orthowindow.h" />
     <ClInclude Include="src\headers\position.h" />
     <ClInclude Include="src\headers\reflectionshader.h" />
     <ClInclude Include="src\headers\refractionshader.h" />
@@ -196,6 +197,7 @@
     <ClCompile Include="src\modellist.cpp" />
     <ClCompile Include="src\multitextureshader.cpp" />
     <ClCompile Include="src\normalmapshader.cpp" />
+    <ClCompile Include="src\orthowindow.cpp" />
     <ClCompile Include="src\position.cpp" />
     <ClCompile Include="src\reflectionshader.cpp" />
     <ClCompile Include="src\refractionshader.cpp" />
