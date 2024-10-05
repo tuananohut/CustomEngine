@@ -8,16 +8,16 @@
 #include "input.h"
 #include "camera.h"
 #include "model.h"
-// #include "position.h"
-// #include "textureshader.h"
-// #include "timer.h"
+#include "textureshader.h"
+#include "rendertexture.h"
+#include "orthowindow.h"
+#include "blur.h"
+#include "blurshader.h"
 
-#include "depthshader.h"
+/* */
 
-/* Trying wave file player */
-#include "xaudio.h"
-#include "xaudiosound.h"
-#include "xaudiosound3d.h"
+#include "position.h"
+#include "timer.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -36,22 +36,22 @@ public:
 	bool Frame(Input*);
 
 private:
-	// bool RenderSceneToTexture(float);
-	bool SoundProcessing();
+	bool RenderSceneToTexture(float);
+	// bool SoundProcessing();
 	bool Render(float);
 
 private:
 	D3D* m_Direct3D;
 	Camera* m_Camera;
 	Model* m_Model;
+	TextureShader* m_TextureShader;
+	RenderTexture* m_RenderTexture;
+	OrthoWindow* m_FullScreenWindow;
+	Blur* m_Blur;
+	BlurShader* m_BlurShader;
+
 	// Position* m_Position;
 	// Timer* m_Timer;
-	// TextureShader* m_TextureShader;
-
-	DepthShader* m_DepthShader;
-
-	XAudio* m_XAudio;
-	XAudioSound3D* m_TestSound2;
 };
 
 #endif
