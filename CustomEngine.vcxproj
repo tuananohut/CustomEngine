@@ -131,6 +131,7 @@
     <ClInclude Include="src\headers\alphamapshader.h" />
     <ClInclude Include="src\headers\application.h" />
     <ClInclude Include="src\headers\bitmap.h" />
+    <ClInclude Include="src\headers\blur.h" />
     <ClInclude Include="src\headers\blurshader.h" />
     <ClInclude Include="src\headers\camera.h" />
     <ClInclude Include="src\headers\clipplaneshader.h" />
@@ -176,6 +177,7 @@
     <ClCompile Include="src\alphamapshader.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\bitmap.cpp" />
+    <ClCompile Include="src\blur.cpp" />
     <ClCompile Include="src\blurshader.cpp" />
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\clipplaneshader.cpp" />
