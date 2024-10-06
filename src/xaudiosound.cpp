@@ -133,8 +133,8 @@ bool XAudioSound::LoadStereoWaveFile(IXAudio2* xAudio2, char* filename, float vo
 	{	
 		return false;
 	}
-
-	if (fmtData.auidoFormat != WAVE_FORMAT_PCM)
+	
+	if (fmtData.audioFormat != WAVE_FORMAT_PCM)
 	{
 		return false;
 	}
