@@ -65,7 +65,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	m_RenderTexture = new RenderTexture;
-	result = m_RenderTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_NEAR, 0);
+	result = m_RenderTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH, 0);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the render texture object.", L"Error", MB_OK);
@@ -187,7 +187,7 @@ bool Application::Frame(Input* Input)
 	result = m_Blur->BlurTexture(m_Direct3D, m_Camera, m_RenderTexture, m_TextureShader, m_BlurShader);
 	if (!result)
 	{
-		return false;
+		return true;
 	}
 
 	result = Render(rotation);
