@@ -2,11 +2,11 @@
 
 TextureShader::TextureShader()
 {
-	m_vertexShader = NULL;
-	m_pixelShader = NULL;
-	m_layout = NULL;
-	m_matrixBuffer = NULL;
-	m_sampleState = NULL;
+	m_vertexShader = nullptr;
+	m_pixelShader = nullptr;
+	m_layout = nullptr;
+	m_matrixBuffer = nullptr;
+	m_sampleState = nullptr;
 }
 
 TextureShader::TextureShader(const TextureShader& other) {}
@@ -44,8 +44,6 @@ bool TextureShader::Initialize(ID3D11Device* device, HWND hwnd)
 void TextureShader::Shutdown()
 {
 	ShutdownShader();
-
-	return;
 }
 
 bool TextureShader::Render(ID3D11DeviceContext* deviceContext, 
@@ -79,9 +77,9 @@ bool TextureShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
 
-	errorMessage = NULL;
-	vertexShaderBuffer = NULL;
-	pixelShaderBuffer = NULL;
+	errorMessage = nullptr;
+	vertexShaderBuffer = nullptr;
+	pixelShaderBuffer = nullptr;
 
 	result = D3DCompileFromFile(vsFilename, NULL, NULL, "TextureVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
 								&vertexShaderBuffer, &errorMessage);
@@ -153,10 +151,10 @@ bool TextureShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
 	}
 
 	vertexShaderBuffer->Release();
-	vertexShaderBuffer = NULL;
+	vertexShaderBuffer = nullptr;
 
 	pixelShaderBuffer->Release();
-	pixelShaderBuffer = NULL;
+	pixelShaderBuffer = nullptr;
 
 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
@@ -200,34 +198,32 @@ void TextureShader::ShutdownShader()
 	if(m_sampleState)
 	{
 		m_sampleState->Release();
-		m_sampleState = NULL;
+		m_sampleState = nullptr;
 	}
 
 	if(m_matrixBuffer)
 	{
 		m_matrixBuffer->Release();
-		m_matrixBuffer = NULL;
+		m_matrixBuffer = nullptr;
 	}
 
 	if(m_layout)
 	{
 		m_layout->Release();
-		m_layout = NULL;
+		m_layout = nullptr;
 	}
 
 	if (m_pixelShader)
 	{
 		m_pixelShader->Release();
-		m_pixelShader = NULL;
+		m_pixelShader = nullptr;
 	}
 
 	if(m_vertexShader)
 	{
 		m_vertexShader->Release();
-		m_vertexShader = NULL;
+		m_vertexShader = nullptr;
 	}
-
-	return;
 }
 
 
@@ -257,8 +253,6 @@ void TextureShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage,
 	errorMessage = NULL;
 
 	MessageBox(hwnd, L"Error compiling shader. Check shader-error.txt for message.", shaderFilename, MB_OK);
-
-	return;
 }
 
 bool TextureShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
@@ -310,6 +304,3 @@ void TextureShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCo
 
 	deviceContext->DrawIndexed(indexCount, 0, 0);
 }
-
-
-
