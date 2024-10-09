@@ -45,7 +45,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     strcpy_s(modelFilename, "../CustomEngine/assets/models/cube.txt");
 
-    strcpy_s(textureFilename, "../CustomEngine/assets/textures/stone01.tga");
+    strcpy_s(textureFilename, "../CustomEngine/assets/textures/palestine.tga");
     strcpy_s(textureFilename1, "../CustomEngine/assets/textures/noise01.tga");
     strcpy_s(textureFilename2, "../CustomEngine/assets/textures/alpha01.tga");
 
@@ -80,8 +80,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
-    downSampleWidth = screenWidth / 2;
-    downSampleHeight = screenHeight / 2;
+    downSampleWidth = screenWidth / 2 * 5;
+    downSampleHeight = screenHeight / 2 * 5; 
 
     m_Blur = new Blur;
     result = m_Blur->Initialize(m_Direct3D, downSampleWidth, downSampleHeight, SCREEN_NEAR, SCREEN_DEPTH, screenWidth, screenHeight);
@@ -183,7 +183,7 @@ bool Application::Frame(Input* Input)
     {
         return false;
     }
-
+    
     result = m_Blur->BlurTexture(m_Direct3D, m_Camera, m_RenderTexture, m_TextureShader, m_BlurShader);
     if (!result)
     {
@@ -233,7 +233,6 @@ bool Application::Render(float rotation)
 {
     XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
     bool result;
-
 
     m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
