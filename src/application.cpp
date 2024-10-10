@@ -80,8 +80,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
-    downSampleWidth = screenWidth / 2 * 5;
-    downSampleHeight = screenHeight / 2 * 5; 
+    downSampleWidth = screenWidth / 2;
+    downSampleHeight = screenHeight / 2; 
 
     m_Blur = new Blur;
     result = m_Blur->Initialize(m_Direct3D, downSampleWidth, downSampleHeight, SCREEN_NEAR, SCREEN_DEPTH, screenWidth, screenHeight);
@@ -239,6 +239,7 @@ bool Application::Render(float rotation)
     m_Direct3D->GetWorldMatrix(worldMatrix);
     m_Camera->GetViewMatrix(viewMatrix);
     m_Direct3D->GetOrthoMatrix(orthoMatrix);
+    m_Blur->BlurTexture(m_Direct3D, m_Camera, m_RenderTexture, m_TextureShader, m_BlurShader);
 
     m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
 
