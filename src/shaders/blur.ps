@@ -15,6 +15,7 @@ struct PixelInputType
 	float2 tex: TEXCOORD0;
 };
 
+// Linear Sampling
 float4 BlurPixelShader(PixelInputType input): SV_TARGET
 {
 	float texelSize = (blurType < 0.1f) ? 1.f / screenWidth : 1.f / screenHeight;
@@ -41,3 +42,13 @@ float4 BlurPixelShader(PixelInputType input): SV_TARGET
 
 	return color;
 }
+
+/*
+//  Nearest neighbor sampling
+float4 BlurPixelShader(PixelInputType input) : SV_TARGET
+{
+    float2 texCoord = input.tex;
+    texCoord = floor(texCoord * float2(screenWidth, screenHeight)) / float2(screenWidth, screenHeight);
+    return shaderTexture.Sample(SampleType, texCoord);
+}
+*/
