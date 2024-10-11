@@ -165,11 +165,27 @@ void Application::Shutdown()
 bool Application::Frame(Input* Input)
 {
     static float rotation = 0.0f;
+    static float translation = 0.f;
     bool result;
-
+    bool keyPressed = false;
+    
     if (Input->IsEscapePressed())
     {
         return false;
+    }
+
+    keyPressed = Input->IsRightArrowPressed();
+    if (keyPressed && translation <= 5)
+    {
+        // For x axis 
+        translation += 0.1f;
+    }
+
+    keyPressed = Input->IsLeftArrowPressed();
+    if (keyPressed && translation >= -5)
+    {
+        // For x axis 
+        translation -= 0.1f;
     }
 
     rotation -= 0.0174532925f * 0.25f;
@@ -178,7 +194,7 @@ bool Application::Frame(Input* Input)
         rotation += 360.0f;
     }
 
-    result = RenderSceneToTexture(rotation);
+    result = RenderSceneToTexture(rotation, translation);
     if (!result)
     {
         return false;
@@ -200,7 +216,7 @@ bool Application::Frame(Input* Input)
 }
 
 
-bool Application::RenderSceneToTexture(float rotation)
+bool Application::RenderSceneToTexture(float rotation, float translation)
 {
     XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
     bool result;
@@ -212,7 +228,7 @@ bool Application::RenderSceneToTexture(float rotation)
     m_Camera->GetViewMatrix(viewMatrix);
     m_RenderTexture->GetProjectionMatrix(projectionMatrix);
 
-    worldMatrix = XMMatrixRotationY(rotation);
+    worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixTranslation(translation, 0.f, 0.f));
 
     m_Model->Render(m_Direct3D->GetDeviceContext());
 
@@ -229,7 +245,7 @@ bool Application::RenderSceneToTexture(float rotation)
 }
 
 
-bool Application::Render(float rotation)
+bool Application::Render(float translation)
 {
     XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
     bool result;
