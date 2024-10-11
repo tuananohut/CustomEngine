@@ -36,7 +36,7 @@ public:
 	bool Frame(Input*);
 
 private:
-	bool RenderSceneToTexture(float);
+	bool RenderSceneToTexture(float, float);
 	// bool SoundProcessing();
 	bool Render(float);
 
