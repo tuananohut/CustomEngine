@@ -229,6 +229,26 @@ bool Input::IsRightArrowPressed()
 	return false;
 }
 
+bool Input::IsUpArrowPressed()
+{
+	if (m_keyboardState[DIK_UP] & 0x80)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool Input::IsDownArrowPressed()
+{
+	if (m_keyboardState[DIK_DOWN] & 0x80)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 void Input::GetMouseLocation(int& mouseX, int& mouseY)
 {
 	mouseX = m_mouseX;

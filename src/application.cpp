@@ -165,7 +165,8 @@ void Application::Shutdown()
 bool Application::Frame(Input* Input)
 {
     static float rotation = 0.0f;
-    static float translation = 0.f;
+    static float translationX = 0.f;
+    static float translationY = 0.f;
     bool result;
     bool keyPressed = false;
     
@@ -175,17 +176,31 @@ bool Application::Frame(Input* Input)
     }
 
     keyPressed = Input->IsRightArrowPressed();
-    if (keyPressed && translation <= 5)
+    if (keyPressed && translationX <= 5)
     {
         // For x axis 
-        translation += 0.1f;
+        translationX += 0.1f;
     }
 
     keyPressed = Input->IsLeftArrowPressed();
-    if (keyPressed && translation >= -5)
+    if (keyPressed && translationX >= -5)
     {
         // For x axis 
-        translation -= 0.1f;
+        translationX -= 0.1f;
+    }
+
+    keyPressed = Input->IsDownArrowPressed();
+    if (keyPressed && translationY >= -2.5)
+    {
+        // For y axis 
+        translationY -= 0.1f;
+    }
+
+    keyPressed = Input->IsUpArrowPressed();
+    if (keyPressed && translationY <= 2.5)
+    {
+        // For y axis 
+        translationY += 0.1f;
     }
 
     rotation -= 0.0174532925f * 0.25f;
@@ -194,7 +209,7 @@ bool Application::Frame(Input* Input)
         rotation += 360.0f;
     }
 
-    result = RenderSceneToTexture(rotation, translation);
+    result = RenderSceneToTexture(rotation, translationX, translationY);
     if (!result)
     {
         return false;
@@ -216,7 +231,7 @@ bool Application::Frame(Input* Input)
 }
 
 
-bool Application::RenderSceneToTexture(float rotation, float translation)
+bool Application::RenderSceneToTexture(float rotation, float translationX, float translationY)
 {
     XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
     bool result;
@@ -228,7 +243,7 @@ bool Application::RenderSceneToTexture(float rotation, float translation)
     m_Camera->GetViewMatrix(viewMatrix);
     m_RenderTexture->GetProjectionMatrix(projectionMatrix);
 
-    worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixTranslation(translation, 0.f, 0.f));
+    worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixTranslation(translationX, translationY, 0.f));
 
     m_Model->Render(m_Direct3D->GetDeviceContext());
 
