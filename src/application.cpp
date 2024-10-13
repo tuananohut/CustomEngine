@@ -179,28 +179,28 @@ bool Application::Frame(Input* Input)
     if (keyPressed && translationX <= 5)
     {
         // For x axis 
-        translationX += 0.1f;
+        translationX += 1.25f;
     }
 
     keyPressed = Input->IsLeftArrowPressed();
     if (keyPressed && translationX >= -5)
     {
         // For x axis 
-        translationX -= 0.1f;
+        translationX -= 1.25f;
     }
 
     keyPressed = Input->IsDownArrowPressed();
     if (keyPressed && translationY >= -2.5)
     {
         // For y axis 
-        translationY -= 0.1f;
+        translationY -= 0.625f;
     }
 
     keyPressed = Input->IsUpArrowPressed();
     if (keyPressed && translationY <= 2.5)
     {
         // For y axis 
-        translationY += 0.1f;
+        translationY += 0.625f;
     }
 
     rotation -= 0.0174532925f * 0.25f;
@@ -246,7 +246,6 @@ bool Application::RenderSceneToTexture(float rotation, float translationX, float
     worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixTranslation(translationX, translationY, 0.f));
 
     m_Model->Render(m_Direct3D->GetDeviceContext());
-
     result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0));
     if (!result)
     {
@@ -260,20 +259,31 @@ bool Application::RenderSceneToTexture(float rotation, float translationX, float
 }
 
 
-bool Application::Render(float translation)
+bool Application::Render(float rotation)
 {
-    XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
+    XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
     bool result;
 
     m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
     m_Direct3D->GetWorldMatrix(worldMatrix);
     m_Camera->GetViewMatrix(viewMatrix);
+    m_Direct3D->GetProjectionMatrix(projectionMatrix),
     m_Direct3D->GetOrthoMatrix(orthoMatrix);
-    m_Blur->BlurTexture(m_Direct3D, m_Camera, m_RenderTexture, m_TextureShader, m_BlurShader);
+   //  m_Blur->BlurTexture(m_Direct3D, m_Camera, m_RenderTexture, m_TextureShader, m_BlurShader);
+    
 
+    worldMatrix = XMMatrixTranslation(1.f, 0.f, 0.f);
+    m_Model->Render(m_Direct3D->GetDeviceContext());
+    result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_RenderTexture->GetShaderResourceView());
+    if (!result)
+    {
+        return false;
+    }
+
+    m_Direct3D->GetWorldMatrix(worldMatrix);
+    worldMatrix = XMMatrixTranslation(0.f, 0.f, 0.f);
     m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
-
     result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_RenderTexture->GetShaderResourceView());
     if (!result)
     {
