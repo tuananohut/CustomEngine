@@ -32,8 +32,11 @@ float4 BlurPixelShader(PixelInputType input): SV_TARGET
 	for (int i = 1; i <= 4; i++)
 	{
 		float2 offset = float2(texelSize * i, 0.f);
+		/*added dual pass for aggressive blur*/
 		color += shaderTexture.Sample(SampleType, input.tex + offset) * weight[i];
+		// color += shaderTexture.Sample(SampleType, input.tex + offset) * weight[i]; 
 		color += shaderTexture.Sample(SampleType, input.tex - offset) * weight[i];
+		// color += shaderTexture.Sample(SampleType, input.tex - offset) * weight[i];
 	}
 
 	color += shaderTexture.Sample(SampleType, input.tex) * weight[0];
