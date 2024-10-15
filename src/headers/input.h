@@ -26,6 +26,7 @@ public:
 	bool IsRightArrowPressed();
 	bool IsUpArrowPressed();
 	bool IsDownArrowPressed();
+	bool IsBPressed();
 
 	void GetMouseLocation(int&, int&);
 	bool IsMousePressed();

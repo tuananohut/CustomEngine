@@ -13,10 +13,6 @@
 #include "orthowindow.h"
 #include "blur.h"
 #include "blurshader.h"
-
-/* */
-
-#include "position.h"
 #include "timer.h"
 
 const bool FULL_SCREEN = true;
@@ -36,7 +32,7 @@ public:
 	bool Frame(Input*);
 
 private:
-	bool RenderSceneToTexture(float, float, float);
+	bool RenderSceneToTexture(float, float, float, bool);
 	// bool SoundProcessing();
 	bool Render(float);
 
@@ -49,9 +45,7 @@ private:
 	OrthoWindow* m_FullScreenWindow;
 	Blur* m_Blur;
 	BlurShader* m_BlurShader;
-
-	// Position* m_Position;
-	// Timer* m_Timer;
+	Timer* m_Timer;
 };
 
 #endif
