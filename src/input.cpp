@@ -264,3 +264,13 @@ bool Input::IsMousePressed()
 
 	return false;
 }
+
+bool Input::IsBPressed()
+{
+	if (m_keyboardState[DIK_B] & 0x80)
+	{
+		return true;
+	}
+
+	return false;
+}

@@ -11,6 +11,7 @@ Application::Application()
     m_FullScreenWindow = nullptr;
     m_Blur = nullptr;
     m_BlurShader = nullptr;
+    m_Timer = nullptr;
 }
 
 Application::Application(const Application& other) {}
@@ -99,6 +100,9 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
+    m_Timer = new Timer;
+    result = m_Timer->Initialize();
+
     return true;
 }
 
@@ -159,6 +163,12 @@ void Application::Shutdown()
         delete m_Direct3D;
         m_Direct3D = nullptr;
     }
+
+    if (m_Timer)
+    {
+        delete m_Timer;
+        m_Timer = nullptr;
+    }
 }
 
 
@@ -169,7 +179,11 @@ bool Application::Frame(Input* Input)
     static float translationY = 0.f;
     bool result;
     bool keyPressed = false;
+    bool blur = false;
+
     
+    m_Timer->Frame();
+
     if (Input->IsEscapePressed())
     {
         return false;
@@ -179,29 +193,34 @@ bool Application::Frame(Input* Input)
     if (keyPressed && translationX <= 5)
     {
         // For x axis 
-        translationX += 1.25f;
+        translationX += 25.f * m_Timer->GetTime();
+        blur = true;
     }
 
     keyPressed = Input->IsLeftArrowPressed();
     if (keyPressed && translationX >= -5)
     {
         // For x axis 
-        translationX -= 1.25f;
+        translationX -= 25.f * m_Timer->GetTime();
+        blur = true;
     }
 
     keyPressed = Input->IsDownArrowPressed();
     if (keyPressed && translationY >= -2.5)
     {
         // For y axis 
-        translationY -= 0.625f;
+        translationY -= 5.f * m_Timer->GetTime();
+        blur = true;
     }
 
     keyPressed = Input->IsUpArrowPressed();
     if (keyPressed && translationY <= 2.5)
     {
         // For y axis 
-        translationY += 0.625f;
+        translationY += 5.f * m_Timer->GetTime();
+        blur = true;
     }
+
 
     rotation -= 0.0174532925f * 0.25f;
     if (rotation < 0.0f)
@@ -209,17 +228,18 @@ bool Application::Frame(Input* Input)
         rotation += 360.0f;
     }
 
-    result = RenderSceneToTexture(rotation, translationX, translationY);
+    result = RenderSceneToTexture(rotation, translationX, translationY, blur);
     if (!result)
     {
         return false;
     }
+
+    if (Input->IsBPressed())
+    {
+        m_Blur->BlurTexture(m_Direct3D, m_Camera, m_RenderTexture, m_TextureShader, m_BlurShader);
+    }
     
-    // result = m_Blur->BlurTexture(m_Direct3D, m_Camera, m_RenderTexture, m_TextureShader, m_BlurShader);
-    // if (!result)
-    // {
-    //     return true;
-    // }
+
 
     result = Render(rotation);
     if (!result)
@@ -231,7 +251,7 @@ bool Application::Frame(Input* Input)
 }
 
 
-bool Application::RenderSceneToTexture(float rotation, float translationX, float translationY)
+bool Application::RenderSceneToTexture(float rotation, float translationX, float translationY, bool blur)
 {
     XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
     bool result;
@@ -243,20 +263,26 @@ bool Application::RenderSceneToTexture(float rotation, float translationX, float
     m_Camera->GetViewMatrix(viewMatrix);
     m_RenderTexture->GetProjectionMatrix(projectionMatrix);
 
-    worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixTranslation(translationX, translationY, 0.f));
-    m_Model->Render(m_Direct3D->GetDeviceContext());
-    result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0));
-    if (!result)
+    if (blur)
     {
-        return false;
+        worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixTranslation(translationX, translationY, 0.f));
+        m_Model->Render(m_Direct3D->GetDeviceContext());
+        result = m_BlurShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), 5, 5, 1);
+        if (!result)
+        {
+            return false;
+        }
     }
 
-    worldMatrix = XMMatrixTranslation(1.f, 0.f, 0.f);
-    m_Model->Render(m_Direct3D->GetDeviceContext());
-    result = m_BlurShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), 5, 5, 0.1);
-    if (!result)
+    else
     {
-        return false;
+        worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixTranslation(translationX, translationY, 0.f));
+        m_Model->Render(m_Direct3D->GetDeviceContext());
+        result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0));
+        if (!result)
+        {
+            return false;
+        }
     }
 
     m_Direct3D->SetBackBufferRenderTarget();
@@ -276,14 +302,8 @@ bool Application::Render(float rotation)
     m_Direct3D->GetWorldMatrix(worldMatrix);
     m_Camera->GetViewMatrix(viewMatrix);
     m_Direct3D->GetOrthoMatrix(orthoMatrix);
-    //m_Blur->BlurTexture(m_Direct3D, m_Camera, m_RenderTexture, m_TextureShader, m_BlurShader);
+    // m_Blur->BlurTexture(m_Direct3D, m_Camera, m_RenderTexture, m_TextureShader, m_BlurShader);
 
-    // result = m_BlurShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Model->GetTexture(0), 5, 5, 0.1);
-    // if (!result)
-    // {
-    //     return false;
-    // }
-    // 
     m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
     result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_RenderTexture->GetShaderResourceView());
     if (!result)
