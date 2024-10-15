@@ -49,7 +49,7 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [x] Tutorial 33: Fire
 - [x] Tutorial 34: Billboarding
 - [x] Tutorial 35: Depth Buffer
-- [ ] Tutorial 36: Blur
+- [x] Tutorial 36: Blur
 - [ ] ... 
 - [x] Tutorial 55: Direct Sound
 - [x] Tutorial 56: 3D Sound
