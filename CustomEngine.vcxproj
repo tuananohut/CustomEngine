@@ -140,6 +140,7 @@
     <ClInclude Include="src\headers\depthshader.h" />
     <ClInclude Include="src\headers\directsound.h" />
     <ClInclude Include="src\headers\displayplane.h" />
+    <ClInclude Include="src\headers\fadeshader.h" />
     <ClInclude Include="src\headers\fireshader.h" />
     <ClInclude Include="src\headers\fogshader.h" />
     <ClInclude Include="src\headers\frustum.h" />
@@ -186,6 +187,7 @@
     <ClCompile Include="src\depthshader.cpp" />
     <ClCompile Include="src\directsound.cpp" />
     <ClCompile Include="src\displayplane.cpp" />
+    <ClCompile Include="src\fadeshader.cpp" />
     <ClCompile Include="src\fireshader.cpp" />
     <ClCompile Include="src\fogshader.cpp" />
     <ClCompile Include="src\frustum.cpp" />
@@ -235,6 +237,8 @@
     <None Include="src\shaders\color.vs" />
     <None Include="src\shaders\depth.ps" />
     <None Include="src\shaders\depth.vs" />
+    <None Include="src\shaders\fade.ps" />
+    <None Include="src\shaders\fade.vs" />
     <None Include="src\shaders\fire.ps" />
     <None Include="src\shaders\fire.vs" />
     <None Include="src\shaders\fog.ps" />
