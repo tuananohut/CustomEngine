@@ -58,7 +58,7 @@ bool FadeShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMA
 
 	RenderShader(deviceContext, indexCount);
 	
-	return false;
+	return true;
 }
 
 bool FadeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename) 
