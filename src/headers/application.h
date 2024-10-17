@@ -11,8 +11,7 @@
 #include "textureshader.h"
 #include "rendertexture.h"
 #include "orthowindow.h"
-#include "blur.h"
-#include "blurshader.h"
+#include "fadeshader.h"
 #include "timer.h"
 
 const bool FULL_SCREEN = true;
@@ -43,9 +42,9 @@ private:
 	TextureShader* m_TextureShader;
 	RenderTexture* m_RenderTexture;
 	OrthoWindow* m_FullScreenWindow;
-	Blur* m_Blur;
-	BlurShader* m_BlurShader;
+	FadeShader* m_FadeShader;
 	Timer* m_Timer;
+	float m_accumulatedTime, m_fadeInTime;
 };
 
 #endif
