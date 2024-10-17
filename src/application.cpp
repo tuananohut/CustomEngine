@@ -9,8 +9,7 @@ Application::Application()
     m_Model = nullptr;
     m_RenderTexture = nullptr;
     m_FullScreenWindow = nullptr;
-    m_Blur = nullptr;
-    m_BlurShader = nullptr;
+    m_FadeShader = nullptr;
     m_Timer = nullptr;
 }
 
@@ -25,7 +24,6 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     char textureFilename[128];
     char textureFilename1[128];
     char textureFilename2[128];
-    int downSampleWidth, downSampleHeight;
     bool result;
 
     m_Direct3D = new D3D;
@@ -81,27 +79,25 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
-    downSampleWidth = screenWidth / 2;
-    downSampleHeight = screenHeight / 2; 
-
-    m_Blur = new Blur;
-    result = m_Blur->Initialize(m_Direct3D, downSampleWidth, downSampleHeight, SCREEN_NEAR, SCREEN_DEPTH, screenWidth, screenHeight);
+    m_FadeShader = new FadeShader;
+    result = m_FadeShader->Initialize(m_Direct3D->GetDevice(), hwnd);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the blur object.", L"Error", MB_OK);
-        return false;
-    }
-
-    m_BlurShader = new BlurShader;
-    result = m_BlurShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the blur shader object.", L"Error", MB_OK);
+        MessageBox(hwnd, L"Could not initialize the fade shader object.", L"Error", MB_OK | MB_ICONERROR);
         return false;
     }
 
     m_Timer = new Timer;
     result = m_Timer->Initialize();
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the timer object.", L"Error", MB_OK | MB_ICONERROR);
+        return false;
+    }
+
+    m_accumulatedTime = 0.f;
+
+    m_fadeInTime = 5.f;
 
     return true;
 }
@@ -109,18 +105,11 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Application::Shutdown()
 {
-    if (m_BlurShader)
+    if (m_FadeShader)
     {
-        m_BlurShader->Shutdown();
-        delete m_BlurShader;
-        m_BlurShader = nullptr;
-    }
-
-    if (m_Blur)
-    {
-        m_Blur->Shutdown();
-        delete m_Blur;
-        m_Blur = nullptr;
+        m_FadeShader->Shutdown();
+        delete m_FadeShader;
+        m_FadeShader = nullptr;
     }
 
     if (m_FullScreenWindow)
@@ -177,11 +166,11 @@ bool Application::Frame(Input* Input)
     static float rotation = 0.0f;
     static float translationX = 0.f;
     static float translationY = 0.f;
-    bool result;
+    float frameTime;
+    float fadePercentage;
+    bool result = false;
     bool keyPressed = false;
-    bool blur = false;
 
-    
     m_Timer->Frame();
 
     if (Input->IsEscapePressed())
@@ -189,12 +178,24 @@ bool Application::Frame(Input* Input)
         return false;
     }
 
+    frameTime = m_Timer->GetTime();
+    m_accumulatedTime += frameTime;
+
+    if (m_accumulatedTime < m_fadeInTime)
+    {
+        fadePercentage = m_accumulatedTime / m_fadeInTime;
+    }
+
+    else
+    {
+        fadePercentage = 1.f;
+    }
+
     keyPressed = Input->IsRightArrowPressed();
     if (keyPressed && translationX <= 5)
     {
         // For x axis 
         translationX += 25.f * m_Timer->GetTime();
-        blur = true;
     }
 
     keyPressed = Input->IsLeftArrowPressed();
@@ -202,7 +203,6 @@ bool Application::Frame(Input* Input)
     {
         // For x axis 
         translationX -= 25.f * m_Timer->GetTime();
-        blur = true;
     }
 
     keyPressed = Input->IsDownArrowPressed();
@@ -210,7 +210,6 @@ bool Application::Frame(Input* Input)
     {
         // For y axis 
         translationY -= 5.f * m_Timer->GetTime();
-        blur = true;
     }
 
     keyPressed = Input->IsUpArrowPressed();
@@ -218,7 +217,6 @@ bool Application::Frame(Input* Input)
     {
         // For y axis 
         translationY += 5.f * m_Timer->GetTime();
-        blur = true;
     }
 
 
@@ -228,21 +226,13 @@ bool Application::Frame(Input* Input)
         rotation += 360.0f;
     }
 
-    result = RenderSceneToTexture(rotation, translationX, translationY, blur);
+    result = RenderSceneToTexture(rotation, translationX, translationY, result);
     if (!result)
     {
         return false;
-    }
+    }    
 
-    if (Input->IsBPressed())
-    {
-
-        m_Blur->BlurTexture(m_Direct3D, m_Camera, m_RenderTexture, m_TextureShader, m_BlurShader);
-    }
-    
-
-
-    result = Render(rotation);
+    result = Render(fadePercentage);
     if (!result)
     {
         return false;
@@ -266,26 +256,13 @@ bool Application::RenderSceneToTexture(float rotation, float translationX, float
     
     worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixTranslation(translationX, translationY, 0.f));
 
-    if (blur)
+    m_Model->Render(m_Direct3D->GetDeviceContext());
+    result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0));
+    if (!result)
     {
-        m_Model->Render(m_Direct3D->GetDeviceContext());
-        result = m_BlurShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), 5, 5, 1);
-        if (!result)
-        {
-            return false;
-        }
+        return false;
     }
-
-    else
-    {
-        m_Model->Render(m_Direct3D->GetDeviceContext());
-        result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0));
-        if (!result)
-        {
-            return false;
-        }
-    }
-
+    
     m_Direct3D->SetBackBufferRenderTarget();
     m_Direct3D->ResetViewport();
 
@@ -293,7 +270,7 @@ bool Application::RenderSceneToTexture(float rotation, float translationX, float
 }
 
 
-bool Application::Render(float rotation)
+bool Application::Render(float fadePercentage)
 {
     XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
     bool result;
@@ -303,10 +280,9 @@ bool Application::Render(float rotation)
     m_Direct3D->GetWorldMatrix(worldMatrix);
     m_Camera->GetViewMatrix(viewMatrix);
     m_Direct3D->GetOrthoMatrix(orthoMatrix);
-    // m_Blur->BlurTexture(m_Direct3D, m_Camera, m_RenderTexture, m_TextureShader, m_BlurShader);
 
     m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
-    result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_RenderTexture->GetShaderResourceView());
+    result = m_FadeShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_RenderTexture->GetShaderResourceView(), fadePercentage);
     if (!result)
     {
         return false;
