@@ -179,7 +179,7 @@ bool Application::Frame(Input* Input)
     }
 
     frameTime = m_Timer->GetTime();
-    m_accumulatedTime += frameTime;
+    m_accumulatedTime += frameTime * 20.f;
 
     if (m_accumulatedTime < m_fadeInTime)
     {
