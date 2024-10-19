@@ -97,7 +97,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_accumulatedTime = 0.f;
 
-    m_fadeInTime = 5.f;
+    m_fadeInTime = 10.f;
 
     return true;
 }
@@ -179,16 +179,33 @@ bool Application::Frame(Input* Input)
     }
 
     frameTime = m_Timer->GetTime();
-    m_accumulatedTime += frameTime * 20.f;
+    m_accumulatedTime += frameTime;
 
-    if (m_accumulatedTime < m_fadeInTime)
+    static bool fadingOut = false;
+    static float fadeOutStartTime = 0.0f;
+
+    if (!fadingOut && m_accumulatedTime < m_fadeInTime)
     {
-        fadePercentage = m_accumulatedTime / m_fadeInTime;
+        fadePercentage = m_accumulatedTime / m_fadeInTime; 
+    }
+    else if (!fadingOut && m_accumulatedTime >= m_fadeInTime)
+    {
+        fadePercentage = 1.0f;
+        fadingOut = true;  
+        fadeOutStartTime = m_accumulatedTime;  
     }
 
-    else
+    if (fadingOut)
     {
-        fadePercentage = 1.f;
+        float fadeOutProgress = (m_accumulatedTime - fadeOutStartTime) / m_fadeInTime;  
+        if (fadeOutProgress <= 1.0f)
+        {
+            fadePercentage = 1.0f - fadeOutProgress; 
+        }
+        else
+        {
+            fadePercentage = 0.0f;
+        }
     }
 
     keyPressed = Input->IsRightArrowPressed();
