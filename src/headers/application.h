@@ -38,13 +38,23 @@ private:
 private:
 	D3D* m_Direct3D;
 	Camera* m_Camera;
-	Model* m_Model;
+	Model* m_Cube;
+	Model* m_IcoSphere;
 	TextureShader* m_TextureShader;
 	RenderTexture* m_RenderTexture;
+	RenderTexture* m_RenderTexture2;
 	OrthoWindow* m_FullScreenWindow;
 	FadeShader* m_FadeShader;
 	Timer* m_Timer;
 	float m_accumulatedTime, m_fadeInTime;
+
+	int scenes[2] = { 0, 1 };
+	static int scene;
+
+	float fadeTimer = 0.f;
+	bool isSceneChanging = false;
+	float fadeDuration = 1.f;
+	int previousScene = scenes[scene];
 };
 
 #endif
