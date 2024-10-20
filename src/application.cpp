@@ -1,13 +1,16 @@
 #include "headers/application.h"
 
+int Application::scene = 0;
 
 Application::Application()
 {
     m_Direct3D = nullptr;
     m_Camera = nullptr;
     m_TextureShader = nullptr;
-    m_Model = nullptr;
+    m_Cube = nullptr;
+    m_IcoSphere = nullptr;
     m_RenderTexture = nullptr;
+    m_RenderTexture2 = nullptr;
     m_FullScreenWindow = nullptr;
     m_FadeShader = nullptr;
     m_Timer = nullptr;
@@ -40,18 +43,27 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
     m_Camera->Render();
 
-    m_Model = new Model;
+    m_Cube = new Model;
 
     strcpy_s(modelFilename, "../CustomEngine/assets/models/cube.txt");
 
     strcpy_s(textureFilename, "../CustomEngine/assets/textures/palestine.tga");
-    strcpy_s(textureFilename1, "../CustomEngine/assets/textures/noise01.tga");
+    strcpy_s(textureFilename1, "../CustomEngine/assets/textures/ground01.tga");
     strcpy_s(textureFilename2, "../CustomEngine/assets/textures/alpha01.tga");
 
-    result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
+    result = m_Cube->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+        MessageBox(hwnd, L"Could not initialize the cube object.", L"Error", MB_OK);
+        return false;
+    }
+
+    m_IcoSphere = new Model;
+    strcpy_s(modelFilename, "../CustomEngine/assets/models/ico_sphere.txt");
+    result = m_IcoSphere->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the cube object.", L"Error", MB_OK);
         return false;
     }
 
@@ -65,6 +77,14 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_RenderTexture = new RenderTexture;
     result = m_RenderTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH, 0);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the render texture object.", L"Error", MB_OK);
+        return false;
+    }
+
+    m_RenderTexture2 = new RenderTexture;
+    result = m_RenderTexture2->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH, 0);
     if (!result)
     {
         MessageBox(hwnd, L"Could not initialize the render texture object.", L"Error", MB_OK);
@@ -126,6 +146,13 @@ void Application::Shutdown()
         m_RenderTexture = nullptr;
     }
 
+    if (m_RenderTexture2)
+    {
+        m_RenderTexture2->Shutdown();
+        delete m_RenderTexture2;
+        m_RenderTexture2 = nullptr;
+    }
+
     if (m_TextureShader)
     {
         m_TextureShader->Shutdown();
@@ -133,11 +160,18 @@ void Application::Shutdown()
         m_TextureShader = nullptr;
     }
 
-    if (m_Model)
+    if (m_Cube)
     {
-        m_Model->Shutdown();
-        delete m_Model;
-        m_Model = nullptr;
+        m_Cube->Shutdown();
+        delete m_Cube;
+        m_Cube = nullptr;
+    }
+
+    if (m_IcoSphere)
+    {
+        m_IcoSphere->Shutdown();
+        delete m_IcoSphere;
+        m_IcoSphere = nullptr;
     }
 
     if (m_Camera)
@@ -167,7 +201,7 @@ bool Application::Frame(Input* Input)
     static float translationX = 0.f;
     static float translationY = 0.f;
     float frameTime;
-    float fadePercentage;
+    float fadePercentage = 1.f;
     bool result = false;
     bool keyPressed = false;
 
@@ -181,38 +215,34 @@ bool Application::Frame(Input* Input)
     frameTime = m_Timer->GetTime();
     m_accumulatedTime += frameTime;
 
-    static bool fadingOut = false;
-    static float fadeOutStartTime = 0.0f;
-
-    if (!fadingOut && m_accumulatedTime < m_fadeInTime)
+    if (!isSceneChanging && previousScene != scenes[scene])
     {
-        fadePercentage = m_accumulatedTime / m_fadeInTime; 
-    }
-    else if (!fadingOut && m_accumulatedTime >= m_fadeInTime)
-    {
-        fadePercentage = 1.0f;
-        fadingOut = true;  
-        fadeOutStartTime = m_accumulatedTime;  
+        isSceneChanging = true;
+        fadeTimer = 0.f;
+        m_accumulatedTime = 0.f;
+        previousScene = scenes[scene];
     }
 
-    if (fadingOut)
+    if (isSceneChanging)
     {
-        float fadeOutProgress = (m_accumulatedTime - fadeOutStartTime) / m_fadeInTime;  
-        if (fadeOutProgress <= 1.0f)
+        if (m_accumulatedTime < m_fadeInTime)
         {
-            fadePercentage = 1.0f - fadeOutProgress; 
+            fadePercentage = m_accumulatedTime / m_fadeInTime;
         }
+
         else
         {
-            fadePercentage = 0.0f;
+            isSceneChanging = false;
+            fadePercentage = 1.0f;
         }
     }
-
+   
     keyPressed = Input->IsRightArrowPressed();
     if (keyPressed && translationX <= 5)
     {
         // For x axis 
         translationX += 25.f * m_Timer->GetTime();
+
     }
 
     keyPressed = Input->IsLeftArrowPressed();
@@ -220,6 +250,7 @@ bool Application::Frame(Input* Input)
     {
         // For x axis 
         translationX -= 25.f * m_Timer->GetTime();
+
     }
 
     keyPressed = Input->IsDownArrowPressed();
@@ -236,6 +267,16 @@ bool Application::Frame(Input* Input)
         translationY += 5.f * m_Timer->GetTime();
     }
 
+    keyPressed = Input->IsBPressed();
+    if (keyPressed && scenes[Application::scene] == 0)
+    {
+        Application::scene = 1;
+    }
+
+    else
+    {
+        Application::scene = 0;
+    }
 
     rotation -= 0.0174532925f * 0.25f;
     if (rotation < 0.0f)
@@ -273,13 +314,35 @@ bool Application::RenderSceneToTexture(float rotation, float translationX, float
     
     worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixTranslation(translationX, translationY, 0.f));
 
-    m_Model->Render(m_Direct3D->GetDeviceContext());
-    result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0));
-    if (!result)
+    if(scenes[scene] == 0)
     {
-        return false;
+        m_Cube->Render(m_Direct3D->GetDeviceContext());
+        result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Cube->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Cube->GetTexture(0));
+        if (!result)
+        {
+            return false;
+        }
     }
     
+    m_RenderTexture2->SetRenderTarget(m_Direct3D->GetDeviceContext());
+    m_RenderTexture2->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.f);
+
+    m_Direct3D->GetWorldMatrix(worldMatrix);
+    m_Camera->GetViewMatrix(viewMatrix);
+    m_RenderTexture2->GetProjectionMatrix(projectionMatrix);
+
+    worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixTranslation(translationX, translationY, 0.f));
+
+    if (scenes[scene] == 1)
+    {
+        m_IcoSphere->Render(m_Direct3D->GetDeviceContext());
+        result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_IcoSphere->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_IcoSphere->GetTexture(1));
+        if (!result)
+        {
+            return false;
+        }
+    }
+
     m_Direct3D->SetBackBufferRenderTarget();
     m_Direct3D->ResetViewport();
 
@@ -292,20 +355,45 @@ bool Application::Render(float fadePercentage)
     XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
     bool result;
 
-    m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
-
     m_Direct3D->GetWorldMatrix(worldMatrix);
     m_Camera->GetViewMatrix(viewMatrix);
     m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
-    m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
-    result = m_FadeShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_RenderTexture->GetShaderResourceView(), fadePercentage);
-    if (!result)
+    if (scenes[scene] == 0)
     {
-        return false;
+        m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+
+        m_Direct3D->GetWorldMatrix(worldMatrix);
+        m_Camera->GetViewMatrix(viewMatrix);
+        m_Direct3D->GetOrthoMatrix(orthoMatrix);
+
+        m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
+        result = m_FadeShader->Render(m_Direct3D->GetDeviceContext(), m_Cube->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_RenderTexture->GetShaderResourceView(), fadePercentage);
+        if (!result)
+        {
+            return false;
+        }
+
+        m_Direct3D->EndScene();
     }
 
-    m_Direct3D->EndScene();
+    else
+    {
+        m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+
+        m_Direct3D->GetWorldMatrix(worldMatrix);
+        m_Camera->GetViewMatrix(viewMatrix);
+        m_Direct3D->GetOrthoMatrix(orthoMatrix);
+
+        m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
+        result = m_FadeShader->Render(m_Direct3D->GetDeviceContext(), m_IcoSphere->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_RenderTexture2->GetShaderResourceView(), fadePercentage);
+        if (!result)
+        {
+            return false;
+        }
+
+        m_Direct3D->EndScene();
+    }
 
     return true;
 }
