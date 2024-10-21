@@ -47,14 +47,6 @@ private:
 	FadeShader* m_FadeShader;
 	Timer* m_Timer;
 	float m_accumulatedTime, m_fadeInTime;
-
-	int scenes[2] = { 0, 1 };
-	static int scene;
-
-	float fadeTimer = 0.f;
-	bool isSceneChanging = false;
-	float fadeDuration = 1.f;
-	int previousScene = scenes[scene];
 };
 
 #endif
