@@ -50,7 +50,7 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [x] Tutorial 34: Billboarding
 - [x] Tutorial 35: Depth Buffer
 - [x] Tutorial 36: Blur
-- [ ] Tutorial 37: Screen Fades
+- [x] Tutorial 37: Screen Fades
 - [ ] ... 
 - [x] Tutorial 55: Direct Sound
 - [x] Tutorial 56: 3D Sound
