@@ -1,6 +1,7 @@
 #include "headers/application.h"
 
-int Application::scene = 0;
+int scenes[2] = { 0, 1 };
+static int scene = 0;
 
 Application::Application()
 {
@@ -116,8 +117,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     }
 
     m_accumulatedTime = 0.f;
-
-    m_fadeInTime = 10.f;
+    m_fadeInTime = 3.f;
 
     return true;
 }
@@ -204,6 +204,9 @@ bool Application::Frame(Input* Input)
     float fadePercentage = 1.f;
     bool result = false;
     bool keyPressed = false;
+    static bool isSceneChanging = false;
+    float fadeDuration = 1.f;
+    static int previousScene = scenes[scene];
 
     m_Timer->Frame();
 
@@ -215,10 +218,9 @@ bool Application::Frame(Input* Input)
     frameTime = m_Timer->GetTime();
     m_accumulatedTime += frameTime;
 
-    if (!isSceneChanging && previousScene != scenes[scene])
+    if (previousScene != scenes[scene])
     {
         isSceneChanging = true;
-        fadeTimer = 0.f;
         m_accumulatedTime = 0.f;
         previousScene = scenes[scene];
     }
@@ -236,13 +238,25 @@ bool Application::Frame(Input* Input)
             fadePercentage = 1.0f;
         }
     }
-   
+
+    static bool wasBPressed = false;
+    keyPressed = Input->IsBPressed();
+    if (keyPressed && !wasBPressed)
+    {
+        scene = (scene == 0) ? 1 : 0;
+        wasBPressed= true;
+    }
+
+    else if (!keyPressed)
+    {
+        wasBPressed = false;
+    }
+
     keyPressed = Input->IsRightArrowPressed();
     if (keyPressed && translationX <= 5)
     {
         // For x axis 
         translationX += 25.f * m_Timer->GetTime();
-
     }
 
     keyPressed = Input->IsLeftArrowPressed();
@@ -250,7 +264,6 @@ bool Application::Frame(Input* Input)
     {
         // For x axis 
         translationX -= 25.f * m_Timer->GetTime();
-
     }
 
     keyPressed = Input->IsDownArrowPressed();
@@ -265,17 +278,6 @@ bool Application::Frame(Input* Input)
     {
         // For y axis 
         translationY += 5.f * m_Timer->GetTime();
-    }
-
-    keyPressed = Input->IsBPressed();
-    if (keyPressed && scenes[Application::scene] == 0)
-    {
-        Application::scene = 1;
-    }
-
-    else
-    {
-        Application::scene = 0;
     }
 
     rotation -= 0.0174532925f * 0.25f;
