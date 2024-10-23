@@ -150,6 +150,9 @@
     <ClInclude Include="src\headers\fadeshader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\headers\particleshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -290,6 +293,9 @@
     <ClCompile Include="src\fadeshader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\particleshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\color.vs" />
@@ -348,6 +354,8 @@
     <None Include="src\shaders\blur.ps" />
     <None Include="src\shaders\fade.vs" />
     <None Include="src\shaders\fade.ps" />
+    <None Include="src\shaders\particle.vs" />
+    <None Include="src\shaders\particle.ps" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\assets\models\cube.txt" />

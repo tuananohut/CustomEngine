@@ -154,6 +154,7 @@
     <ClInclude Include="src\headers\multitextureshader.h" />
     <ClInclude Include="src\headers\normalmapshader.h" />
     <ClInclude Include="src\headers\orthowindow.h" />
+    <ClInclude Include="src\headers\particleshader.h" />
     <ClInclude Include="src\headers\position.h" />
     <ClInclude Include="src\headers\reflectionshader.h" />
     <ClInclude Include="src\headers\refractionshader.h" />
@@ -202,6 +203,7 @@
     <ClCompile Include="src\multitextureshader.cpp" />
     <ClCompile Include="src\normalmapshader.cpp" />
     <ClCompile Include="src\orthowindow.cpp" />
+    <ClCompile Include="src\particleshader.cpp" />
     <ClCompile Include="src\position.cpp" />
     <ClCompile Include="src\reflectionshader.cpp" />
     <ClCompile Include="src\refractionshader.cpp" />
@@ -253,6 +255,8 @@
     <None Include="src\shaders\multitexture.vs" />
     <None Include="src\shaders\normalmap.ps" />
     <None Include="src\shaders\normalmap.vs" />
+    <None Include="src\shaders\particle.ps" />
+    <None Include="src\shaders\particle.vs" />
     <None Include="src\shaders\reflection.ps" />
     <None Include="src\shaders\reflection.vs" />
     <None Include="src\shaders\refraction.ps" />
