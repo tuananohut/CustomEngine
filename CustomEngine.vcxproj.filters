@@ -153,6 +153,9 @@
     <ClInclude Include="src\headers\particleshader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\headers\particlesystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -294,6 +297,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\particleshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\particlesystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
