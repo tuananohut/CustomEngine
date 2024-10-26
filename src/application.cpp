@@ -7,14 +7,9 @@ Application::Application()
 {
     m_Direct3D = nullptr;
     m_Camera = nullptr;
-    m_TextureShader = nullptr;
-    m_Cube = nullptr;
-    m_IcoSphere = nullptr;
-    m_RenderTexture = nullptr;
-    m_RenderTexture2 = nullptr;
-    m_FullScreenWindow = nullptr;
-    m_FadeShader = nullptr;
     m_Timer = nullptr;
+    m_ParticleShader = nullptr;
+    m_ParticleSystem = nullptr;
 }
 
 Application::Application(const Application& other) {}
@@ -41,72 +36,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_Camera = new Camera;
 
-    m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
+    m_Camera->SetPosition(0.0f, -1.0f, -10.0f);
     m_Camera->Render();
-
-    m_Cube = new Model;
-
-    strcpy_s(modelFilename, "../CustomEngine/assets/models/cube.txt");
-
-    strcpy_s(textureFilename, "../CustomEngine/assets/textures/palestine.tga");
-    strcpy_s(textureFilename1, "../CustomEngine/assets/textures/ground01.tga");
-    strcpy_s(textureFilename2, "../CustomEngine/assets/textures/alpha01.tga");
-
-    result = m_Cube->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the cube object.", L"Error", MB_OK);
-        return false;
-    }
-
-    m_IcoSphere = new Model;
-    strcpy_s(modelFilename, "../CustomEngine/assets/models/ico_sphere.txt");
-    result = m_IcoSphere->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the cube object.", L"Error", MB_OK);
-        return false;
-    }
-
-    m_TextureShader = new TextureShader;
-    result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
-        return false;
-    }
-
-    m_RenderTexture = new RenderTexture;
-    result = m_RenderTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH, 0);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the render texture object.", L"Error", MB_OK);
-        return false;
-    }
-
-    m_RenderTexture2 = new RenderTexture;
-    result = m_RenderTexture2->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH, 0);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the render texture object.", L"Error", MB_OK);
-        return false;
-    }
-
-    m_FullScreenWindow = new OrthoWindow;
-    result = m_FullScreenWindow->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the full screen ortho window object.", L"Error", MB_OK);
-        return false;
-    }
-
-    m_FadeShader = new FadeShader;
-    result = m_FadeShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the fade shader object.", L"Error", MB_OK | MB_ICONERROR);
-        return false;
-    }
 
     m_Timer = new Timer;
     result = m_Timer->Initialize();
@@ -116,8 +47,23 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
-    m_accumulatedTime = 0.f;
-    m_fadeInTime = 3.f;
+    strcpy_s(textureFilename, "../CustomEngine/assets/textures/star01.tga");
+
+    m_ParticleSystem = new ParticleSystem;
+    result = m_ParticleSystem->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), textureFilename);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the particle system object.", L"Error", MB_OK | MB_ICONERROR);
+        return false;
+    }
+
+    m_ParticleShader = new ParticleShader;
+    result = m_ParticleShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the particle shader object.", L"Error", MB_OK | MB_ICONERROR);
+        return false;
+    }
 
     return true;
 }
@@ -125,53 +71,18 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Application::Shutdown()
 {
-    if (m_FadeShader)
+    if (m_ParticleShader)
     {
-        m_FadeShader->Shutdown();
-        delete m_FadeShader;
-        m_FadeShader = nullptr;
+        m_ParticleShader->Shutdown();
+        delete m_ParticleShader;
+        m_ParticleShader = nullptr;
     }
 
-    if (m_FullScreenWindow)
+    if (m_ParticleSystem)
     {
-        m_FullScreenWindow->Shutdown();
-        delete m_FullScreenWindow;
-        m_FullScreenWindow = nullptr;
-    }
-
-    if (m_RenderTexture)
-    {
-        m_RenderTexture->Shutdown();
-        delete m_RenderTexture;
-        m_RenderTexture = nullptr;
-    }
-
-    if (m_RenderTexture2)
-    {
-        m_RenderTexture2->Shutdown();
-        delete m_RenderTexture2;
-        m_RenderTexture2 = nullptr;
-    }
-
-    if (m_TextureShader)
-    {
-        m_TextureShader->Shutdown();
-        delete m_TextureShader;
-        m_TextureShader = nullptr;
-    }
-
-    if (m_Cube)
-    {
-        m_Cube->Shutdown();
-        delete m_Cube;
-        m_Cube = nullptr;
-    }
-
-    if (m_IcoSphere)
-    {
-        m_IcoSphere->Shutdown();
-        delete m_IcoSphere;
-        m_IcoSphere = nullptr;
+        m_ParticleSystem->Shutdown();
+        delete m_ParticleSystem;
+        m_ParticleSystem = nullptr;
     }
 
     if (m_Camera)
@@ -198,15 +109,7 @@ void Application::Shutdown()
 bool Application::Frame(Input* Input)
 {
     static float rotation = 0.0f;
-    static float translationX = 0.f;
-    static float translationY = 0.f;
-    float frameTime;
-    float fadePercentage = 1.f;
-    bool result = false;
-    bool keyPressed = false;
-    static bool isSceneChanging = false;
-    float fadeDuration = 1.f;
-    static int previousScene = scenes[scene];
+    bool result;
 
     m_Timer->Frame();
 
@@ -215,84 +118,13 @@ bool Application::Frame(Input* Input)
         return false;
     }
 
-    frameTime = m_Timer->GetTime();
-    m_accumulatedTime += frameTime;
-
-    if (previousScene != scenes[scene])
-    {
-        isSceneChanging = true;
-        m_accumulatedTime = 0.f;
-        previousScene = scenes[scene];
-    }
-
-    if (isSceneChanging)
-    {
-        if (m_accumulatedTime < m_fadeInTime)
-        {
-            fadePercentage = m_accumulatedTime / m_fadeInTime;
-        }
-
-        else
-        {
-            isSceneChanging = false;
-            fadePercentage = 1.0f;
-        }
-    }
-
-    static bool wasBPressed = false;
-    keyPressed = Input->IsBPressed();
-    if (keyPressed && !wasBPressed)
-    {
-        scene = (scene == 0) ? 1 : 0;
-        wasBPressed= true;
-    }
-
-    else if (!keyPressed)
-    {
-        wasBPressed = false;
-    }
-
-    keyPressed = Input->IsRightArrowPressed();
-    if (keyPressed && translationX <= 5)
-    {
-        // For x axis 
-        translationX += 25.f * m_Timer->GetTime();
-    }
-
-    keyPressed = Input->IsLeftArrowPressed();
-    if (keyPressed && translationX >= -5)
-    {
-        // For x axis 
-        translationX -= 25.f * m_Timer->GetTime();
-    }
-
-    keyPressed = Input->IsDownArrowPressed();
-    if (keyPressed && translationY >= -2.5)
-    {
-        // For y axis 
-        translationY -= 5.f * m_Timer->GetTime();
-    }
-
-    keyPressed = Input->IsUpArrowPressed();
-    if (keyPressed && translationY <= 2.5)
-    {
-        // For y axis 
-        translationY += 5.f * m_Timer->GetTime();
-    }
-
-    rotation -= 0.0174532925f * 0.25f;
-    if (rotation < 0.0f)
-    {
-        rotation += 360.0f;
-    }
-
-    result = RenderSceneToTexture(rotation, translationX, translationY, result);
+    result = m_ParticleSystem->Frame(m_Timer->GetTime(), m_Direct3D->GetDeviceContext());
     if (!result)
     {
         return false;
-    }    
+    }
 
-    result = Render(fadePercentage);
+    result = Render(rotation);
     if (!result)
     {
         return false;
@@ -301,7 +133,7 @@ bool Application::Frame(Input* Input)
     return true;
 }
 
-
+/*
 bool Application::RenderSceneToTexture(float rotation, float translationX, float translationY, bool blur)
 {
     XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
@@ -350,52 +182,32 @@ bool Application::RenderSceneToTexture(float rotation, float translationX, float
 
     return true;
 }
-
+*/
 
 bool Application::Render(float fadePercentage)
 {
-    XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
+    XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
     bool result;
+
+    m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.f);
 
     m_Direct3D->GetWorldMatrix(worldMatrix);
     m_Camera->GetViewMatrix(viewMatrix);
-    m_Direct3D->GetOrthoMatrix(orthoMatrix);
+    m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-    if (scenes[scene] == 0)
+    m_Direct3D->EnableAlphaBlending();
+
+    m_ParticleSystem->Render(m_Direct3D->GetDeviceContext());
+
+    result = m_ParticleShader->Render(m_Direct3D->GetDeviceContext(), m_ParticleSystem->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_ParticleSystem->GetTexture());
+    if (!result)
     {
-        m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
-
-        m_Direct3D->GetWorldMatrix(worldMatrix);
-        m_Camera->GetViewMatrix(viewMatrix);
-        m_Direct3D->GetOrthoMatrix(orthoMatrix);
-
-        m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
-        result = m_FadeShader->Render(m_Direct3D->GetDeviceContext(), m_Cube->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_RenderTexture->GetShaderResourceView(), fadePercentage);
-        if (!result)
-        {
-            return false;
-        }
-
-        m_Direct3D->EndScene();
+        return false;
     }
 
-    else
-    {
-        m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
-
-        m_Direct3D->GetWorldMatrix(worldMatrix);
-        m_Camera->GetViewMatrix(viewMatrix);
-        m_Direct3D->GetOrthoMatrix(orthoMatrix);
-
-        m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
-        result = m_FadeShader->Render(m_Direct3D->GetDeviceContext(), m_IcoSphere->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_RenderTexture2->GetShaderResourceView(), fadePercentage);
-        if (!result)
-        {
-            return false;
-        }
-
-        m_Direct3D->EndScene();
-    }
+    m_Direct3D->DisableAlphaBlending();
+    
+    m_Direct3D->EndScene();
 
     return true;
 }
