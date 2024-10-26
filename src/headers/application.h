@@ -1,18 +1,12 @@
 #ifndef _APPLICATION_H_
 #define _APPLICATION_H_
 
-#include <Windows.h>
-#include <cmath>
-
 #include "d3d.h"
 #include "input.h"
 #include "camera.h"
-#include "model.h"
-#include "textureshader.h"
-#include "rendertexture.h"
-#include "orthowindow.h"
-#include "fadeshader.h"
 #include "timer.h"
+#include "particlesystem.h"
+#include "particleshader.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -31,22 +25,16 @@ public:
 	bool Frame(Input*);
 
 private:
-	bool RenderSceneToTexture(float, float, float, bool);
+	// bool RenderSceneToTexture(float, float, float, bool);
 	// bool SoundProcessing();
 	bool Render(float);
 
 private:
 	D3D* m_Direct3D;
 	Camera* m_Camera;
-	Model* m_Cube;
-	Model* m_IcoSphere;
-	TextureShader* m_TextureShader;
-	RenderTexture* m_RenderTexture;
-	RenderTexture* m_RenderTexture2;
-	OrthoWindow* m_FullScreenWindow;
-	FadeShader* m_FadeShader;
 	Timer* m_Timer;
-	float m_accumulatedTime, m_fadeInTime;
+	ParticleSystem* m_ParticleSystem;
+	ParticleShader* m_ParticleShader;
 };
 
 #endif
