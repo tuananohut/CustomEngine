@@ -244,3 +244,171 @@ void ParticleSystem::RenderBuffers(ID3D11DeviceContext* deviceContext)
 
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
+
+void ParticleSystem::EmitParticles(float frameTime)
+{
+	bool emitParticle, found;
+	float positionX, positionY, positionZ, velocity, red, green, blue;
+	int index, i, j;
+
+	m_accumulatedTime += frameTime;
+
+	emitParticle = false;
+
+	if (m_accumulatedTime > (1.f / m_particlesPerSecond))
+	{
+		m_accumulatedTime = 0.f;
+		emitParticle = true;
+	}
+
+	if ((emitParticle == true) && (m_currentParticleCount < (m_maxParticles < 1)))
+	{
+		m_currentParticleCount++;
+
+		positionX = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationX;
+		positionY = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationY;
+		positionZ = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationZ;
+
+		velocity = m_particleVelocity + (((float)rand() / (float)rand()) / RAND_MAX) * m_particleVelocityVariation;
+
+		red = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f;
+		green = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f;
+		blue = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f;
+
+		index = 0;
+		found = false;
+		while (!found)
+		{
+			if ((m_particleList[index].active == false) || (m_particleList[index].positionZ < positionZ))
+			{
+				found = true;
+			}
+
+			else
+			{
+				index++;
+			}
+		}
+
+		i = m_currentParticleCount;
+		j = i - 1;
+
+		while (i != index)
+		{
+			m_particleList[i].positionX = m_particleList[j].positionX;
+			m_particleList[i].positionY = m_particleList[j].positionY;
+			m_particleList[i].positionZ = m_particleList[j].positionZ;
+			m_particleList[i].red = m_particleList[j].red;
+			m_particleList[i].green = m_particleList[j].green;
+			m_particleList[i].blue = m_particleList[j].blue;
+			m_particleList[i].velocity = m_particleList[j].velocity;
+			m_particleList[i].active = m_particleList[j].active;
+			i--;
+			j--;
+		}
+
+		m_particleList[index].positionX = positionX;
+		m_particleList[index].positionY = positionY;
+		m_particleList[index].positionZ = positionZ;
+		m_particleList[index].red = red;
+		m_particleList[index].green = green;
+		m_particleList[index].blue = blue;
+		m_particleList[index].velocity = velocity;
+		m_particleList[index].active = true;
+	}
+}
+
+void ParticleSystem::UpdateParticles(float frameTime)
+{
+	int i;
+
+	for (i = 0; i < m_currentParticleCount; i++)
+	{
+		m_particleList[i].positionY = m_particleList[i].positionY - (m_particleList[i].velocity * frameTime);
+	}
+}
+
+void ParticleSystem::KillParticles()
+{
+	int i, j;
+
+	for (i = 0; i < m_maxParticles; i++)
+	{
+		if ((m_particleList[i].active == true) && (m_particleList[i].positionY < -3.f))
+		{
+			m_particleList[i].active = false;
+			m_currentParticleCount--;
+
+			for (j = i; j < m_maxParticles - 1; j++)
+			{
+				m_particleList[j].positionX = m_particleList[j + 1].positionX;
+				m_particleList[j].positionY = m_particleList[j + 1].positionY;
+				m_particleList[j].positionZ = m_particleList[j + 1].positionZ;
+				m_particleList[j].red = m_particleList[j + 1].red;
+				m_particleList[j].green = m_particleList[j + 1].green;
+				m_particleList[j].blue = m_particleList[j + 1].blue;
+				m_particleList[j].velocity = m_particleList[j + 1].velocity;
+				m_particleList[j].active = m_particleList[j + 1].active;
+			}
+		}
+	}
+}
+
+bool ParticleSystem::UpdateBuffers(ID3D11DeviceContext* deviceContext)
+{
+	int index, i;
+	HRESULT result;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	VertexType* verticesPtr;
+
+	memset(m_vertices, 0, (sizeof(VertexType) * m_vertexCount));
+
+	index = 0;
+
+	for (i = 0; i < m_currentParticleCount; i++)
+	{
+		m_vertices[index].position = XMFLOAT3(m_particleList[i].positionX - m_particleSize, m_particleList[i].positionY - m_particleSize, m_particleList[i].positionZ);
+		m_vertices[index].texture = XMFLOAT2(0.0f, 1.0f);
+		m_vertices[index].color = XMFLOAT4(m_particleList[i].red, m_particleList[i].green, m_particleList[i].blue, 1.0f);
+		index++;
+
+		m_vertices[index].position = XMFLOAT3(m_particleList[i].positionX - m_particleSize, m_particleList[i].positionY + m_particleSize, m_particleList[i].positionZ);
+		m_vertices[index].texture = XMFLOAT2(0.0f, 0.0f);
+		m_vertices[index].color = XMFLOAT4(m_particleList[i].red, m_particleList[i].green, m_particleList[i].blue, 1.0f);
+		index++;
+
+		m_vertices[index].position = XMFLOAT3(m_particleList[i].positionX + m_particleSize, m_particleList[i].positionY - m_particleSize, m_particleList[i].positionZ);
+		m_vertices[index].texture = XMFLOAT2(1.0f, 1.0f);
+		m_vertices[index].color = XMFLOAT4(m_particleList[i].red, m_particleList[i].green, m_particleList[i].blue, 1.0f);
+		index++;
+
+		m_vertices[index].position = XMFLOAT3(m_particleList[i].positionX + m_particleSize, m_particleList[i].positionY - m_particleSize, m_particleList[i].positionZ);
+		m_vertices[index].texture = XMFLOAT2(1.0f, 1.0f);
+		m_vertices[index].color = XMFLOAT4(m_particleList[i].red, m_particleList[i].green, m_particleList[i].blue, 1.0f);
+		index++;
+
+		m_vertices[index].position = XMFLOAT3(m_particleList[i].positionX - m_particleSize, m_particleList[i].positionY + m_particleSize, m_particleList[i].positionZ);
+		m_vertices[index].texture = XMFLOAT2(0.0f, 0.0f);
+		m_vertices[index].color = XMFLOAT4(m_particleList[i].red, m_particleList[i].green, m_particleList[i].blue, 1.0f);
+		index++;
+
+		m_vertices[index].position = XMFLOAT3(m_particleList[i].positionX + m_particleSize, m_particleList[i].positionY + m_particleSize, m_particleList[i].positionZ);
+		m_vertices[index].texture = XMFLOAT2(1.0f, 0.0f);
+		m_vertices[index].color = XMFLOAT4(m_particleList[i].red, m_particleList[i].green, m_particleList[i].blue, 1.0f);
+		index++;
+	}
+
+	result = deviceContext->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	verticesPtr = (VertexType*)mappedResource.pData;
+
+	memcpy(verticesPtr, (void*)m_vertices, (sizeof(VertexType) * m_vertexCount));
+
+	deviceContext->Unmap(m_vertexBuffer, 0);
+
+	return true;
+}
