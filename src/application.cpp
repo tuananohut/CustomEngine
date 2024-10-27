@@ -1,8 +1,5 @@
 #include "headers/application.h"
 
-int scenes[2] = { 0, 1 };
-static int scene = 0;
-
 Application::Application()
 {
     m_Direct3D = nullptr;
@@ -10,6 +7,8 @@ Application::Application()
     m_Timer = nullptr;
     m_ParticleShader = nullptr;
     m_ParticleSystem = nullptr;
+    m_Planet = nullptr;
+    m_TextureShader = nullptr;
 }
 
 Application::Application(const Application& other) {}
@@ -65,6 +64,25 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
+    strcpy_s(modelFilename, "../CustomEngine/assets/models/sphere.txt");
+    strcpy_s(textureFilename1, "../CustomEngine/assets/textures/martian.tga");
+
+    m_Planet = new Model;
+    result = m_Planet->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
+    if (!m_Planet)
+    {
+        MessageBox(hwnd, L"Could not initialize the planet object.", L"Error", MB_OK | MB_ICONERROR);
+        return false;
+    }
+
+    m_TextureShader = new TextureShader;
+    result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    if (!m_TextureShader)
+    {
+        MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK | MB_ICONERROR);
+        return false;
+    }
+
     return true;
 }
 
@@ -85,6 +103,13 @@ void Application::Shutdown()
         m_ParticleSystem = nullptr;
     }
 
+    if (m_TextureShader)
+    {
+        m_TextureShader->Shutdown();
+        delete m_TextureShader;
+        m_TextureShader = nullptr;
+    }
+
     if (m_Camera)
     {
         delete m_Camera;
@@ -102,6 +127,13 @@ void Application::Shutdown()
     {
         delete m_Timer;
         m_Timer = nullptr;
+    }
+
+    if (m_Planet)
+    {
+        m_Planet->Shutdown();
+        delete m_Planet;
+        m_Planet = nullptr;
     }
 }
 
@@ -196,6 +228,18 @@ bool Application::Render(float fadePercentage)
     m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
     m_Direct3D->EnableAlphaBlending();
+
+    m_Planet->Render(m_Direct3D->GetDeviceContext());
+
+    worldMatrix = XMMatrixScaling(0.5, 0.5, 0.5);
+
+    result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Planet->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Planet->GetTexture(1));
+    if (!result)
+    {
+        return false;
+    }
+
+    m_Direct3D->GetWorldMatrix(worldMatrix);
 
     m_ParticleSystem->Render(m_Direct3D->GetDeviceContext());
 
