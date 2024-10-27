@@ -18,7 +18,7 @@ bool ParticleSystem::Initialize(ID3D11Device* device, ID3D11DeviceContext* devic
 	bool result;
 
 	result = LoadTexture(device, deviceContext, textureFilename);
-	if (!result) 
+	if (!result)
 	{
 		return false;
 	}
@@ -38,7 +38,7 @@ bool ParticleSystem::Initialize(ID3D11Device* device, ID3D11DeviceContext* devic
 	return true;
 }
 
-void ParticleSystem::Shutdown() 
+void ParticleSystem::Shutdown()
 {
 	ShutdownBuffers();
 
@@ -106,7 +106,7 @@ void ParticleSystem::ReleaseTexture()
 	}
 }
 
-bool ParticleSystem::InitializeParticleSystem() 
+bool ParticleSystem::InitializeParticleSystem()
 {
 	int i;
 
@@ -224,7 +224,7 @@ void ParticleSystem::ShutdownBuffers()
 	}
 
 	if (m_vertices)
-	{	
+	{
 		delete[] m_vertices;
 		m_vertices = nullptr;
 	}
@@ -261,7 +261,7 @@ void ParticleSystem::EmitParticles(float frameTime)
 		emitParticle = true;
 	}
 
-	if ((emitParticle == true) && (m_currentParticleCount < (m_maxParticles < 1)))
+	if ((emitParticle == true) && (m_currentParticleCount < (m_maxParticles - 1)))
 	{
 		m_currentParticleCount++;
 
@@ -269,7 +269,7 @@ void ParticleSystem::EmitParticles(float frameTime)
 		positionY = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationY;
 		positionZ = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationZ;
 
-		velocity = m_particleVelocity + (((float)rand() / (float)rand()) / RAND_MAX) * m_particleVelocityVariation;
+		velocity = m_particleVelocity + (((float)rand() - (float)rand()) / RAND_MAX) * m_particleVelocityVariation;
 
 		red = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f;
 		green = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f;
@@ -283,7 +283,6 @@ void ParticleSystem::EmitParticles(float frameTime)
 			{
 				found = true;
 			}
-
 			else
 			{
 				index++;
@@ -334,7 +333,7 @@ void ParticleSystem::KillParticles()
 
 	for (i = 0; i < m_maxParticles; i++)
 	{
-		if ((m_particleList[i].active == true) && (m_particleList[i].positionY < -3.f))
+		if ((m_particleList[i].active == true) && (m_particleList[i].positionY < -3.0f))
 		{
 			m_particleList[i].active = false;
 			m_currentParticleCount--;
