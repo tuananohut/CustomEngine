@@ -110,16 +110,16 @@ bool ParticleSystem::InitializeParticleSystem()
 {
 	int i;
 
-	m_particleDeviationX = 0.5f;
-	m_particleDeviationY = 0.1f;
-	m_particleDeviationZ = 2.f;
+	m_particleDeviationX = 5.f;
+	m_particleDeviationY = 4.f;
+	m_particleDeviationZ = 10.f;
 
 	m_particleVelocity = 1.f;
 	m_particleVelocityVariation = 0.2f;
 
 	m_particleSize = 0.2f;
 
-	m_particlesPerSecond = 100.f;
+	m_particlesPerSecond = 150.f;
 
 	m_maxParticles = 1000;
 
@@ -333,7 +333,7 @@ void ParticleSystem::KillParticles()
 
 	for (i = 0; i < m_maxParticles; i++)
 	{
-		if ((m_particleList[i].active == true) && (m_particleList[i].positionY < -3.0f))
+		if ((m_particleList[i].active == true) && (m_particleList[i].positionY < -6.0f))
 		{
 			m_particleList[i].active = false;
 			m_currentParticleCount--;
