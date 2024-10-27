@@ -7,6 +7,8 @@
 #include "timer.h"
 #include "particlesystem.h"
 #include "particleshader.h"
+#include "model.h"
+#include "textureshader.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -35,6 +37,8 @@ private:
 	Timer* m_Timer;
 	ParticleSystem* m_ParticleSystem;
 	ParticleShader* m_ParticleShader;
+	Model* m_Planet;
+	TextureShader* m_TextureShader;
 };
 
 #endif
