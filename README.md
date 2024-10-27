@@ -69,6 +69,8 @@ https://youtube.com/playlist?list=PLXrxdHvhMCuDurn_0heADnFvAuU0MJ2qA&si=DglcRUGw
 
 https://screamingbrainstudios.itch.io/tiny-texture-pack-2
 
+https://screamingbrainstudios.itch.io/planet-texture-pack-1
+
 ### Sound
 
 https://pixabay.com/sound-effects/pianos-by-jtwayne-7-174717/
