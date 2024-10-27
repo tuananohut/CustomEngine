@@ -1,6 +1,6 @@
 #include "headers/particleshader.h"
 
-ParticleShader::ParticleShader() 
+ParticleShader::ParticleShader()
 {
 	m_vertexShader = nullptr;
 	m_pixelShader = nullptr;
@@ -20,7 +20,7 @@ bool ParticleShader::Initialize(ID3D11Device* device, HWND hwnd)
 	bool result;
 
 	error = wcscpy_s(vsFilename, 128, L"../CustomEngine/src/shaders/particle.vs");
-	if (error != 0) 
+	if (error != 0)
 	{
 		return false;
 	}
@@ -170,7 +170,7 @@ bool ParticleShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.MipLODBias = 0.f;
+	samplerDesc.MipLODBias = 0.0f;
 	samplerDesc.MaxAnisotropy = 1;
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	samplerDesc.BorderColor[0] = 0;
@@ -189,37 +189,36 @@ bool ParticleShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
 	return true;
 }
 
-
 void ParticleShader::ShutdownShader()
 {
-	if (m_vertexShader)
+	if (m_sampleState)
 	{
-		delete m_vertexShader;
-		m_vertexShader = nullptr;
-	}
-
-	if (m_pixelShader)
-	{
-		delete m_pixelShader;
-		m_pixelShader = nullptr;
-	}
-
-	if (m_layout)
-	{
-		delete m_layout;
-		m_layout = nullptr;
+		m_sampleState->Release();
+		m_sampleState = nullptr;
 	}
 
 	if (m_matrixBuffer)
 	{
-		delete m_matrixBuffer;
+		m_matrixBuffer->Release();
 		m_matrixBuffer = nullptr;
 	}
 
-	if (m_sampleState)
+	if (m_layout)
 	{
-		delete m_sampleState;
-		m_sampleState = nullptr;
+		m_layout->Release();
+		m_layout = nullptr;
+	}
+
+	if (m_pixelShader)
+	{
+		m_pixelShader->Release();
+		m_pixelShader = nullptr;
+	}
+
+	if (m_vertexShader)
+	{
+		m_vertexShader->Release();
+		m_vertexShader = nullptr;
 	}
 }
 
@@ -243,16 +242,12 @@ void ParticleShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwn
 	fout.close();
 
 	errorMessage->Release();
-	errorMessage = nullptr;
+	errorMessage = 0;
 
-	MessageBox(hwnd, L"Error compiling shader. Check shader-error.txt for message.", shaderFilename, MB_OK | MB_ICONERROR);
+	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
 }
 
-bool ParticleShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
-										 XMMATRIX worldMatrix,
-										 XMMATRIX viewMatrix,
-										 XMMATRIX projectionMatrix,
-										 ID3D11ShaderResourceView* texture)
+bool ParticleShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
