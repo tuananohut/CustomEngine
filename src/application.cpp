@@ -216,7 +216,7 @@ bool Application::RenderSceneToTexture(float rotation, float translationX, float
 }
 */
 
-bool Application::Render(float fadePercentage)
+bool Application::Render(float rotation)
 {
     XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
     bool result;
@@ -227,11 +227,11 @@ bool Application::Render(float fadePercentage)
     m_Camera->GetViewMatrix(viewMatrix);
     m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-    m_Direct3D->EnableAlphaBlending();
+   //  m_Direct3D->EnableAlphaBlending();
 
     m_Planet->Render(m_Direct3D->GetDeviceContext());
 
-    worldMatrix = XMMatrixScaling(0.5, 0.5, 0.5);
+    worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixScaling(0.5, 0.5, 0.5));
 
     result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Planet->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Planet->GetTexture(1));
     if (!result)
@@ -249,7 +249,7 @@ bool Application::Render(float fadePercentage)
         return false;
     }
 
-    m_Direct3D->DisableAlphaBlending();
+   //  m_Direct3D->DisableAlphaBlending();
     
     m_Direct3D->EndScene();
 
