@@ -324,6 +324,9 @@ void ParticleSystem::UpdateParticles(float frameTime)
 	for (i = 0; i < m_currentParticleCount; i++)
 	{
 		m_particleList[i].positionY = m_particleList[i].positionY - (m_particleList[i].velocity * frameTime);
+		m_particleList[i].red = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f * frameTime;
+		m_particleList[i].green = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f * frameTime;
+		m_particleList[i].blue = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f * frameTime;
 	}
 }
 
