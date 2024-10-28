@@ -110,14 +110,14 @@ bool ParticleSystem::InitializeParticleSystem()
 {
 	int i;
 
-	m_particleDeviationX = 5.f;
+	m_particleDeviationX = 8.f;
 	m_particleDeviationY = 4.f;
-	m_particleDeviationZ = 10.f;
+	m_particleDeviationZ = 2.f;
 
 	m_particleVelocity = 1.f;
 	m_particleVelocityVariation = 0.2f;
 
-	m_particleSize = 0.2f;
+	m_particleSize = 0.11f;
 
 	m_particlesPerSecond = 150.f;
 
@@ -266,7 +266,7 @@ void ParticleSystem::EmitParticles(float frameTime)
 		m_currentParticleCount++;
 
 		positionX = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationX;
-		positionY = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationY;
+		positionY = m_particleDeviationY;
 		positionZ = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationZ;
 
 		velocity = m_particleVelocity + (((float)rand() - (float)rand()) / RAND_MAX) * m_particleVelocityVariation;
