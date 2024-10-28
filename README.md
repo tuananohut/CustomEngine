@@ -71,6 +71,8 @@ https://screamingbrainstudios.itch.io/tiny-texture-pack-2
 
 https://screamingbrainstudios.itch.io/planet-texture-pack-1
 
+https://pixelfranek.itch.io/free-textures-of-light
+
 ### Sound
 
 https://pixabay.com/sound-effects/pianos-by-jtwayne-7-174717/
