@@ -29,13 +29,15 @@ public:
 private:
 	// bool RenderSceneToTexture(float, float, float, bool);
 	// bool SoundProcessing();
-	bool Render(float);
+	bool Render(float, float);
 
 private:
 	D3D* m_Direct3D;
 	Camera* m_Camera;
 	Timer* m_Timer;
 	ParticleSystem* m_ParticleSystem;
+	ParticleSystem* m_ParticleSystem1;
+	ParticleSystem* m_ParticleSystem2;
 	ParticleShader* m_ParticleShader;
 	Model* m_Planet;
 	TextureShader* m_TextureShader;
