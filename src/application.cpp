@@ -1,4 +1,14 @@
 #include "headers/application.h"
+#include <cstring>
+#include <random>
+
+float generateRandomFloat(float min, float max)
+{
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dis(min, max);
+    return dis(gen);
+}
 
 Application::Application()
 {
@@ -7,8 +17,12 @@ Application::Application()
     m_Timer = nullptr;
     m_ParticleShader = nullptr;
     m_ParticleSystem = nullptr;
+    m_ParticleSystem1 = nullptr;
+    m_ParticleSystem2 = nullptr;
     m_Planet = nullptr;
     m_TextureShader = nullptr;
+    m_XAudio = nullptr;
+    m_Sound = nullptr;
 }
 
 Application::Application(const Application& other) {}
@@ -19,9 +33,12 @@ Application::~Application() {}
 bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
     char modelFilename[128];
+    char soundFilename[128];
     char textureFilename[128];
     char textureFilename1[128];
     char textureFilename2[128];
+    
+    char* textures[3] = {textureFilename, textureFilename1, textureFilename2};
     bool result;
 
     m_Direct3D = new D3D;
@@ -47,9 +64,27 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     }
 
     strcpy_s(textureFilename, "../CustomEngine/assets/textures/star01.tga");
+    strcpy_s(textureFilename1, "../CustomEngine/assets/textures/star02.tga");
+    strcpy_s(textureFilename2, "../CustomEngine/assets/textures/star03.tga");
 
     m_ParticleSystem = new ParticleSystem;
-    result = m_ParticleSystem->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), textureFilename);
+    result = m_ParticleSystem->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), textures[0]);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the particle system object.", L"Error", MB_OK | MB_ICONERROR);
+        return false;
+    }
+
+    m_ParticleSystem1 = new ParticleSystem;
+    result = m_ParticleSystem1->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), textures[1]);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the particle system object.", L"Error", MB_OK | MB_ICONERROR);
+        return false;
+    }
+
+    m_ParticleSystem2 = new ParticleSystem;
+    result = m_ParticleSystem2->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), textures[2]);
     if (!result)
     {
         MessageBox(hwnd, L"Could not initialize the particle system object.", L"Error", MB_OK | MB_ICONERROR);
@@ -83,6 +118,27 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
+    m_XAudio = new XAudio;
+    result = m_XAudio->Initialize();
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the XAudio.", L"Error", MB_OK | MB_ICONERROR);
+        return false;
+    }
+
+    m_Sound = new XAudioSound3D;
+   
+    strcpy_s(soundFilename, "../CustomEngine/assets/sounds/space.wav");
+
+    result = m_Sound->LoadTrack(m_XAudio->GetXAudio2(), soundFilename, 1.f);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize test sound object 2.", L"Error", MB_OK);
+        return false;
+    }
+
+    m_Sound->PlayTrack();
+
     return true;
 }
 
@@ -101,6 +157,20 @@ void Application::Shutdown()
         m_ParticleSystem->Shutdown();
         delete m_ParticleSystem;
         m_ParticleSystem = nullptr;
+    }
+
+    if (m_ParticleSystem1)
+    {
+        m_ParticleSystem1->Shutdown();
+        delete m_ParticleSystem1;
+        m_ParticleSystem1 = nullptr;
+    }
+
+    if (m_ParticleSystem2)
+    {
+        m_ParticleSystem2->Shutdown();
+        delete m_ParticleSystem2;
+        m_ParticleSystem2 = nullptr;
     }
 
     if (m_TextureShader)
@@ -142,10 +212,19 @@ bool Application::Frame(Input* Input)
 {
     static float rotation = 0.0f;
     bool result;
+    static float x = 10;
+    static float y = 10;
+    static float z = 10;
 
     m_Timer->Frame();
 
     if (Input->IsEscapePressed())
+    {
+        return false;
+    }
+
+    result = SoundProcessing();
+    if (!result)
     {
         return false;
     }
@@ -156,7 +235,41 @@ bool Application::Frame(Input* Input)
         return false;
     }
 
-    result = Render(rotation);
+
+    result = m_ParticleSystem1->Frame(m_Timer->GetTime(), m_Direct3D->GetDeviceContext());
+    if (!result)
+    {
+        return false;
+    }
+
+
+    result = m_ParticleSystem2->Frame(m_Timer->GetTime(), m_Direct3D->GetDeviceContext());
+    if (!result)
+    {
+        return false;
+    }
+
+    rotation -= 0.0174532925f * 0.25f;
+    if (rotation < 0.0f)
+    {
+        rotation += 360.0f;
+    }
+
+    if (y <= -15.f)
+    {
+        x = generateRandomFloat(-3.f, 3.f);
+        y = generateRandomFloat(10.f, 20.f);
+        z = 15.f;
+    }
+
+    else
+    {
+        x += 0.1f * m_Timer->GetTime();
+        y -= 3.f * m_Timer->GetTime();
+        z -= 1.f * m_Timer->GetTime();
+    }
+
+    result = Render(rotation, x, y, z);
     if (!result)
     {
         return false;
@@ -216,9 +329,23 @@ bool Application::RenderSceneToTexture(float rotation, float translationX, float
 }
 */
 
-bool Application::Render(float rotation)
+bool Application::SoundProcessing()
+{
+    bool result;
+
+    result = m_XAudio->Frame(m_Sound->GetEmitter(), m_Sound->GetSourceVoice());
+    if (!result)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool Application::Render(float rotation, float x, float y, float z)
 {
     XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+    XMMATRIX move;
     bool result;
 
     m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.f);
@@ -227,11 +354,14 @@ bool Application::Render(float rotation)
     m_Camera->GetViewMatrix(viewMatrix);
     m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-   //  m_Direct3D->EnableAlphaBlending();
+    m_Direct3D->EnableAlphaBlending();
+
+    worldMatrix = XMMatrixRotationY(rotation);
+
+    move = XMMatrixTranslation(x, y, z);
+    worldMatrix *= move;
 
     m_Planet->Render(m_Direct3D->GetDeviceContext());
-
-    worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixScaling(0.5, 0.5, 0.5));
 
     result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Planet->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Planet->GetTexture(1));
     if (!result)
@@ -241,15 +371,32 @@ bool Application::Render(float rotation)
 
     m_Direct3D->GetWorldMatrix(worldMatrix);
 
-    m_ParticleSystem->Render(m_Direct3D->GetDeviceContext());
+    m_Direct3D->TurnZBufferOff();
 
+    m_ParticleSystem->Render(m_Direct3D->GetDeviceContext());
     result = m_ParticleShader->Render(m_Direct3D->GetDeviceContext(), m_ParticleSystem->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_ParticleSystem->GetTexture());
     if (!result)
     {
         return false;
     }
 
-   //  m_Direct3D->DisableAlphaBlending();
+    m_ParticleSystem1->Render(m_Direct3D->GetDeviceContext());
+    result = m_ParticleShader->Render(m_Direct3D->GetDeviceContext(), m_ParticleSystem1->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_ParticleSystem1->GetTexture());
+    if (!result)
+    {
+        return false;
+    }
+
+    m_ParticleSystem2->Render(m_Direct3D->GetDeviceContext());
+
+    result = m_ParticleShader->Render(m_Direct3D->GetDeviceContext(), m_ParticleSystem2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_ParticleSystem2->GetTexture());
+    if (!result)
+    {
+        return false;
+    }
+
+    m_Direct3D->DisableAlphaBlending();
+    m_Direct3D->TurnZBufferOn();
     
     m_Direct3D->EndScene();
 
