@@ -9,6 +9,8 @@
 #include "particleshader.h"
 #include "model.h"
 #include "textureshader.h"
+#include "xaudio.h"
+#include "xaudiosound3d.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -28,8 +30,8 @@ public:
 
 private:
 	// bool RenderSceneToTexture(float, float, float, bool);
-	// bool SoundProcessing();
-	bool Render(float, float);
+	bool SoundProcessing();
+	bool Render(float, float, float, float);
 
 private:
 	D3D* m_Direct3D;
@@ -41,6 +43,8 @@ private:
 	ParticleShader* m_ParticleShader;
 	Model* m_Planet;
 	TextureShader* m_TextureShader;
+	XAudio* m_XAudio;
+	XAudioSound3D* m_Sound;
 };
 
 #endif
