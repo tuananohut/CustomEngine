@@ -121,7 +121,7 @@ bool ParticleSystem::InitializeParticleSystem()
 
 	m_particlesPerSecond = 150.f;
 
-	m_maxParticles = 1000;
+	m_maxParticles = 500;
 
 	m_particleList = new ParticleType[m_maxParticles];
 
