@@ -157,6 +157,7 @@
     <ClInclude Include="src\headers\particleshader.h" />
     <ClInclude Include="src\headers\particlesystem.h" />
     <ClInclude Include="src\headers\position.h" />
+    <ClInclude Include="src\headers\projectionshader.h" />
     <ClInclude Include="src\headers\reflectionshader.h" />
     <ClInclude Include="src\headers\refractionshader.h" />
     <ClInclude Include="src\headers\rendertexture.h" />
@@ -207,6 +208,7 @@
     <ClCompile Include="src\particleshader.cpp" />
     <ClCompile Include="src\particlesystem.cpp" />
     <ClCompile Include="src\position.cpp" />
+    <ClCompile Include="src\projectionshader.cpp" />
     <ClCompile Include="src\reflectionshader.cpp" />
     <ClCompile Include="src\refractionshader.cpp" />
     <ClCompile Include="src\rendertexture.cpp" />
@@ -259,6 +261,8 @@
     <None Include="src\shaders\normalmap.vs" />
     <None Include="src\shaders\particle.ps" />
     <None Include="src\shaders\particle.vs" />
+    <None Include="src\shaders\projection.ps" />
+    <None Include="src\shaders\projection.vs" />
     <None Include="src\shaders\reflection.ps" />
     <None Include="src\shaders\reflection.vs" />
     <None Include="src\shaders\refraction.ps" />
