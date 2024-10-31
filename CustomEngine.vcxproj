@@ -172,6 +172,7 @@
     <ClInclude Include="src\headers\timer.h" />
     <ClInclude Include="src\headers\translateshader.h" />
     <ClInclude Include="src\headers\transparentshader.h" />
+    <ClInclude Include="src\headers\viewpoint.h" />
     <ClInclude Include="src\headers\watershader.h" />
     <ClInclude Include="src\headers\xaudio.h" />
     <ClInclude Include="src\headers\xaudiosound.h" />
@@ -223,6 +224,7 @@
     <ClCompile Include="src\timer.cpp" />
     <ClCompile Include="src\translateshader.cpp" />
     <ClCompile Include="src\transparentshader.cpp" />
+    <ClCompile Include="src\viewpoint.cpp" />
     <ClCompile Include="src\watershader.cpp" />
     <ClCompile Include="src\xaudio.cpp" />
     <ClCompile Include="src\xaudiosound.cpp" />
