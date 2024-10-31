@@ -4,13 +4,9 @@
 #include "d3d.h"
 #include "input.h"
 #include "camera.h"
-#include "timer.h"
-#include "particlesystem.h"
-#include "particleshader.h"
 #include "model.h"
-#include "textureshader.h"
-#include "xaudio.h"
-#include "xaudiosound3d.h"
+#include "projectionshader.h"
+#include "viewpoint.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -30,21 +26,17 @@ public:
 
 private:
 	// bool RenderSceneToTexture(float, float, float, bool);
-	bool SoundProcessing();
-	bool Render(float, float, float, float);
+	// bool SoundProcessing();
+	bool Render(float);
 
 private:
 	D3D* m_Direct3D;
 	Camera* m_Camera;
-	Timer* m_Timer;
-	ParticleSystem* m_ParticleSystem;
-	ParticleSystem* m_ParticleSystem1;
-	ParticleSystem* m_ParticleSystem2;
-	ParticleShader* m_ParticleShader;
-	Model* m_Planet;
-	TextureShader* m_TextureShader;
-	XAudio* m_XAudio;
-	XAudioSound3D* m_Sound;
+	Model* m_GroundModel;
+	Model* m_CubeModel;
+	ProjectionShader* m_ProjectionShader;
+	Texture* m_ProjectionTexture;
+	ViewPoint* m_ViewPoint;
 };
 
 #endif
