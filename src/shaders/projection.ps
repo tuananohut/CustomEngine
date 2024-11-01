@@ -6,13 +6,34 @@ struct PixelInputType
 {
 	float4 position: SV_POSITION;
 	float2 tex: TEXCOORD0;
+	float3 normal: NORMAL;
 	float4 viewPosition: TEXCOORD1;
+	float3 lightPos: TEXCOORD2;
+};
+
+cbuffer LightBuffer
+{
+	float4 ambientColor;
+	float4 diffuseColor;
+	float brightness;
+	float3 padding;
 };
 
 float4 ProjectionPixelShader(PixelInputType input): SV_TARGET
 {
+	float lightIntensity;
 	float2 projectTexCoord;
 	float4 color;
+	float4 projectionColor;
+
+	lightIntensity = saturate(dot(input.normal, input.lightPos));
+
+	if (lightIntensity > 0.f)
+	{
+		color = (diffuseColor * lightIntensity) * brightness;
+	}
+
+	textureColor = shaderTexture.Sample(SampleType, input.tex);
 
 	projectTexCoord.x = input.viewPosition.x / input.viewPosition.w / 2.f + 0.5f;
 	projectTexCoord.y = -input.viewPosition.y / input.viewPosition.w / 2.f + 0.5f;
@@ -20,11 +41,13 @@ float4 ProjectionPixelShader(PixelInputType input): SV_TARGET
 	if((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y))
 	{
 		color = projectionTexture.Sample(SampleType, projectTexCoord);
+	
+		color = saturate((color * projectionColor * textureColor) + (ambientColor * textureColor));
 	}
 
 	else
 	{
-		color = shaderTexture.Sample(SampleType, input.tex);
+		color = ambientColor * textureColor;
 	}
 
 	return color;
