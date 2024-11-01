@@ -56,7 +56,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     }
 
     strcpy_s(modelFilename, "../CustomEngine/assets/models/cube.txt");
-    strcpy_s(textureFilename, "../CustomEngine/assets/textures/stone01.tga");
+    strcpy_s(textureFilename, "../CustomEngine/assets/textures/palestine.tga");
 
     m_CubeModel = new Model;
     result = m_CubeModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
@@ -74,7 +74,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
-    strcpy_s(textureFilename, "../CustomEngine/assets/textures/directx_logo.tga");
+    strcpy_s(textureFilename, "../CustomEngine/assets/textures/palestine.tga");
 
     m_ProjectionTexture = new Texture;
     result = m_ProjectionTexture->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), textureFilename);
@@ -262,7 +262,7 @@ bool Application::Render(float rotation)
         return false;
     }
     
-    worldMatrix = XMMatrixTranslation(0.f, 2.f, 0.f);
+    worldMatrix = XMMatrixMultiply(XMMatrixTranslation(0.f, 2.f, 0.f), XMMatrixRotationY(rotation));
 
     m_CubeModel->Render(m_Direct3D->GetDeviceContext());
     result = m_ProjectionShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, viewMatrix2, projectionMatrix2, m_CubeModel->GetTexture(0), m_ProjectionTexture->GetTexture());
