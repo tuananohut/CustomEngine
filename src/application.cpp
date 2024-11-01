@@ -86,7 +86,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_ViewPoint = new ViewPoint;
 
-    m_ViewPoint->SetPosition(2.f, 5.f, -2.f);
+    m_ViewPoint->SetPosition(2.f, 3.f, -3.f);
     m_ViewPoint->SetLookAt(0.f, 0.f, 0.f);
     m_ViewPoint->SetProjectionParameters((3.14159265358979323846f / 2.0f), 1.0f, 0.1f, 100.0f);
     m_ViewPoint->GenerateViewMatrix();
