@@ -297,7 +297,6 @@ bool ProjectionShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, X
 	unsigned int bufferNumber;
 	LightPositionBufferType* dataPtr2;
 	LightBufferType* dataPtr3;
-	LightBufferType* dataPtr3;
 
 	worldMatrix = XMMatrixTranspose(worldMatrix);
 	viewMatrix = XMMatrixTranspose(viewMatrix);
