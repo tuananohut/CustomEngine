@@ -7,6 +7,7 @@
 #include "model.h"
 #include "projectionshader.h"
 #include "viewpoint.h"
+#include "light.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -37,6 +38,7 @@ private:
 	ProjectionShader* m_ProjectionShader;
 	Texture* m_ProjectionTexture;
 	ViewPoint* m_ViewPoint;
+	Light* m_Light;
 };
 
 #endif
