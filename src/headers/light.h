@@ -26,7 +26,7 @@ public:
 	XMFLOAT3 GetDirection();
 	XMFLOAT4 GetSpecularColor();
 	float GetSpecularPower();
-	XMFLOAT4 GetPosition();
+	XMFLOAT3 GetPosition();
 
 private:
 	XMFLOAT4 m_ambientColor;
@@ -34,7 +34,7 @@ private:
 	XMFLOAT3 m_direction;
 	XMFLOAT4 m_specularColor;
 	float m_specularPower;
-	XMFLOAT4 m_position;
+	XMFLOAT3 m_position;
 };
 
 #endif
