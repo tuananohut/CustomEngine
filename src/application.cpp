@@ -9,6 +9,7 @@ Application::Application()
     m_ProjectionShader = nullptr;
     m_ProjectionTexture = nullptr;
     m_ViewPoint = nullptr;
+    m_Light = nullptr;
 }
 
 Application::Application(const Application& other) {}
@@ -74,7 +75,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
-    strcpy_s(textureFilename, "../CustomEngine/assets/textures/palestine.tga");
+    strcpy_s(textureFilename, "../CustomEngine/assets/textures/grate.tga");
 
     m_ProjectionTexture = new Texture;
     result = m_ProjectionTexture->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), textureFilename);
@@ -86,11 +87,17 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_ViewPoint = new ViewPoint;
 
-    m_ViewPoint->SetPosition(2.f, 3.f, -3.f);
+    m_ViewPoint->SetPosition(2.0f, 5.0f, -2.0f);
     m_ViewPoint->SetLookAt(0.f, 0.f, 0.f);
-    m_ViewPoint->SetProjectionParameters(5.f, 8.f, 10.f, 100.0f);
+    m_ViewPoint->SetProjectionParameters((3.14159265358979323846f / 2.0f), 1.0f, 0.1f, 100.0f);
     m_ViewPoint->GenerateViewMatrix();
     m_ViewPoint->GenerateProjectionMatrix();
+
+    m_Light = new Light;
+
+    m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.f);
+    m_Light->SetDiffuseColor(1.f, 1.f, 1.f, 1.f);
+    m_Light->SetPosition(2.f, 5.f, -2.f);
 
     return true;
 }
@@ -98,6 +105,12 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Application::Shutdown()
 {
+    if (m_Light)
+    {
+        delete m_Light;
+        m_Light = nullptr;
+    }
+
     if (m_ViewPoint)
     {
         delete m_ViewPoint;
@@ -243,6 +256,7 @@ bool Application::Render(float rotation)
 {
     XMMATRIX worldMatrix, viewMatrix, projectionMatrix, viewMatrix2, projectionMatrix2;
     bool result;
+    float brightness;
 
     m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.f);
 
@@ -253,10 +267,12 @@ bool Application::Render(float rotation)
     m_ViewPoint->GetViewMatrix(viewMatrix2);
     m_ViewPoint->GetProjectionMatrix(projectionMatrix2);
 
+    brightness = 1.5f;
+
     worldMatrix = XMMatrixTranslation(0.f, 1.f, 0.f);
 
     m_GroundModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_ProjectionShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, viewMatrix2, projectionMatrix2, m_GroundModel->GetTexture(0), m_ProjectionTexture->GetTexture());
+    result = m_ProjectionShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, viewMatrix2, projectionMatrix2, m_GroundModel->GetTexture(0), m_ProjectionTexture->GetTexture(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetPosition(), brightness);
     if (!result)
     {
         return false;
@@ -265,7 +281,7 @@ bool Application::Render(float rotation)
     worldMatrix = XMMatrixMultiply(XMMatrixTranslation(0.f, 2.f, 0.f), XMMatrixRotationY(rotation));
 
     m_CubeModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_ProjectionShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, viewMatrix2, projectionMatrix2, m_CubeModel->GetTexture(0), m_ProjectionTexture->GetTexture());
+    result = m_ProjectionShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, viewMatrix2, projectionMatrix2, m_CubeModel->GetTexture(0), m_ProjectionTexture->GetTexture(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetPosition(), brightness);
     if (!result)
     {
         return false;
