@@ -38,7 +38,7 @@ void Light::SetSpecularPower(float power)
 
 void Light::SetPosition(float x, float y, float z)
 {
-	m_position = XMFLOAT4(x, y, z, 1.0f);
+	m_position = XMFLOAT3(x, y, z);
 	return;
 }
 
@@ -67,7 +67,7 @@ float Light::GetSpecularPower()
 	return m_specularPower;
 }
 
-XMFLOAT4 Light::GetPosition()
+XMFLOAT3 Light::GetPosition()
 {
 	return m_position;
 }
