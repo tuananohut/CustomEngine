@@ -23,6 +23,7 @@ float4 ProjectionPixelShader(PixelInputType input): SV_TARGET
 {
 	float lightIntensity;
 	float2 projectTexCoord;
+	float4 textureColor;
 	float4 color;
 	float4 projectionColor;
 
@@ -40,7 +41,7 @@ float4 ProjectionPixelShader(PixelInputType input): SV_TARGET
 
 	if((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y))
 	{
-		color = projectionTexture.Sample(SampleType, projectTexCoord);
+		projectionColor = projectionTexture.Sample(SampleType, projectTexCoord);
 	
 		color = saturate((color * projectionColor * textureColor) + (ambientColor * textureColor));
 	}
