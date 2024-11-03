@@ -57,7 +57,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     }
 
     strcpy_s(modelFilename, "../CustomEngine/assets/models/cube.txt");
-    strcpy_s(textureFilename, "../CustomEngine/assets/textures/palestine.tga");
+    strcpy_s(textureFilename, "../CustomEngine/assets/textures/stone01.tga");
 
     m_CubeModel = new Model;
     result = m_CubeModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
@@ -170,7 +170,6 @@ bool Application::Frame(Input* Input)
         return false;
     }
 
-
     rotation -= 0.0174532925f * 0.25f;
     if (rotation < 0.0f)
     {
@@ -257,6 +256,10 @@ bool Application::Render(float rotation)
     XMMATRIX worldMatrix, viewMatrix, projectionMatrix, viewMatrix2, projectionMatrix2;
     bool result;
     float brightness;
+    float x = 0.f;
+    float y = 0.f;
+    const float PI = acos(0.0f) * 2;
+    float r = 2.f;
 
     m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.f);
 
@@ -278,7 +281,12 @@ bool Application::Render(float rotation)
         return false;
     }
     
-    worldMatrix = XMMatrixMultiply(XMMatrixTranslation(0.f, 2.f, 0.f), XMMatrixRotationY(rotation));
+    for (float angle = 0.f; angle < 2 * PI * 20; angle += 0.1f)
+    {
+        x = r * cos(angle);
+        y = r * cos(angle);
+        worldMatrix = XMMatrixMultiply(XMMatrixTranslation(x, y, 0.f), XMMatrixRotationY(rotation));
+    }
 
     m_CubeModel->Render(m_Direct3D->GetDeviceContext());
     result = m_ProjectionShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, viewMatrix2, projectionMatrix2, m_CubeModel->GetTexture(0), m_ProjectionTexture->GetTexture(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetPosition(), brightness);
