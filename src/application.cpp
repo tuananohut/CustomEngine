@@ -75,7 +75,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
-    strcpy_s(textureFilename, "../CustomEngine/assets/textures/grate.tga");
+    strcpy_s(textureFilename, "../CustomEngine/assets/textures/grate01.tga");
 
     m_ProjectionTexture = new Texture;
     result = m_ProjectionTexture->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), textureFilename);
