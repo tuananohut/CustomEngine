@@ -53,7 +53,7 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [x] Tutorial 37: Screen Fades
 - [x] Tutorial 38: Particle Systems
 - [x] Tutorial 39: Projective Texturing
-- [ ] Tutorial 40: Projected Light Maps
+- [x] Tutorial 40: Projected Light Maps
 - [ ] ... 
 - [x] Tutorial 55: Direct Sound
 - [x] Tutorial 56: 3D Sound
