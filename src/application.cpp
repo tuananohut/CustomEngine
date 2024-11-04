@@ -76,7 +76,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
-    strcpy_s(textureFilename, "../CustomEngine/assets/textures/grate01.tga");
+    strcpy_s(textureFilename, "../CustomEngine/assets/textures/circle.tga");
     strcpy_s(textureFilename1, "../CustomEngine/assets/textures/grate.tga");
     strcpy_s(textureFilename2, "../CustomEngine/assets/textures/grate01.tga");
 
@@ -90,9 +90,9 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_ViewPoint = new ViewPoint;
 
-    m_ViewPoint->SetPosition(2.0f, 8.0f, -5.0f);
+    m_ViewPoint->SetPosition(0.0f, 7.0f, -10.0f);
     m_ViewPoint->SetLookAt(0.f, 0.f, 0.f);
-    m_ViewPoint->SetProjectionParameters(100.0f, 1.0f, 0.1f, 100.0f);
+    m_ViewPoint->SetProjectionParameters(100.f, 1.0f, 0.1f, 100.0f);
     m_ViewPoint->GenerateViewMatrix();
     m_ViewPoint->GenerateProjectionMatrix();
 
@@ -100,7 +100,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.f);
     m_Light->SetDiffuseColor(1.f, 1.f, 1.f, 1.f);
-    m_Light->SetPosition(-2.f, 5.f, 2.f);
+    m_Light->SetPosition(0.0f, 7.0f, -10.0f);
 
     return true;
 }
@@ -284,12 +284,15 @@ bool Application::Render(float rotation)
         return false;
     }
 
-    for (float angle = 0.f; angle < 2 * PI * 20; angle += 0.1f)
-    {
-        x = r * cos(angle);
-        y = r * cos(angle);
-        worldMatrix = XMMatrixMultiply(XMMatrixTranslation(x, y, 0.f), XMMatrixRotationY(rotation));
-    }
+    // for (float angle = 0.f; angle < 2 * PI * 20; angle += 0.1f)
+    // {
+    //     x = r * cos(angle);
+    //     y = r * cos(angle);
+    //     worldMatrix = XMMatrixMultiply(XMMatrixTranslation(x, y, 0.f), XMMatrixRotationY(rotation));
+    // }
+
+    worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixTranslation(0.f, 2.f, -1.f));
+
 
     m_CubeModel->Render(m_Direct3D->GetDeviceContext());
     result = m_ProjectionShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, viewMatrix2, projectionMatrix2, m_CubeModel->GetTexture(0), m_ProjectionTexture->GetTexture(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetPosition(), brightness);
