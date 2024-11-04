@@ -1,5 +1,6 @@
 #include "headers/application.h"
 
+
 Application::Application()
 {
     m_Direct3D = nullptr;
@@ -10,6 +11,7 @@ Application::Application()
     m_ProjectionTexture = nullptr;
     m_ViewPoint = nullptr;
     m_Light = nullptr;
+   
 }
 
 Application::Application(const Application& other) {}
@@ -25,7 +27,6 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     char textureFilename1[128];
     char textureFilename2[128];
     
-    char* textures[3] = {textureFilename, textureFilename1, textureFilename2};
     bool result;
 
     m_Direct3D = new D3D;
@@ -76,6 +77,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     }
 
     strcpy_s(textureFilename, "../CustomEngine/assets/textures/grate01.tga");
+    strcpy_s(textureFilename1, "../CustomEngine/assets/textures/grate.tga");
+    strcpy_s(textureFilename2, "../CustomEngine/assets/textures/grate01.tga");
 
     m_ProjectionTexture = new Texture;
     result = m_ProjectionTexture->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), textureFilename);
@@ -87,7 +90,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_ViewPoint = new ViewPoint;
 
-    m_ViewPoint->SetPosition(2.0f, 5.0f, -2.0f);
+    m_ViewPoint->SetPosition(2.0f, 8.0f, -5.0f);
     m_ViewPoint->SetLookAt(0.f, 0.f, 0.f);
     m_ViewPoint->SetProjectionParameters((3.14159265358979323846f / 2.0f), 1.0f, 0.1f, 100.0f);
     m_ViewPoint->GenerateViewMatrix();
@@ -97,7 +100,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.f);
     m_Light->SetDiffuseColor(1.f, 1.f, 1.f, 1.f);
-    m_Light->SetPosition(2.f, 5.f, -2.f);
+    m_Light->SetPosition(-2.f, 5.f, 2.f);
 
     return true;
 }
@@ -280,7 +283,7 @@ bool Application::Render(float rotation)
     {
         return false;
     }
-    
+
     for (float angle = 0.f; angle < 2 * PI * 20; angle += 0.1f)
     {
         x = r * cos(angle);
