@@ -54,6 +54,7 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [x] Tutorial 38: Particle Systems
 - [x] Tutorial 39: Projective Texturing
 - [x] Tutorial 40: Projected Light Maps
+- [ ] Tutorial 41: Shadow Mapping
 - [ ] ... 
 - [x] Tutorial 55: Direct Sound
 - [x] Tutorial 56: 3D Sound
