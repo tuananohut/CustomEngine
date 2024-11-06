@@ -162,6 +162,9 @@
     <ClInclude Include="src\headers\viewpoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\headers\shadowshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -314,6 +317,9 @@
     <ClCompile Include="src\viewpoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\shadowshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\color.vs" />
@@ -376,6 +382,8 @@
     <None Include="src\shaders\particle.ps" />
     <None Include="src\shaders\projection.vs" />
     <None Include="src\shaders\projection.ps" />
+    <None Include="src\shaders\shadow.vs" />
+    <None Include="src\shaders\shadow.ps" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\assets\models\cube.txt" />
