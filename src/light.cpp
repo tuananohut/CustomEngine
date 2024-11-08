@@ -42,6 +42,11 @@ void Light::SetPosition(float x, float y, float z)
 	return;
 }
 
+void Light::SetLookAt(float x, float y, float z)
+{
+	m_lookAt = XMFLOAT3(x, y, z);
+}
+
 XMFLOAT4 Light::GetAmbientColor()
 {
 	return m_ambientColor;
@@ -70,4 +75,40 @@ float Light::GetSpecularPower()
 XMFLOAT3 Light::GetPosition()
 {
 	return m_position;
+}
+
+void Light::GenerateViewMatrix()
+{
+	XMFLOAT3 up;
+	XMVECTOR positionVector, lookAtVector, upVector;
+
+	up.x = 0.f;
+	up.y = 1.f;
+	up.z = 0.f;
+
+	positionVector = XMLoadFloat3(&m_position);
+	lookAtVector = XMLoadFloat3(&m_lookAt);
+	upVector = XMLoadFloat3(&up);
+
+	m_viewMatrix = XMMatrixLookAtLH(positionVector, lookAtVector, upVector);
+}
+
+void Light::GenerateProjectionMatrix(float screenDepth, float screenNear)
+{
+	float fieldOfView, screenAspect;
+
+	fieldOfView = 3.14159265358979323846f / 2.0f;
+	screenAspect = 1.f;
+
+	m_projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
+}
+
+void Light::GetViewMatrix(XMMATRIX& viewMatrix) 
+{
+	viewMatrix = m_viewMatrix;
+}
+
+void Light::GetProjectionMatrix(XMMATRIX& projectionMatrix)
+{
+	projectionMatrix = m_projectionMatrix;
 }
