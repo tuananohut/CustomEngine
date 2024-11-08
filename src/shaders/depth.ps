@@ -11,20 +11,7 @@ float4 DepthPixelShader(PixelInputType input): SV_TARGET
 
 	depthValue = input.depthPosition.z / input.depthPosition.w;
 
-	if (depthValue < 0.9f)
-	{
-		color = float4(1.f, 0.f, 0.f, 1.f);
-	}
-
-	if (depthValue > 0.9f)
-	{
-		color = float4(0.f, 1.f, 0.f, 1.f);
-	}
-
-	if (depthValue > 0.925f)
-	{
-		color = float4(0.f, 0.f, 1.f, 1.f);
-	}
+	color = float4(depthValue, depthValue, depthValue, 1.f);
 
 	return color;
 }
