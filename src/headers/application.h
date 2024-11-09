@@ -41,7 +41,7 @@ private:
 	Model* m_SphereModel;
 	Model* m_GroundModel;
 	Light* m_Light;
-	RenderTexture* m_RendereTexture;
+	RenderTexture* m_RenderTexture;
 	DepthShader* m_DepthShader;
 	ShadowShader* m_ShadowShader;
 	float m_shadowMapBias;
