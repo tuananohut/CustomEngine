@@ -31,6 +31,7 @@ struct PixelInputType
 
 PixelInputType ShadowVertexShader(VertexInputType input)
 {
+	PixelInputType output;
 	float4 worldPosition;
 
 	input.position.w = 1.f;
