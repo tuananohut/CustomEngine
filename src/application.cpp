@@ -109,7 +109,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     }
 
     // m_shadowMapBias = 0.0022f;
-    m_shadowMapBias = 0.f;
+     m_shadowMapBias = 1.f;
 
     return true;
 }
