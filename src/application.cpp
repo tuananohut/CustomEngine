@@ -108,8 +108,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
-    // m_shadowMapBias = 0.0022f;
-     m_shadowMapBias = 1.f;
+     m_shadowMapBias = 0.0022f;
+     // m_shadowMapBias = 1.f;
 
     return true;
 }
@@ -298,7 +298,7 @@ bool Application::RenderDepthToTexture()
     m_Light->GetViewMatrix(lightViewMatrix);
     m_Light->GetProjectionMatrix(lightProjectionMatrix);
 
-    translateMatrix = XMMatrixTranslation(-2.f, 2.f, 0.f);
+    translateMatrix = XMMatrixTranslation(-1.f, 2.f, 0.f);
 
     m_CubeModel->Render(m_Direct3D->GetDeviceContext());
 
@@ -308,7 +308,7 @@ bool Application::RenderDepthToTexture()
         return false;
     }
 
-    translateMatrix = XMMatrixTranslation(2.f, 2.f, 0.f);
+    translateMatrix = XMMatrixTranslation(1.f, 2.f, 0.f);
 
     m_SphereModel->Render(m_Direct3D->GetDeviceContext());
 
@@ -348,7 +348,7 @@ bool Application::Render(float rotation)
     m_Light->GetViewMatrix(lightViewMatrix);
     m_Light->GetProjectionMatrix(lightProjectionMatrix);
 
-    worldMatrix = XMMatrixTranslation(-2.f, 2.f, 0.f);
+    worldMatrix = XMMatrixTranslation(-1.f, 2.f, 0.f);
 
     m_CubeModel->Render(m_Direct3D->GetDeviceContext());
     result = m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix, m_CubeModel->GetTexture(0), m_RenderTexture->GetShaderResourceView(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetPosition(), m_shadowMapBias);
@@ -357,7 +357,7 @@ bool Application::Render(float rotation)
         return false;
     }
 
-    worldMatrix = XMMatrixTranslation(2.f, 2.f, 0.f);
+    worldMatrix = XMMatrixTranslation(1.f, 2.f, 0.f);
 
     m_SphereModel->Render(m_Direct3D->GetDeviceContext());
     result = m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix, m_SphereModel->GetTexture(0), m_RenderTexture->GetShaderResourceView(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetPosition(), m_shadowMapBias);
