@@ -146,13 +146,13 @@ bool ShadowShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[1].InstanceDataStepRate = 0;
 
-	polygonLayout[0].SemanticName = "NORMAL";
-	polygonLayout[0].SemanticIndex = 0;
-	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	polygonLayout[0].InputSlot = 0;
-	polygonLayout[0].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[0].InstanceDataStepRate = 0;
+	polygonLayout[2].SemanticName = "NORMAL";
+	polygonLayout[2].SemanticIndex = 0;
+	polygonLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	polygonLayout[2].InputSlot = 0;
+	polygonLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	polygonLayout[2].InstanceDataStepRate = 0;
 
 	numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
@@ -222,7 +222,7 @@ bool ShadowShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 	}
 
 	lightPositionBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	lightPositionBufferDesc.ByteWidth = sizeof(lightPositionBufferDesc);
+	lightPositionBufferDesc.ByteWidth = sizeof(LightPositionBufferType);
 	lightPositionBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	lightPositionBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	lightPositionBufferDesc.MiscFlags = 0;
@@ -426,4 +426,3 @@ void ShadowShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCou
 
 	deviceContext->DrawIndexed(indexCount, 0, 0);
 }
-
