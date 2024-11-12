@@ -18,7 +18,7 @@ git clone https://github.com/tuananohut/CustomEngine.git
 
 open CustomEngine.sln file and build the project. If you encounter any issues, let me know.
 
-## Completed lessons from RasterTek:
+## Completed tutorials from RasterTek:
 
 - [x] Tutorial 1: Setting up DirectX11 with Visual Studio 2022
 - [x] Tutorial 2: Creating a Framework and Window
