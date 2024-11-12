@@ -1,6 +1,9 @@
 # CustomEngine
 
-I am making a render engine to learn how to apply rendering techniques, and I am using DirectX11.
+I am learning how to make a render engine to understand:
+- application of computer graphics theories
+- implementation of rendering techniques
+- shader programming
 
 I am following this https://www.rastertek.com/tutdx11win10.html tutorial. 
 
