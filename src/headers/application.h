@@ -32,6 +32,7 @@ private:
 	// bool RenderSceneToTexture(float, float, float, bool);
 	// bool SoundProcessing();
 	bool RenderDepthToTexture();
+	bool RenderDepthToTexture2();
 	bool Render(float);
 
 private:
@@ -41,7 +42,9 @@ private:
 	Model* m_SphereModel;
 	Model* m_GroundModel;
 	Light* m_Light;
+	Light* m_Light2;
 	RenderTexture* m_RenderTexture;
+	RenderTexture* m_RenderTexture2;
 	DepthShader* m_DepthShader;
 	ShadowShader* m_ShadowShader;
 	float m_shadowMapBias;
