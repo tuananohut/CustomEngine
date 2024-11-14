@@ -1,6 +1,5 @@
 #include "headers/application.h"
 
-
 Application::Application()
 {
     m_Direct3D = nullptr;
@@ -20,77 +19,79 @@ Application::Application(const Application& other) {}
 
 Application::~Application() {}
 
-
 bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
     char modelFilename[128];
-    char soundFilename[128];
     char textureFilename[128];
     char textureFilename1[128];
     char textureFilename2[128];
     bool result;
 
     m_Direct3D = new D3D;
+
     result = m_Direct3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK | MB_ICONERROR);
+        MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
         return false;
     }
 
     m_Camera = new Camera;
 
     m_Camera->SetPosition(-8.0f, 7.0f, 8.0f);
-    m_Camera->SetRotation(35.f, 135.f, 0.f);
+    m_Camera->SetRotation(35.0f, 135.0f, 0.0f);
     m_Camera->Render();
 
-    strcpy_s(modelFilename, "../CustomEngine/assets/models/plane01.txt");
-    strcpy_s(textureFilename, "../CustomEngine/assets/textures/metal001.tga");
-    strcpy_s(textureFilename1, "../CustomEngine/assets/textures/palestine.tga");
-    strcpy_s(textureFilename2, "../CustomEngine/assets/textures/palestine.tga");
-
-    m_GroundModel = new Model;
-    result = m_GroundModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK | MB_ICONERROR);
-        return false;
-    }
+    m_CubeModel = new Model;
 
     strcpy_s(modelFilename, "../CustomEngine/assets/models/cube.txt");
     strcpy_s(textureFilename, "../CustomEngine/assets/textures/stone01.tga");
+    strcpy_s(textureFilename1, "../CustomEngine/assets/textures/stone01.tga");
+    strcpy_s(textureFilename2, "../CustomEngine/assets/textures/stone01.tga");
 
-    m_CubeModel = new Model;
     result = m_CubeModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK | MB_ICONERROR);
+        MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK);
         return false;
     }
-    
+
+    m_SphereModel = new Model;
+
     strcpy_s(modelFilename, "../CustomEngine/assets/models/sphere.txt");
     strcpy_s(textureFilename, "../CustomEngine/assets/textures/ice01.tga");
 
-    m_SphereModel = new Model;
     result = m_SphereModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the sphere model object.", L"Error", MB_OK | MB_ICONERROR);
+        MessageBox(hwnd, L"Could not initialize the sphere model object.", L"Error", MB_OK);
         return false;
     }
-    
+
+    m_GroundModel = new Model;
+
+    strcpy_s(modelFilename, "../CustomEngine/assets/models/plane01.txt");
+    strcpy_s(textureFilename, "../CustomEngine/assets/textures/metal001.tga");
+
+    result = m_GroundModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK);
+        return false;
+    }
+
     m_Light = new Light;
 
-    m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.f);
-    m_Light->SetDiffuseColor(1.f, 1.f, 1.f, 1.f);
-    m_Light->SetLookAt(0.f, 0.f, 0.f);
+    m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+    m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+    m_Light->SetLookAt(0.0f, 0.0f, 0.0f);
     m_Light->GenerateProjectionMatrix(SCREEN_DEPTH, SCREEN_NEAR);
 
     m_RenderTexture = new RenderTexture;
     result = m_RenderTexture->Initialize(m_Direct3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR, 1);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the render texture object.", L"Error", MB_OK | MB_ICONERROR);
+        MessageBox(hwnd, L"Could not initialize the render texture object.", L"Error", MB_OK);
         return false;
     }
 
@@ -98,7 +99,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     result = m_DepthShader->Initialize(m_Direct3D->GetDevice(), hwnd);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the depth shader object.", L"Error", MB_OK | MB_ICONERROR);
+        MessageBox(hwnd, L"Could not initialize the depth shader object.", L"Error", MB_OK);
         return false;
     }
 
@@ -106,34 +107,44 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     result = m_ShadowShader->Initialize(m_Direct3D->GetDevice(), hwnd);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the shadow shader object.", L"Error", MB_OK | MB_ICONERROR);
+        MessageBox(hwnd, L"Could not initialize the shadow shader object.", L"Error", MB_OK);
         return false;
     }
 
-     m_shadowMapBias = 0.0022f;
-     // m_shadowMapBias = 1.f;
+    m_shadowMapBias = 0.0022f;
 
-     m_Light2 = new Light;
+    m_Light2 = new Light;
 
-     m_Light->SetDiffuseColor(1.f, 1.f, 1.f, 1.f);
-     m_Light2->SetLookAt(0.f, 0.f, 0.f);
-     m_Light2->GenerateProjectionMatrix(SCREEN_DEPTH, SCREEN_NEAR);
+    m_Light2->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+    m_Light2->SetLookAt(0.0f, 0.0f, 0.0f);
+    m_Light2->GenerateProjectionMatrix(SCREEN_DEPTH, SCREEN_NEAR);
 
-     m_RenderTexture2 = new RenderTexture;
-
-     result = m_RenderTexture2->Initialize(m_Direct3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR, 1);
-     if (!result)
-     {
-         MessageBox(hwnd, L"Could not initialize the second render to texture object.", L"Error", MB_OK);
-         return false;
-     }
+    m_RenderTexture2 = new RenderTexture;
+    result = m_RenderTexture2->Initialize(m_Direct3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR, 1);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the second render to texture object.", L"Error", MB_OK);
+        return false;
+    }
 
     return true;
 }
 
-
 void Application::Shutdown()
 {
+    if (m_RenderTexture2)
+    {
+        m_RenderTexture2->Shutdown();
+        delete m_RenderTexture2;
+        m_RenderTexture2 = nullptr;
+    }
+
+    if (m_Light2)
+    {
+        delete m_Light2;
+        m_Light2 = nullptr;
+    }
+
     if (m_ShadowShader)
     {
         m_ShadowShader->Shutdown();
@@ -155,23 +166,17 @@ void Application::Shutdown()
         m_RenderTexture = nullptr;
     }
 
-    if (m_RenderTexture2)
-    {
-        m_RenderTexture2->Shutdown();
-        delete m_RenderTexture2;
-        m_RenderTexture2 = nullptr;
-    }
-
     if (m_Light)
     {
         delete m_Light;
         m_Light = nullptr;
     }
 
-    if (m_Light2)
+    if (m_GroundModel)
     {
-        delete m_Light2;
-        m_Light2 = nullptr;
+        m_GroundModel->Shutdown();
+        delete m_GroundModel;
+        m_GroundModel = nullptr;
     }
 
     if (m_SphereModel)
@@ -188,13 +193,6 @@ void Application::Shutdown()
         m_CubeModel = nullptr;
     }
 
-    if (m_GroundModel)
-    {
-        m_GroundModel->Shutdown();
-        delete m_GroundModel;
-        m_GroundModel = nullptr;
-    }
-
     if (m_Camera)
     {
         delete m_Camera;
@@ -209,11 +207,9 @@ void Application::Shutdown()
     }
 }
 
-
 bool Application::Frame(Input* Input)
 {
-    static float rotation = 0.0f;
-    static float lightPositionX = -5.f;
+    static float rotation = 0;
     bool result;
 
     if (Input->IsEscapePressed())
@@ -221,10 +217,10 @@ bool Application::Frame(Input* Input)
         return false;
     }
 
-    m_Light->SetPosition(5.f, 8.f, -5.f);
+    m_Light->SetPosition(5.0f, 8.0f, -5.0f);
     m_Light->GenerateViewMatrix();
 
-    m_Light2->SetPosition(5.f, 8.f, -5.f);
+    m_Light2->SetPosition(-5.0f, 8.0f, -5.0f);
     m_Light2->GenerateViewMatrix();
 
     result = RenderDepthToTexture();
@@ -239,12 +235,6 @@ bool Application::Frame(Input* Input)
         return false;
     }
 
-    rotation -= 0.0174532925f * 0.25f;
-    if (rotation < 0.0f)
-    {
-        rotation += 360.0f;
-    }
-
     result = Render(rotation);
     if (!result)
     {
@@ -254,84 +244,18 @@ bool Application::Frame(Input* Input)
     return true;
 }
 
-/*
-bool Application::RenderSceneToTexture(float rotation, float translationX, float translationY, bool blur)
-{
-    XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-    bool result;
-
-    m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
-    m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
-
-    m_Direct3D->GetWorldMatrix(worldMatrix);
-    m_Camera->GetViewMatrix(viewMatrix);
-    m_RenderTexture->GetProjectionMatrix(projectionMatrix);
-    
-    worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixTranslation(translationX, translationY, 0.f));
-
-    if(scenes[scene] == 0)
-    {
-        m_Cube->Render(m_Direct3D->GetDeviceContext());
-        result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Cube->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Cube->GetTexture(0));
-        if (!result)
-        {
-            return false;
-        }
-    }
-    
-    m_RenderTexture2->SetRenderTarget(m_Direct3D->GetDeviceContext());
-    m_RenderTexture2->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.f);
-
-    m_Direct3D->GetWorldMatrix(worldMatrix);
-    m_Camera->GetViewMatrix(viewMatrix);
-    m_RenderTexture2->GetProjectionMatrix(projectionMatrix);
-
-    worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixTranslation(translationX, translationY, 0.f));
-
-    if (scenes[scene] == 1)
-    {
-        m_IcoSphere->Render(m_Direct3D->GetDeviceContext());
-        result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_IcoSphere->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_IcoSphere->GetTexture(1));
-        if (!result)
-        {
-            return false;
-        }
-    }
-
-    m_Direct3D->SetBackBufferRenderTarget();
-    m_Direct3D->ResetViewport();
-
-    return true;
-}
-*/
-
-/*
-bool Application::SoundProcessing()
-{
-    bool result;
-
-    result = m_XAudio->Frame(m_Sound->GetEmitter(), m_Sound->GetSourceVoice());
-    if (!result)
-    {
-        return false;
-    }
-
-    return true;
-}
-*/
-
 bool Application::RenderDepthToTexture()
 {
     XMMATRIX translateMatrix, lightViewMatrix, lightProjectionMatrix;
     bool result;
 
     m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
-    m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.f);
+    m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
     m_Light->GetViewMatrix(lightViewMatrix);
     m_Light->GetProjectionMatrix(lightProjectionMatrix);
 
-    translateMatrix = XMMatrixTranslation(-1.f, 2.f, 0.f);
+    translateMatrix = XMMatrixTranslation(-2.0f, 2.0f, 0.0f);
 
     m_CubeModel->Render(m_Direct3D->GetDeviceContext());
 
@@ -341,7 +265,7 @@ bool Application::RenderDepthToTexture()
         return false;
     }
 
-    translateMatrix = XMMatrixTranslation(1.f, 2.f, 0.f);
+    translateMatrix = XMMatrixTranslation(2.0f, 2.0f, 0.0f);
 
     m_SphereModel->Render(m_Direct3D->GetDeviceContext());
     result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), translateMatrix, lightViewMatrix, lightProjectionMatrix);
@@ -350,10 +274,9 @@ bool Application::RenderDepthToTexture()
         return false;
     }
 
-    translateMatrix = XMMatrixTranslation(0.f, 1.f, 0.f);
+    translateMatrix = XMMatrixTranslation(0.0f, 1.0f, 0.0f);
 
     m_GroundModel->Render(m_Direct3D->GetDeviceContext());
-
     result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), translateMatrix, lightViewMatrix, lightProjectionMatrix);
     if (!result)
     {
@@ -372,22 +295,21 @@ bool Application::RenderDepthToTexture2()
     bool result;
 
     m_RenderTexture2->SetRenderTarget(m_Direct3D->GetDeviceContext());
-    m_RenderTexture2->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.f);
+    m_RenderTexture2->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
     m_Light2->GetViewMatrix(lightViewMatrix);
     m_Light2->GetProjectionMatrix(lightProjectionMatrix);
 
-    translateMatrix = XMMatrixTranslation(-1.f, 2.f, 0.f);
+    translateMatrix = XMMatrixTranslation(-2.0f, 2.0f, 0.0f);
 
     m_CubeModel->Render(m_Direct3D->GetDeviceContext());
-
     result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), translateMatrix, lightViewMatrix, lightProjectionMatrix);
     if (!result)
     {
         return false;
     }
 
-    translateMatrix = XMMatrixTranslation(1.f, 2.f, 0.f);
+    translateMatrix = XMMatrixTranslation(2.0f, 2.0f, 0.0f);
 
     m_SphereModel->Render(m_Direct3D->GetDeviceContext());
     result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), translateMatrix, lightViewMatrix, lightProjectionMatrix);
@@ -396,10 +318,9 @@ bool Application::RenderDepthToTexture2()
         return false;
     }
 
-    translateMatrix = XMMatrixTranslation(0.f, 1.f, 0.f);
+    translateMatrix = XMMatrixTranslation(0.0f, 1.0f, 0.0f);
 
     m_GroundModel->Render(m_Direct3D->GetDeviceContext());
-
     result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), translateMatrix, lightViewMatrix, lightProjectionMatrix);
     if (!result)
     {
@@ -417,7 +338,7 @@ bool Application::Render(float rotation)
     XMMATRIX worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix, lightViewMatrix2, lightProjectionMatrix2;
     bool result;
 
-    m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.f);
+    m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
     m_Direct3D->GetWorldMatrix(worldMatrix);
     m_Camera->GetViewMatrix(viewMatrix);
@@ -429,16 +350,17 @@ bool Application::Render(float rotation)
     m_Light2->GetViewMatrix(lightViewMatrix2);
     m_Light2->GetProjectionMatrix(lightProjectionMatrix2);
 
-    worldMatrix = XMMatrixTranslation(-1.f, 2.f, 0.f);
+    worldMatrix = XMMatrixTranslation(-2.0f, 2.0f, 0.0f);
 
     m_CubeModel->Render(m_Direct3D->GetDeviceContext());
+
     result = m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix, m_CubeModel->GetTexture(0), m_RenderTexture->GetShaderResourceView(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetPosition(), m_shadowMapBias, lightViewMatrix2, lightProjectionMatrix2, m_RenderTexture2->GetShaderResourceView(), m_Light2->GetPosition(), m_Light2->GetDiffuseColor());
     if (!result)
     {
         return false;
     }
 
-    worldMatrix = XMMatrixTranslation(1.f, 2.f, 0.f);
+    worldMatrix = XMMatrixTranslation(2.0f, 2.0f, 0.0f);
 
     m_SphereModel->Render(m_Direct3D->GetDeviceContext());
     result = m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix, m_SphereModel->GetTexture(0), m_RenderTexture->GetShaderResourceView(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetPosition(), m_shadowMapBias, lightViewMatrix2, lightProjectionMatrix2, m_RenderTexture2->GetShaderResourceView(), m_Light2->GetPosition(), m_Light2->GetDiffuseColor());
