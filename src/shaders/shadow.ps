@@ -1,6 +1,7 @@
 Texture2D shaderTexture: register(t0);
 Texture2D depthMapTexture: register(t1);
 Texture2D depthMapTexture2: register(t2);
+Texture2D depthMapTexture3: register(t3);
 SamplerState SampleTypeClamp: register(s0);
 SamplerState SampleTypeWrap: register(s1);
 
@@ -13,6 +14,8 @@ struct PixelInputType
 	float3 lightPos: TEXCOORD2;
 	float4 lightViewPosition2: TEXCOORD3;
 	float3 lightPos2: TEXCOORD4;
+	float4 lightViewPosition3: TEXCOORD5;
+	float3 lightPos3: TEXCOORD6;
 };
 
 cbuffer LightBuffer
@@ -20,6 +23,7 @@ cbuffer LightBuffer
 	float4 ambientColor;
 	float4 diffuseColor;
 	float4 diffuseColor2;
+	float4 diffuseColor3;
 	float bias;
 	float3 padding;
 };
@@ -75,6 +79,26 @@ float4 ShadowPixelShader(PixelInputType input): SV_TARGET
 			if (lightIntensity > 0.f)
 			{
 				color += (diffuseColor2 * lightIntensity);
+			}
+		}
+	}
+
+	projectTexCoord.x  = input.lightViewPosition3.x / input.lightViewPosition3.w / 2.f + 0.5f;
+	projectTexCoord.y  = -input.lightViewPosition3.y / input.lightViewPosition3.w / 2.f + 0.5f;
+
+	if ((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y))
+	{
+		depthValue = depthMapTexture3.Sample(SampleTypeClamp, projectTexCoord).r;
+
+		lightDepthValue = input.lightViewPosition3.z / input.lightViewPosition3.w;
+		lightDepthValue = lightDepthValue - bias;
+
+		if (lightDepthValue < depthValue)
+		{
+			lightIntensity = saturate(dot(input.normal, input.lightPos3));
+			if (lightIntensity > 0.f)
+			{
+				color += (diffuseColor3 * lightIntensity);
 			}
 		}
 	}
