@@ -84,7 +84,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
     m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-    m_Light->SetLookAt(0.0f, 0.0f, 0.0f);
+    m_Light->SetLookAt(0.0f, 10.0f, 5.0f);
     m_Light->GenerateProjectionMatrix(SCREEN_DEPTH, SCREEN_NEAR);
 
     m_RenderTexture = new RenderTexture;
@@ -115,8 +115,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_Light2 = new Light;
 
-    m_Light2->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-    m_Light2->SetLookAt(0.0f, 0.0f, 0.0f);
+    m_Light2->SetDiffuseColor(0.2f, 0.1f, 0.8f, 1.0f);
+    m_Light2->SetLookAt(0.0f, 0.0f, 5.0f);
     m_Light2->GenerateProjectionMatrix(SCREEN_DEPTH, SCREEN_NEAR);
 
     m_RenderTexture2 = new RenderTexture;
