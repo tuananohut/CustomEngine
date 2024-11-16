@@ -65,11 +65,16 @@ bool ShadowShader::Render(ID3D11DeviceContext* deviceContext,
 						  XMMATRIX lightProjectionMatrix2,  
 						  ID3D11ShaderResourceView* depthMapTexture2,  
 						  XMFLOAT3 lightPosition2, 
-						  XMFLOAT4 diffuseColor2)
+						  XMFLOAT4 diffuseColor2,
+						  XMMATRIX lightViewMatrix3, 
+						  XMMATRIX lightProjectionMatrix3, 
+						  ID3D11ShaderResourceView* depthMapTexture3, 
+						  XMFLOAT3 lightPosition3, 
+						  XMFLOAT4 diffuseColor3)
 {
 	bool result;
 
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix, texture, depthMapTexture, ambientColor, diffuseColor, lightPosition, bias, lightViewMatrix2, lightProjectionMatrix2, depthMapTexture2, lightPosition2, diffuseColor2);
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix, texture, depthMapTexture, ambientColor, diffuseColor, lightPosition, bias, lightViewMatrix2, lightProjectionMatrix2, depthMapTexture2, lightPosition2, diffuseColor2, lightViewMatrix3, lightProjectionMatrix3, depthMapTexture3, lightPosition3, diffuseColor3);
 	if (!result)
 	{
 		return false;
@@ -347,7 +352,12 @@ bool ShadowShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 									   XMMATRIX lightProjectionMatrix2, 
 									   ID3D11ShaderResourceView* depthMapTexture2, 
 									   XMFLOAT3 lightPosition2, 
-									   XMFLOAT4 diffuseColor2)
+									   XMFLOAT4 diffuseColor2,
+									   XMMATRIX lightViewMatrix3, 
+									   XMMATRIX lightProjectionMatrix3, 
+									   ID3D11ShaderResourceView* depthMapTexture3, 
+									   XMFLOAT3 lightPosition3, 
+									   XMFLOAT4 diffuseColor3)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -363,6 +373,8 @@ bool ShadowShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	lightProjectionMatrix = XMMatrixTranspose(lightProjectionMatrix);
 	lightViewMatrix2 = XMMatrixTranspose(lightViewMatrix2);
 	lightProjectionMatrix2 = XMMatrixTranspose(lightProjectionMatrix2);
+	lightViewMatrix3 = XMMatrixTranspose(lightViewMatrix3);
+	lightProjectionMatrix3 = XMMatrixTranspose(lightProjectionMatrix3);
 
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
@@ -379,6 +391,8 @@ bool ShadowShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	dataPtr->lightProjection = lightProjectionMatrix;
 	dataPtr->lightView2 = lightViewMatrix2;
 	dataPtr->lightProjection2 = lightProjectionMatrix2;
+	dataPtr->lightView3 = lightViewMatrix3;
+	dataPtr->lightProjection3 = lightProjectionMatrix3;
 
 	deviceContext->Unmap(m_matrixBuffer, 0);
 
@@ -397,7 +411,9 @@ bool ShadowShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	dataPtr2->lightPosition = lightPosition;
 	dataPtr2->padding = 0.f;
 	dataPtr2->lightPosition2 = lightPosition2;
-	dataPtr2->padding = 0.f;
+	dataPtr2->padding2 = 0.f;
+	dataPtr2->lightPosition3 = lightPosition3;
+	dataPtr2->padding3 = 0.f;
 
 	deviceContext->Unmap(m_lightPositionBuffer, 0);
 
@@ -416,6 +432,7 @@ bool ShadowShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	dataPtr3->ambientColor = ambientColor;
 	dataPtr3->diffuseColor = diffuseColor;
 	dataPtr3->diffuseColor2 = diffuseColor2;
+	dataPtr3->diffuseColor3 = diffuseColor3;
 	dataPtr3->bias = bias;
 	dataPtr3->padding = XMFLOAT3(0.f, 0.f, 0.f);
 
@@ -428,6 +445,7 @@ bool ShadowShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 	deviceContext->PSSetShaderResources(1, 1, &depthMapTexture);
 	deviceContext->PSSetShaderResources(2, 1, &depthMapTexture2);
+	deviceContext->PSSetShaderResources(3, 1, &depthMapTexture3);
 
 	return true;
 }
