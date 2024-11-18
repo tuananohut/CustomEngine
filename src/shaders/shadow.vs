@@ -11,16 +11,6 @@ cbuffer MatrixBuffer
 	matrix lightProjectionMatrix3;
 };
 
-cbuffer LightPositionBuffer
-{
-	float3 lightPosition;
-	float padding;
-	float3 lightPosition2;
-	float padding2;
-	float3 lightPosition3;
-	float padding3;
-};
-
 struct VertexInputType
 {
 	float4 position: POSITION;
@@ -34,11 +24,8 @@ struct PixelInputType
 	float2 tex: TEXCOORD0;
 	float3 normal: NORMAL;
 	float4 lightViewPosition: TEXCOORD1;
-	float3 lightPos: TEXCOORD2;
-	float4 lightViewPosition2: TEXCOORD3;
-	float3 lightPos2: TEXCOORD4;
-	float4 lightViewPosition3: TEXCOORD5;
-	float3 lightPos3: TEXCOORD6;
+	float4 lightViewPosition2: TEXCOORD2;
+	float4 lightViewPosition3: TEXCOORD3;
 };
 
 PixelInputType ShadowVertexShader(VertexInputType input)
@@ -69,16 +56,5 @@ PixelInputType ShadowVertexShader(VertexInputType input)
 	output.normal = mul(input.normal, (float3x3)worldMatrix);
 	output.normal = normalize(output.normal);
 
-	worldPosition = mul(input.position, worldMatrix);
-
-	output.lightPos = lightPosition.xyz - worldPosition.xyz;
-	output.lightPos = normalize(output.lightPos);
-	
-	output.lightPos2 = lightPosition2.xyz - worldPosition.xyz;
-	output.lightPos2 = normalize(output.lightPos2);
-
-	output.lightPos3 = lightPosition3.xyz - worldPosition.xyz;
-	output.lightPos3 = normalize(output.lightPos3);
-
 	return output;
-};
+}
