@@ -11,11 +11,8 @@ struct PixelInputType
 	float2 tex: TEXCOORD0;
 	float3 normal: NORMAL;
 	float4 lightViewPosition: TEXCOORD1;
-	float3 lightPos: TEXCOORD2;
-	float4 lightViewPosition2: TEXCOORD3;
-	float3 lightPos2: TEXCOORD4;
-	float4 lightViewPosition3: TEXCOORD5;
-	float3 lightPos3: TEXCOORD6;
+	float4 lightViewPosition2: TEXCOORD2;
+	float4 lightViewPosition3: TEXCOORD3;
 };
 
 cbuffer LightBuffer
@@ -24,8 +21,10 @@ cbuffer LightBuffer
 	float4 diffuseColor;
 	float4 diffuseColor2;
 	float4 diffuseColor3;
+	float3 lightDirection;
+	float3 lightDirection2;
+	float3 lightDirection3;
 	float bias;
-	float3 padding;
 };
 
 float4 ShadowPixelShader(PixelInputType input): SV_TARGET
@@ -36,6 +35,13 @@ float4 ShadowPixelShader(PixelInputType input): SV_TARGET
 	float lightDepthValue;
 	float lightIntensity;
 	float4 textureColor;
+	float3 lightDir;
+	float3 lightDir2;
+	float3 lightDir3;
+
+	lightDir = -lightDirection;
+	lightDir2 = -lightDirection2;
+	lightDir3 = -lightDirection3;
 
 	color = ambientColor; 
 
@@ -52,7 +58,7 @@ float4 ShadowPixelShader(PixelInputType input): SV_TARGET
 
 		if (lightDepthValue < depthValue)
 		{
-			lightIntensity = saturate(dot(input.normal, input.lightPos));
+			lightIntensity = saturate(dot(input.normal, lightDir));
 
 			if(lightIntensity > 0.f)
 			{
@@ -60,6 +66,17 @@ float4 ShadowPixelShader(PixelInputType input): SV_TARGET
 
 				color = saturate(color);
 			}
+		}
+	}
+
+	else
+	{
+		lightIntensity = saturate(dot(input.normal, lightDir));
+		
+		if (lightIntensity > 0.f)
+		{
+			color += (diffuseColor * lightIntensity);
+			color = satuate(color);
 		}
 	}
 	
@@ -75,11 +92,23 @@ float4 ShadowPixelShader(PixelInputType input): SV_TARGET
 
 		if (lightDepthValue < depthValue)
 		{
-			lightIntensity = saturate(dot(input.normal, input.lightPos2));
+			lightIntensity = saturate(dot(input.normal, lightDir2));
+
 			if (lightIntensity > 0.f)
 			{
 				color += (diffuseColor2 * lightIntensity);
 			}
+		}
+	}
+
+	else
+	{
+		lightIntensity = saturate(dot(input.normal, lightDir2));
+		
+		if (lightIntensity > 0.f)
+		{
+			color += (diffuseColor2 * lightIntensity);
+			color = satuate(color);
 		}
 	}
 
@@ -95,7 +124,8 @@ float4 ShadowPixelShader(PixelInputType input): SV_TARGET
 
 		if (lightDepthValue < depthValue)
 		{
-			lightIntensity = saturate(dot(input.normal, input.lightPos3));
+			lightIntensity = saturate(dot(input.normal, lightDir3));
+
 			if (lightIntensity > 0.f)
 			{
 				color += (diffuseColor3 * lightIntensity);
@@ -103,7 +133,16 @@ float4 ShadowPixelShader(PixelInputType input): SV_TARGET
 		}
 	}
 
-	color = saturate(color);
+	else
+	{
+		lightIntensity = saturate(dot(input.normal, lightDir3));
+		
+		if (lightIntensity > 0.f)
+		{
+			color += (diffuseColor3 * lightIntensity);
+			color = satuate(color);
+		}
+	}
 
 	textureColor = shaderTexture.Sample(SampleTypeWrap, input.tex);
 
