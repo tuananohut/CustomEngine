@@ -112,3 +112,13 @@ void Light::GetProjectionMatrix(XMMATRIX& projectionMatrix)
 {
 	projectionMatrix = m_projectionMatrix;
 }
+
+void Light::GenerateOrthoMatrix(float width, float nearPlane, float depthPlane)
+{
+	m_orthoMatrix = XMMatrixOrthographicLH(width, width, nearPlane, depthPlane);
+}
+
+void Light::GetOrthoMatrix(XMMATRIX& orthoMatrix)
+{
+	orthoMatrix = m_orthoMatrix;
+}
