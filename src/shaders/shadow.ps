@@ -76,7 +76,7 @@ float4 ShadowPixelShader(PixelInputType input): SV_TARGET
 		if (lightIntensity > 0.f)
 		{
 			color += (diffuseColor * lightIntensity);
-			color = satuate(color);
+			color = saturate(color);
 		}
 	}
 	
@@ -108,7 +108,7 @@ float4 ShadowPixelShader(PixelInputType input): SV_TARGET
 		if (lightIntensity > 0.f)
 		{
 			color += (diffuseColor2 * lightIntensity);
-			color = satuate(color);
+			color = saturate(color);
 		}
 	}
 
@@ -140,7 +140,7 @@ float4 ShadowPixelShader(PixelInputType input): SV_TARGET
 		if (lightIntensity > 0.f)
 		{
 			color += (diffuseColor3 * lightIntensity);
-			color = satuate(color);
+			color = saturate(color);
 		}
 	}
 
