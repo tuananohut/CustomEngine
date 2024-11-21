@@ -226,7 +226,7 @@ bool ShadowShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 	
 	result = device->CreateSamplerState(&samplerDesc, &m_sampleStateWrap);
 	if (FAILED(result))
-	{
+	{ 
 		return false;
 	}
 
@@ -403,6 +403,7 @@ bool ShadowShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	dataPtr2->lightDirection3 = lightDirection3;
 	dataPtr2->bias = bias;
 	dataPtr2->padding = XMFLOAT3(0.f, 0.f, 0.f);
+	dataPtr2->padding1 = XMFLOAT3(0.f, 0.f, 0.f);
 
 	deviceContext->Unmap(m_lightBuffer, 0);
 
