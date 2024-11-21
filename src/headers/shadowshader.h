@@ -37,6 +37,7 @@ private:
 		XMFLOAT3 lightDirection3;
 		float bias;
 		XMFLOAT3 padding;
+		XMFLOAT3 padding1;
 	};
 
 public: 
