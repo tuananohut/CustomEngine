@@ -19,10 +19,6 @@ private:
 		XMMATRIX projection;
 		XMMATRIX lightView;
 		XMMATRIX lightProjection;
-		XMMATRIX lightView2;
-		XMMATRIX lightProjection2;
-		XMMATRIX lightView3;
-		XMMATRIX lightProjection3;
 	};
 
 
@@ -30,14 +26,8 @@ private:
 	{
 		XMFLOAT4 ambientColor;
 		XMFLOAT4 diffuseColor;
-		XMFLOAT4 diffuseColor2;
-		XMFLOAT4 diffuseColor3;
 		XMFLOAT3 lightDirection;
-		XMFLOAT3 lightDirection2;
-		XMFLOAT3 lightDirection3;
 		float bias;
-		XMFLOAT3 padding;
-		XMFLOAT3 padding1;
 	};
 
 public: 
@@ -47,13 +37,13 @@ public:
 
 	bool Initialize(ID3D11Device*, HWND);
 	void Shutdown();
-	bool Render(ID3D11DeviceContext*, int, XMMATRIX, XMMATRIX, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*, ID3D11ShaderResourceView*, XMFLOAT4, XMFLOAT4, XMFLOAT3, float, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*, XMFLOAT4, XMFLOAT3, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*, XMFLOAT4, XMFLOAT3);
+	bool Render(ID3D11DeviceContext*, int, XMMATRIX, XMMATRIX, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*, ID3D11ShaderResourceView*, XMFLOAT4, XMFLOAT4, XMFLOAT3, float);
 private: 
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-	bool SetShaderParameters(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*, ID3D11ShaderResourceView*, XMFLOAT4, XMFLOAT4, XMFLOAT3, float, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*, XMFLOAT4, XMFLOAT3, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*, XMFLOAT4, XMFLOAT3);
+	bool SetShaderParameters(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*, ID3D11ShaderResourceView*, XMFLOAT4, XMFLOAT4, XMFLOAT3, float);
 	void RenderShader(ID3D11DeviceContext*, int);
 
 private: 
