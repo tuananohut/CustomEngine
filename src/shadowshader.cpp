@@ -60,21 +60,11 @@ bool ShadowShader::Render(ID3D11DeviceContext* deviceContext,
 						  XMFLOAT4 ambientColor, 
 						  XMFLOAT4 diffuseColor, 
 						  XMFLOAT3 lightDirection, 
-						  float bias,
-						  XMMATRIX lightViewMatrix2,
-						  XMMATRIX lightProjectionMatrix2,
-						  ID3D11ShaderResourceView* depthMapTexture2,
-						  XMFLOAT4 diffuseColor2,
-						  XMFLOAT3 lightDirection2,
-						  XMMATRIX lightViewMatrix3,
-						  XMMATRIX lightProjectionMatrix3,
-						  ID3D11ShaderResourceView* depthMapTexture3,
-						  XMFLOAT4 diffuseColor3,
-						  XMFLOAT3 lightDirection3)
+						  float bias)
 {
 	bool result;
 
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix, texture, depthMapTexture, ambientColor, diffuseColor, lightDirection, bias, lightViewMatrix2, lightProjectionMatrix2, depthMapTexture2, diffuseColor2, lightDirection2, lightViewMatrix3, lightProjectionMatrix3, depthMapTexture3, diffuseColor3, lightDirection3);
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix, texture, depthMapTexture, ambientColor, diffuseColor, lightDirection, bias);
 	if (!result)
 	{
 		return false;
@@ -333,18 +323,7 @@ bool ShadowShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 									   XMFLOAT4 ambientColor, 
 									   XMFLOAT4 diffuseColor, 
 									   XMFLOAT3 lightDirection, 
-									   float bias, 
-									   XMMATRIX lightViewMatrix2, 
-									   XMMATRIX lightProjectionMatrix2, 
-									   ID3D11ShaderResourceView* depthMapTexture2, 
-									   XMFLOAT4 diffuseColor2, 
-									   XMFLOAT3 lightDirection2, 
-									   XMMATRIX lightViewMatrix3, 
-									   XMMATRIX lightProjectionMatrix3, 
-									   ID3D11ShaderResourceView* depthMapTexture3, 
-									   XMFLOAT4 diffuseColor3, 
-									   XMFLOAT3 lightDirection3)
-
+									   float bias)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -357,10 +336,6 @@ bool ShadowShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	projectionMatrix = XMMatrixTranspose(projectionMatrix);
 	lightViewMatrix = XMMatrixTranspose(lightViewMatrix);
 	lightProjectionMatrix = XMMatrixTranspose(lightProjectionMatrix);
-	lightViewMatrix2 = XMMatrixTranspose(lightViewMatrix2);
-	lightProjectionMatrix2 = XMMatrixTranspose(lightProjectionMatrix2);
-	lightViewMatrix3 = XMMatrixTranspose(lightViewMatrix3);
-	lightProjectionMatrix3 = XMMatrixTranspose(lightProjectionMatrix3);
 
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
@@ -375,10 +350,6 @@ bool ShadowShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	dataPtr->projection = projectionMatrix;
 	dataPtr->lightView = lightViewMatrix;
 	dataPtr->lightProjection = lightProjectionMatrix;
-	dataPtr->lightView2 = lightViewMatrix2;
-	dataPtr->lightProjection2 = lightProjectionMatrix2;
-	dataPtr->lightView3 = lightViewMatrix3;
-	dataPtr->lightProjection3 = lightProjectionMatrix3;
 
 	deviceContext->Unmap(m_matrixBuffer, 0);
 
@@ -396,14 +367,8 @@ bool ShadowShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 
 	dataPtr2->ambientColor = ambientColor;
 	dataPtr2->diffuseColor = diffuseColor;
-	dataPtr2->diffuseColor2 = diffuseColor2;
-	dataPtr2->diffuseColor3 = diffuseColor3;
 	dataPtr2->lightDirection = lightDirection;
-	dataPtr2->lightDirection2 = lightDirection2;
-	dataPtr2->lightDirection3 = lightDirection3;
 	dataPtr2->bias = bias;
-	dataPtr2->padding = XMFLOAT3(0.f, 0.f, 0.f);
-	dataPtr2->padding1 = XMFLOAT3(0.f, 0.f, 0.f);
 
 	deviceContext->Unmap(m_lightBuffer, 0);
 
@@ -413,8 +378,6 @@ bool ShadowShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 	deviceContext->PSSetShaderResources(1, 1, &depthMapTexture);
-	deviceContext->PSSetShaderResources(2, 1, &depthMapTexture2);
-	deviceContext->PSSetShaderResources(3, 1, &depthMapTexture3);
 
 	return true;
 }
