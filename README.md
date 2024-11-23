@@ -59,7 +59,7 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [x] Tutorial 40: Projected Light Maps
 - [x] Tutorial 41: Shadow Mapping
 - [x] Tutorial 42: Multiple Light Shadow Mapping
-- [ ] Tutorial 43: Directional Shadow Maps
+- [x] Tutorial 43: Directional Shadow Maps
 - [ ] ... 
 - [x] Tutorial 55: Direct Sound
 - [x] Tutorial 56: 3D Sound
