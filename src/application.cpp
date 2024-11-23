@@ -8,11 +8,7 @@ Application::Application()
     m_SphereModel = nullptr;
     m_GroundModel = nullptr;
     m_Light = nullptr;
-    m_Light2 = nullptr;
-    m_Light3 = nullptr;
     m_RenderTexture = nullptr;
-    m_RenderTexture2 = nullptr;
-    m_RenderTexture3 = nullptr;
     m_DepthShader = nullptr;
     m_ShadowShader = nullptr;
 }
@@ -84,8 +80,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_Light = new Light;
 
-    m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
-    m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+    m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.f);
+    m_Light->SetDiffuseColor(1.f, 1.f, 1.f, 1.f);
     m_Light->GenerateOrthoMatrix(20.f, SHADOWMAP_NEAR, SHADOWMAP_DEPTH);
 
     m_RenderTexture = new RenderTexture;
@@ -113,64 +109,12 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     }
 
     m_shadowMapBias = 0.0022f;
-
-    m_Light2 = new Light;
-
-    m_Light2->SetDiffuseColor(0.2f, 0.1f, 0.8f, 1.0f);
-    m_Light2->GenerateOrthoMatrix(20.f, SHADOWMAP_NEAR, SHADOWMAP_DEPTH);
-
-    m_RenderTexture2 = new RenderTexture;
-    result = m_RenderTexture2->Initialize(m_Direct3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SHADOWMAP_DEPTH, SHADOWMAP_NEAR, 1);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the second render to texture object.", L"Error", MB_OK);
-        return false;
-    }
-
-    m_Light3 = new Light;
-
-    m_Light3->SetDiffuseColor(0.98f, 0.537f, 0.906f, 1.0f);
-    m_Light3->GenerateOrthoMatrix(20.f, SHADOWMAP_NEAR, SHADOWMAP_DEPTH);
-
-    m_RenderTexture3 = new RenderTexture;
-    result = m_RenderTexture3->Initialize(m_Direct3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SHADOWMAP_DEPTH, SHADOWMAP_NEAR, 1);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the second render to texture object.", L"Error", MB_OK);
-        return false;
-    }
-
+    
     return true;
 }
 
 void Application::Shutdown()
 {
-    if (m_RenderTexture2)
-    {
-        m_RenderTexture2->Shutdown();
-        delete m_RenderTexture2;
-        m_RenderTexture2 = nullptr;
-    }
-
-    if (m_Light2)
-    {
-        delete m_Light2;
-        m_Light2 = nullptr;
-    }
-
-    if (m_RenderTexture3)
-    {
-        m_RenderTexture3->Shutdown();
-        delete m_RenderTexture3;
-        m_RenderTexture3 = nullptr;
-    }
-
-    if (m_Light3)
-    {
-        delete m_Light3;
-        m_Light3 = nullptr;
-    }
-
     if (m_ShadowShader)
     {
         m_ShadowShader->Shutdown();
@@ -252,7 +196,7 @@ bool Application::Frame(Input* Input)
 
     lightPosX -= 0.003f * frameTime;
 
-    lightAngle -= 0.03 * frameTime;
+    lightAngle -= 0.03f * frameTime;
     if (lightAngle < 90.f)
     {
         lightAngle = 270.f;
@@ -265,39 +209,15 @@ bool Application::Frame(Input* Input)
     m_Light->SetDirection(sinf(radians), cosf(radians), 0.f);
 
     m_Light->SetPosition(lightPosX, 8.0f, -0.1f);
-    m_Light->SetLookAt(-lightPosX, 0.0f, 0.0f);
+    m_Light->SetLookAt(-lightPosX, 0.f, 0.f);
     m_Light->GenerateViewMatrix();
-
-    m_Light2->SetDirection(sinf(radians), cosf(radians), 0.f);
-
-    m_Light2->SetPosition(lightPosX, 8.0f, -0.5f);
-    m_Light2->SetLookAt(-lightPosX + 5, 0.0f, 0.0f);
-    m_Light2->GenerateViewMatrix();
-
-    m_Light3->SetDirection(sinf(radians), cosf(radians), 0.f);
-
-    m_Light3->SetPosition(lightPosX, 8.0f, -0.3f);
-    m_Light3->SetLookAt(-lightPosX, 0.0f, 0.0f);
-    m_Light3->GenerateViewMatrix();
 
     result = RenderDepthToTexture(translateMatrix, lightViewMatrix, lightOrthoMatrix, m_RenderTexture, m_Light);
     if (!result)
     {
         return false;
     }
-
-    result = RenderDepthToTexture(translateMatrix, lightViewMatrix, lightOrthoMatrix, m_RenderTexture2, m_Light2);
-    if (!result)
-    {
-        return false;
-    }
-
-    result = RenderDepthToTexture(translateMatrix, lightViewMatrix, lightOrthoMatrix, m_RenderTexture3, m_Light3);
-    if (!result)
-    {
-        return false;
-    }
-
+    
     result = Render(rotation);
     if (!result)
     {
@@ -365,17 +285,11 @@ bool Application::Render(float rotation)
     m_Light->GetViewMatrix(lightViewMatrix);
     m_Light->GetOrthoMatrix(lightOrthoMatrix);
 
-    m_Light2->GetViewMatrix(lightViewMatrix2);
-    m_Light2->GetOrthoMatrix(lightOrthoMatrix2);
-
-    m_Light3->GetViewMatrix(lightViewMatrix3);
-    m_Light3->GetOrthoMatrix(lightOrthoMatrix3);
-
     worldMatrix = XMMatrixTranslation(-2.0f, 2.0f, 0.0f);
 
     m_CubeModel->Render(m_Direct3D->GetDeviceContext());
 
-    result = m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightOrthoMatrix, m_CubeModel->GetTexture(0), m_RenderTexture->GetShaderResourceView(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetDirection(), m_shadowMapBias, lightViewMatrix2, lightOrthoMatrix2, m_RenderTexture2->GetShaderResourceView(), m_Light2->GetDiffuseColor(), m_Light2->GetDirection(), lightViewMatrix3, lightOrthoMatrix3, m_RenderTexture3->GetShaderResourceView(), m_Light3->GetDiffuseColor(), m_Light3->GetDirection());
+    result = m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightOrthoMatrix, m_CubeModel->GetTexture(0), m_RenderTexture->GetShaderResourceView(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetDirection(), m_shadowMapBias);
     if (!result)
     {
         return false;
@@ -384,7 +298,7 @@ bool Application::Render(float rotation)
     worldMatrix = XMMatrixTranslation(2.0f, 2.0f, 0.0f);
 
     m_SphereModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightOrthoMatrix, m_SphereModel->GetTexture(0), m_RenderTexture->GetShaderResourceView(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetDirection(), m_shadowMapBias, lightViewMatrix2, lightOrthoMatrix2, m_RenderTexture2->GetShaderResourceView(), m_Light2->GetDiffuseColor(),  m_Light2->GetDirection(), lightViewMatrix3, lightOrthoMatrix3, m_RenderTexture3->GetShaderResourceView(), m_Light3->GetDiffuseColor(), m_Light3->GetDirection());
+    result = m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightOrthoMatrix, m_SphereModel->GetTexture(0), m_RenderTexture->GetShaderResourceView(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetDirection(), m_shadowMapBias);
     if (!result)
     {
         return false;
@@ -393,7 +307,7 @@ bool Application::Render(float rotation)
     worldMatrix = XMMatrixTranslation(0.0f, 1.0f, 0.0f);
 
     m_GroundModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightOrthoMatrix, m_GroundModel->GetTexture(0), m_RenderTexture->GetShaderResourceView(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetDirection(), m_shadowMapBias, lightViewMatrix2, lightOrthoMatrix2, m_RenderTexture2->GetShaderResourceView(), m_Light2->GetDiffuseColor(), m_Light2->GetDirection(), lightViewMatrix3, lightOrthoMatrix3, m_RenderTexture3->GetShaderResourceView(), m_Light3->GetDiffuseColor(), m_Light3->GetDirection());
+    result = m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightOrthoMatrix, m_GroundModel->GetTexture(0), m_RenderTexture->GetShaderResourceView(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetDirection(), m_shadowMapBias);
     if (!result)
     {
         return false;
