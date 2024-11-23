@@ -1,7 +1,7 @@
 # CustomEngine
 
 I am learning how to make a render engine to understand:
-- application of computer graphics theories
+- theory of computer graphics
 - implementation of rendering techniques
 - shader programming
 
