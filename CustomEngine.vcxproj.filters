@@ -384,6 +384,7 @@
     <None Include="src\shaders\projection.ps" />
     <None Include="src\shaders\shadow.vs" />
     <None Include="src\shaders\shadow.ps" />
+    <None Include="src\shaders\softshadow.vs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\assets\models\cube.txt" />

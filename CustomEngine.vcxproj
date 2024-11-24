@@ -273,6 +273,7 @@
     <None Include="src\shaders\refraction.vs" />
     <None Include="src\shaders\shadow.ps" />
     <None Include="src\shaders\shadow.vs" />
+    <None Include="src\shaders\softshadow.vs" />
     <None Include="src\shaders\specmap.ps" />
     <None Include="src\shaders\specmap.vs" />
     <None Include="src\shaders\texture.ps" />
