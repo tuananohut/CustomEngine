@@ -7,7 +7,6 @@ ShadowShader::ShadowShader()
 	m_layout = nullptr;
 	m_matrixBuffer = nullptr;
 	m_sampleStateClamp = nullptr;
-	m_sampleStateWrap = nullptr;
 	m_lightPositionBuffer = nullptr;
 	m_lightBuffer = nullptr;
 }
@@ -55,16 +54,13 @@ bool ShadowShader::Render(ID3D11DeviceContext* deviceContext,
 						  XMMATRIX projectionMatrix,
 						  XMMATRIX lightViewMatrix, 
 						  XMMATRIX lightProjectionMatrix, 
-						  ID3D11ShaderResourceView* texture, 
 					      ID3D11ShaderResourceView* depthMapTexture,
-						  XMFLOAT4 ambientColor, 
-						  XMFLOAT4 diffuseColor, 
-						  XMFLOAT3 lightDirection, 
+						  XMFLOAT3 lightPosition,
 						  float bias)
 {
 	bool result;
 
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix, texture, depthMapTexture, ambientColor, diffuseColor, lightDirection, bias);
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix, depthMapTexture, lightPosition, bias);
 	if (!result)
 	{
 		return false;
@@ -86,6 +82,7 @@ bool ShadowShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
+	D3D11_BUFFER_DESC lightPositionBufferDesc;
 
 	result = D3DCompileFromFile(vsFilename, NULL, NULL, "ShadowVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage);
 	if (FAILED(result))
@@ -200,23 +197,16 @@ bool ShadowShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 		return false;
 	}
 
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.MipLODBias = 0.f;
-	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerDesc.BorderColor[0] = 0;
-	samplerDesc.BorderColor[1] = 0;
-	samplerDesc.BorderColor[2] = 0;
-	samplerDesc.BorderColor[3] = 0;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	
-	result = device->CreateSamplerState(&samplerDesc, &m_sampleStateWrap);
+	lightPositionBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	lightPositionBufferDesc.ByteWidth = sizeof(LightPositionBufferType);
+	lightPositionBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	lightPositionBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	lightPositionBufferDesc.MiscFlags = 0;
+	lightPositionBufferDesc.StructureByteStride = 0;
+
+	result = device->CreateBuffer(&lightPositionBufferDesc, NULL, &m_lightPositionBuffer);
 	if (FAILED(result))
-	{ 
+	{
 		return false;
 	}
 
@@ -248,12 +238,6 @@ void ShadowShader::ShutdownShader()
 	{
 		m_lightPositionBuffer->Release();
 		m_lightPositionBuffer = nullptr;
-	}
-
-	if (m_sampleStateWrap)
-	{
-		m_sampleStateWrap->Release();
-		m_sampleStateWrap = nullptr;
 	}
 
 	if (m_sampleStateClamp)
@@ -318,18 +302,16 @@ bool ShadowShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 									   XMMATRIX projectionMatrix,
 									   XMMATRIX lightViewMatrix, 
 									   XMMATRIX lightProjectionMatrix, 
-									   ID3D11ShaderResourceView* texture, 
-									   ID3D11ShaderResourceView* depthMapTexture,
-									   XMFLOAT4 ambientColor, 
-									   XMFLOAT4 diffuseColor, 
-									   XMFLOAT3 lightDirection, 
+									   ID3D11ShaderResourceView* depthMapTexture, 
+									   XMFLOAT3 lightPosition, 
 									   float bias)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
 	unsigned int bufferNumber;
-	LightBufferType* dataPtr2;
+	LightPositionBufferType* dataPtr2;
+	LightBufferType* dataPtr3;
 
 	worldMatrix = XMMatrixTranspose(worldMatrix);
 	viewMatrix = XMMatrixTranspose(viewMatrix);
@@ -357,18 +339,31 @@ bool ShadowShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
+	result = deviceContext->Map(m_lightPositionBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	dataPtr2 = (LightPositionBufferType*)mappedResource.pData;
+
+	dataPtr2->lightPosition = lightPosition;
+	dataPtr2->padding = 0.f;
+
+	bufferNumber = 1;
+
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_lightPositionBuffer);
+
 	result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 	{
 		return false;
 	}
 
-	dataPtr2 = (LightBufferType*)mappedResource.pData;
+	dataPtr3 = (LightBufferType*)mappedResource.pData;
 
-	dataPtr2->ambientColor = ambientColor;
-	dataPtr2->diffuseColor = diffuseColor;
-	dataPtr2->lightDirection = lightDirection;
-	dataPtr2->bias = bias;
+	dataPtr3->bias = bias;
+	dataPtr3->padding = XMFLOAT3(0.f, 0.f, 0.f);
 
 	deviceContext->Unmap(m_lightBuffer, 0);
 
@@ -376,8 +371,7 @@ bool ShadowShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 
 	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
 
-	deviceContext->PSSetShaderResources(0, 1, &texture);
-	deviceContext->PSSetShaderResources(1, 1, &depthMapTexture);
+	deviceContext->PSSetShaderResources(0, 1, &depthMapTexture);
 
 	return true;
 }
@@ -390,7 +384,6 @@ void ShadowShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCou
 	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
 
 	deviceContext->PSSetSamplers(0, 1, &m_sampleStateClamp);
-	deviceContext->PSSetSamplers(1, 1, &m_sampleStateWrap);
 
 	deviceContext->DrawIndexed(indexCount, 0, 0);
 }
