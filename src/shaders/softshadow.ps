@@ -1,0 +1,53 @@
+Texture2D shaderTexture: register(t0);
+Texture2D shaderTexture: register(t1);
+SamplerState SampleTypeClamp: register(s0);
+SamplerState SampleTypeWrap: register(s1);
+
+struct PixelInputType
+{
+	float4 position: SV_POSITION;
+	float2 tex: TEXCOORD0;
+	float3 normal: NORMAL;
+	float4 viewPosition: TEXCOORD1;
+	float3 lightPos: TEXCOORD2;
+};
+
+cbuffer LightBuffer
+{
+	float4 ambientColor;
+	float4 diffuseColor;
+	float bias;
+	float3 padding;
+};
+
+float4 SoftShadowPixelShader(PixelInputType input): SV_TARGET
+{
+	float4 color;
+	float lightIntensity;
+	float4 textureColor;
+	float2 projectTexCoord;
+	float shadowValue;
+
+	color = ambientColor;
+
+	lightIntensity = saturate(dot(input.normal, input.lightPos));
+	if (lightIntensity > 0.f)
+	{
+		color += (diffuseColor * lightIntensity);
+
+		color = saturate(color);
+	}
+
+	textureColor = shaderTexture.Sample(SampleTypeWrap, input.tex);
+
+	color = color * textureColor;
+
+	projectTexCoord.x = input.viewPosition.x / input.viewPosition.w / 2.f + 0.5f;
+	projectTexCoord.y = -input.viewPosition.y / input.viewPosition.w / 2.f + 0.5f;
+
+	shadowValue = shadowTexture.Sample(SampleTypeClamp, projectTexCoord).r;
+
+	color = color * shaderValue;
+
+	return color;
+}
