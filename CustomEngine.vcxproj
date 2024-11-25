@@ -163,6 +163,7 @@
     <ClInclude Include="src\headers\rendertexture.h" />
     <ClInclude Include="src\headers\shadermanager.h" />
     <ClInclude Include="src\headers\shadowshader.h" />
+    <ClInclude Include="src\headers\softshadowshader.h" />
     <ClInclude Include="src\headers\sound.h" />
     <ClInclude Include="src\headers\sound3d.h" />
     <ClInclude Include="src\headers\specmapshader.h" />
@@ -273,6 +274,7 @@
     <None Include="src\shaders\refraction.vs" />
     <None Include="src\shaders\shadow.ps" />
     <None Include="src\shaders\shadow.vs" />
+    <None Include="src\shaders\softshadow.ps" />
     <None Include="src\shaders\softshadow.vs" />
     <None Include="src\shaders\specmap.ps" />
     <None Include="src\shaders\specmap.vs" />

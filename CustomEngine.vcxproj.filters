@@ -165,6 +165,9 @@
     <ClInclude Include="src\headers\shadowshader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\headers\softshadowshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -385,6 +388,7 @@
     <None Include="src\shaders\shadow.vs" />
     <None Include="src\shaders\shadow.ps" />
     <None Include="src\shaders\softshadow.vs" />
+    <None Include="src\shaders\softshadow.ps" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\assets\models\cube.txt" />
