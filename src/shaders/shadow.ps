@@ -39,7 +39,7 @@ float4 ShadowPixelShader(PixelInputType input): SV_TARGET
 
 		if (lightDepthValue < depthValue)
 		{
-			lightIntensity = saturate(dot(input.normal, lightDir));
+			lightIntensity = saturate(dot(input.normal, input.lightPos));
 
 			if(lightIntensity > 0.f)
 			{
