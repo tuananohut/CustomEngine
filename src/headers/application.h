@@ -9,6 +9,8 @@
 #include "rendertexture.h"
 #include "depthshader.h"
 #include "shadowshader.h"
+#include "softshadowshader.h"
+#include "blur.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -34,6 +36,7 @@ private:
 	// bool RenderSceneToTexture(float, float, float, bool);
 	// bool SoundProcessing();
 	bool RenderDepthToTexture(XMMATRIX, XMMATRIX, XMMATRIX, RenderTexture*, Light*);
+	bool RenderBlackAndWhiteShadows();
 	bool Render(float);
 
 private:
@@ -43,9 +46,14 @@ private:
 	Model* m_SphereModel;
 	Model* m_GroundModel;
 	Light* m_Light;
+	RenderTexture* m_BlackWhiteRenderTexture;
 	RenderTexture* m_RenderTexture;
 	DepthShader* m_DepthShader;
 	ShadowShader* m_ShadowShader;
+	SoftShadowShader* m_SoftShadowShader;
+	Blur* m_Blur;
+	TextureShader* m_TextureShader;
+	BlurShader* m_BlurShader;
 	float m_shadowMapBias;
 };
 
