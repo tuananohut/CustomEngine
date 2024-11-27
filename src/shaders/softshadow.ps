@@ -1,5 +1,5 @@
 Texture2D shaderTexture: register(t0);
-Texture2D shaderTexture: register(t1);
+Texture2D shadowTexture: register(t1);
 SamplerState SampleTypeClamp: register(s0);
 SamplerState SampleTypeWrap: register(s1);
 
@@ -47,7 +47,7 @@ float4 SoftShadowPixelShader(PixelInputType input): SV_TARGET
 
 	shadowValue = shadowTexture.Sample(SampleTypeClamp, projectTexCoord).r;
 
-	color = color * shaderValue;
+	color = color * shadowValue;
 
 	return color;
 }
