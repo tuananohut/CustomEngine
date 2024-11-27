@@ -24,7 +24,7 @@ struct PixelInputType
 	float2 tex: TEXCOORD0;
 	float3 normal: NORMAL;
 	float4 viewPosition: TEXCOORD1;
-	float3 lightPosition: TEXCOORD2;
+	float3 lightPos: TEXCOORD2;
 };
 
 PixelInputType SoftShadowVertexShader(VertexInputType input)
