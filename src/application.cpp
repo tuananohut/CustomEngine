@@ -271,7 +271,7 @@ bool Application::Frame(Input* Input)
     static float rotation = 0;
     static float lightPosX = -5.f;
     bool result;
-    XMMATRIX translateMatrix = {}, lightViewMatrix = {}, lightOrthoMatrix = {};
+    XMMATRIX translateMatrix = {}, lightViewMatrix = {}, lightProjectionMatrix = {};
 
     if (Input->IsEscapePressed())
     {
@@ -287,7 +287,7 @@ bool Application::Frame(Input* Input)
     m_Light->SetPosition(lightPosX, 8.0f, -5.f);
     m_Light->GenerateViewMatrix();
 
-    result = RenderDepthToTexture(translateMatrix, lightViewMatrix, lightOrthoMatrix, m_RenderTexture, m_Light);
+    result = RenderDepthToTexture(translateMatrix, lightViewMatrix, lightProjectionMatrix, m_RenderTexture, m_Light);
     if (!result)
     {
         return false;
@@ -314,7 +314,7 @@ bool Application::Frame(Input* Input)
     return true;
 }
 
-bool Application::RenderDepthToTexture(XMMATRIX translateMatrix, XMMATRIX lightViewMatrix, XMMATRIX lightOrthoMatrix, RenderTexture* m_RenderTexture, Light* m_Light)
+bool Application::RenderDepthToTexture(XMMATRIX translateMatrix, XMMATRIX lightViewMatrix, XMMATRIX lightProjectionMatrix, RenderTexture* m_RenderTexture, Light* m_Light)
 {
     bool result;
 
@@ -322,13 +322,12 @@ bool Application::RenderDepthToTexture(XMMATRIX translateMatrix, XMMATRIX lightV
     m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
     m_Light->GetViewMatrix(lightViewMatrix);
-    m_Light->GetOrthoMatrix(lightOrthoMatrix);
+    m_Light->GetProjectionMatrix(lightProjectionMatrix);
 
     translateMatrix = XMMatrixTranslation(-2.0f, 2.0f, 0.0f);
 
     m_CubeModel->Render(m_Direct3D->GetDeviceContext());
-
-    result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), translateMatrix, lightViewMatrix, lightOrthoMatrix);
+    result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), translateMatrix, lightViewMatrix, lightProjectionMatrix);
     if (!result)
     {
         return false;
@@ -337,7 +336,7 @@ bool Application::RenderDepthToTexture(XMMATRIX translateMatrix, XMMATRIX lightV
     translateMatrix = XMMatrixTranslation(2.0f, 2.0f, 0.0f);
 
     m_SphereModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), translateMatrix, lightViewMatrix, lightOrthoMatrix);
+    result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), translateMatrix, lightViewMatrix, lightProjectionMatrix);
     if (!result)
     {
         return false;
@@ -346,7 +345,7 @@ bool Application::RenderDepthToTexture(XMMATRIX translateMatrix, XMMATRIX lightV
     translateMatrix = XMMatrixTranslation(0.0f, 1.0f, 0.0f);
 
     m_GroundModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), translateMatrix, lightViewMatrix, lightOrthoMatrix);
+    result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), translateMatrix, lightViewMatrix, lightProjectionMatrix);
     if (!result)
     {
         return false;
