@@ -173,6 +173,7 @@
     <ClInclude Include="src\headers\textureshader.h" />
     <ClInclude Include="src\headers\timer.h" />
     <ClInclude Include="src\headers\translateshader.h" />
+    <ClInclude Include="src\headers\transparentdepthshader.h" />
     <ClInclude Include="src\headers\transparentshader.h" />
     <ClInclude Include="src\headers\viewpoint.h" />
     <ClInclude Include="src\headers\watershader.h" />
@@ -227,6 +228,7 @@
     <ClCompile Include="src\system.cpp" />
     <ClCompile Include="src\timer.cpp" />
     <ClCompile Include="src\translateshader.cpp" />
+    <ClCompile Include="src\transparentdepthshader.cpp" />
     <ClCompile Include="src\transparentshader.cpp" />
     <ClCompile Include="src\viewpoint.cpp" />
     <ClCompile Include="src\watershader.cpp" />
@@ -287,6 +289,8 @@
     <None Include="src\shaders\transparent.vs">
       <FileType>Discomap</FileType>
     </None>
+    <None Include="src\shaders\transparentdepth.ps" />
+    <None Include="src\shaders\transparentdepth.vs" />
     <None Include="src\shaders\water.ps" />
     <None Include="src\shaders\water.vs" />
     <None Include="src\textures\alphamap.ps" />
