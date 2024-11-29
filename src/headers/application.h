@@ -8,18 +8,18 @@
 #include "light.h"
 #include "rendertexture.h"
 #include "depthshader.h"
+#include "transparentdepthshader.h"
 #include "shadowshader.h"
-#include "softshadowshader.h"
-#include "blur.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
-const float SCREEN_DEPTH = 100.0f;
-const float SCREEN_NEAR = 1.f;
+const float SCREEN_NEAR = 0.3;
+const float SCREEN_DEPTH = 1000.0f;
+
 const int SHADOWMAP_WIDTH = 1024;
 const int SHADOWMAP_HEIGHT = 1024;
-const float SHADOWMAP_DEPTH = 50.f;
 const float SHADOWMAP_NEAR = 1.f;
+const float SHADOWMAP_DEPTH = 50.f;
 
 class Application
 {
@@ -33,27 +33,23 @@ public:
 	bool Frame(Input*);
 
 private:
-	// bool RenderSceneToTexture(float, float, float, bool);
+	bool RenderSceneToTexture();
 	// bool SoundProcessing();
-	bool RenderDepthToTexture(XMMATRIX, XMMATRIX, XMMATRIX, RenderTexture*, Light*);
-	bool RenderBlackAndWhiteShadows();
+	// bool RenderDepthToTexture(XMMATRIX, XMMATRIX, XMMATRIX, RenderTexture*, Light*);
+	// bool RenderBlackAndWhiteShadows();
 	bool Render(float);
 
 private:
 	D3D* m_Direct3D;
 	Camera* m_Camera;
-	Model* m_CubeModel;
+	Model* m_TreeTrunkModel;
 	Model* m_SphereModel;
-	Model* m_GroundModel;
+	Model* m_TreeLeafModel;
 	Light* m_Light;
-	RenderTexture* m_BlackWhiteRenderTexture;
 	RenderTexture* m_RenderTexture;
 	DepthShader* m_DepthShader;
+	TransparentDepthShader* m_TransparentDepthShader;
 	ShadowShader* m_ShadowShader;
-	SoftShadowShader* m_SoftShadowShader;
-	Blur* m_Blur;
-	TextureShader* m_TextureShader;
-	BlurShader* m_BlurShader;
 	float m_shadowMapBias;
 };
 
