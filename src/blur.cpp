@@ -86,21 +86,21 @@ void Blur::Shutdown()
 
 bool Blur::BlurTexture(D3D* Direct3D, Camera* Camera, RenderTexture* RenderTexture, TextureShader* TextureShader, BlurShader* BlurShader)
 {
-	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
+	XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
 	float blurType;
 	bool result;
 
 	Direct3D->GetWorldMatrix(worldMatrix);
-	Camera->GetViewMatrix(viewMatrix);
+	Camera->GetBaseViewMatrix(baseViewMatrix);
 
 	Direct3D->TurnZBufferOff();
-
+	
 	m_DownSampleTexture1->SetRenderTarget(Direct3D->GetDeviceContext());
 	m_DownSampleTexture1->ClearRenderTarget(Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 	m_DownSampleTexture1->GetOrthoMatrix(orthoMatrix);
 
 	m_DownSampleWindow->Render(Direct3D->GetDeviceContext());
-	result = TextureShader->Render(Direct3D->GetDeviceContext(), m_DownSampleWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, RenderTexture->GetShaderResourceView());
+	result = TextureShader->Render(Direct3D->GetDeviceContext(), m_DownSampleWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, RenderTexture->GetShaderResourceView());
 	if (!result)
 	{
 		return false;
@@ -113,7 +113,7 @@ bool Blur::BlurTexture(D3D* Direct3D, Camera* Camera, RenderTexture* RenderTextu
 	m_DownSampleTexture2->GetOrthoMatrix(orthoMatrix);
 
 	m_DownSampleWindow->Render(Direct3D->GetDeviceContext());
-	result = BlurShader->Render(Direct3D->GetDeviceContext(), m_DownSampleWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_DownSampleTexture1->GetShaderResourceView(), m_downSampleWidth, m_downSampleHeight, blurType);
+	result = BlurShader->Render(Direct3D->GetDeviceContext(), m_DownSampleWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_DownSampleTexture1->GetShaderResourceView(), m_downSampleWidth, m_downSampleHeight, blurType);
 	if (!result)
 	{
 		return false;
@@ -127,7 +127,7 @@ bool Blur::BlurTexture(D3D* Direct3D, Camera* Camera, RenderTexture* RenderTextu
 
 	m_DownSampleWindow->Render(Direct3D->GetDeviceContext());
 
-	result = BlurShader->Render(Direct3D->GetDeviceContext(), m_DownSampleWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_DownSampleTexture2->GetShaderResourceView(), m_downSampleWidth, m_downSampleHeight, blurType);
+	result = BlurShader->Render(Direct3D->GetDeviceContext(), m_DownSampleWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_DownSampleTexture2->GetShaderResourceView(), m_downSampleWidth, m_downSampleHeight, blurType);
 	if (!result)
 	{
 		return false;
@@ -138,7 +138,7 @@ bool Blur::BlurTexture(D3D* Direct3D, Camera* Camera, RenderTexture* RenderTextu
 	RenderTexture->GetOrthoMatrix(orthoMatrix);
 
 	m_UpSampleWindow->Render(Direct3D->GetDeviceContext());
-	result = TextureShader->Render(Direct3D->GetDeviceContext(), m_UpSampleWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_DownSampleTexture1->GetShaderResourceView());
+	result = TextureShader->Render(Direct3D->GetDeviceContext(), m_UpSampleWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_DownSampleTexture1->GetShaderResourceView());
 	if (!result)
 	{
 		return false;
