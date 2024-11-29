@@ -43,7 +43,7 @@ private:
 	D3D* m_Direct3D;
 	Camera* m_Camera;
 	Model* m_TreeTrunkModel;
-	Model* m_SphereModel;
+	Model* m_GroundModel;
 	Model* m_TreeLeafModel;
 	Light* m_Light;
 	RenderTexture* m_RenderTexture;
