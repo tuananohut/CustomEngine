@@ -1,0 +1,32 @@
+Texture2D shaderTexture: register(t0);
+SamplerState SampleType: register(s0);
+
+struct PixelInputType
+{
+	float4 position: SV_POSITION;
+	float4 depthPosition: TEXTURE0;
+	float2 tex: TEXCOORD1;
+};
+
+float4 TransparentDepthPixelShader(PixelInputType input): SV_TARGET
+{
+	float depthValue;
+	float4 color;
+	float4 textureColor;
+
+	textureColor = shaderTexture.Sample(SampleType, input.tex);
+
+	if (textureColor.a > 0.8f)
+	{
+		depthValue = input.depthPosition.z / input.depthPosition.w;
+	}
+
+	else
+	{
+		discard;
+	}
+
+	color = float4(depthValue, depthValue, depthValue, 1.f);
+
+	return color;
+}
