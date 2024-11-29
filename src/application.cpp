@@ -4,18 +4,14 @@ Application::Application()
 {
     m_Direct3D = nullptr;
     m_Camera = nullptr;
-    m_CubeModel = nullptr;
-    m_SphereModel = nullptr;
+    m_TreeTrunkModel = nullptr;
     m_GroundModel = nullptr;
+    m_TreeLeafModel = nullptr;
     m_Light = nullptr;
     m_RenderTexture = nullptr;
-    m_BlackWhiteRenderTexture = nullptr;
     m_DepthShader = nullptr;
+    m_TransparentDepthShader = nullptr;
     m_ShadowShader = nullptr;
-    m_SoftShadowShader = nullptr;
-    m_Blur = nullptr;
-    m_TextureShader = nullptr;
-    m_BlurShader = nullptr;
 }
 
 Application::Application(const Application& other) {}
@@ -42,34 +38,30 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_Camera = new Camera;
 
-    m_Camera->SetPosition(0.f, 0.f, -10.0f);
-    m_Camera->Render();
-    m_Camera->RenderBaseViewMatrix();
-
-    m_Camera->SetPosition(0.f, 7.f, -10.0f);
-    m_Camera->SetRotation(35.0f, 0.f, 0.f);
+    m_Camera->SetPosition(0.f, 7.f, -11.0f);
+    m_Camera->SetRotation(20.0f, 0.f, 0.f);
     m_Camera->Render();
 
-    m_CubeModel = new Model;
+    m_TreeTrunkModel = new Model;
 
-    strcpy_s(modelFilename, "../CustomEngine/assets/models/cube.txt");
-    strcpy_s(textureFilename, "../CustomEngine/assets/textures/stone01.tga");
+    strcpy_s(modelFilename, "../CustomEngine/assets/models/trunk001.txt");
+    strcpy_s(textureFilename, "../CustomEngine/assets/textures/trunk001.tga");
     strcpy_s(textureFilename1, "../CustomEngine/assets/textures/stone01.tga");
     strcpy_s(textureFilename2, "../CustomEngine/assets/textures/stone01.tga");
 
-    result = m_CubeModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
+    result = m_TreeTrunkModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
     if (!result)
     {
         MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK);
         return false;
     }
 
-    m_SphereModel = new Model;
+    m_TreeLeafModel = new Model;
 
-    strcpy_s(modelFilename, "../CustomEngine/assets/models/sphere.txt");
-    strcpy_s(textureFilename, "../CustomEngine/assets/textures/ice01.tga");
+    strcpy_s(modelFilename, "../CustomEngine/assets/models/leaf001.txt");
+    strcpy_s(textureFilename, "../CustomEngine/assets/textures/leaf001.tga");
 
-    result = m_SphereModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
+    result = m_TreeLeafModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
     if (!result)
     {
         MessageBox(hwnd, L"Could not initialize the sphere model object.", L"Error", MB_OK);
@@ -79,7 +71,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     m_GroundModel = new Model;
 
     strcpy_s(modelFilename, "../CustomEngine/assets/models/plane01.txt");
-    strcpy_s(textureFilename, "../CustomEngine/assets/textures/metal001.tga");
+    strcpy_s(textureFilename, "../CustomEngine/assets/textures/dirt.tga");
 
     result = m_GroundModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
     if (!result)
@@ -92,22 +84,13 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.f);
     m_Light->SetDiffuseColor(1.f, 1.f, 1.f, 1.f);
-    m_Light->SetLookAt(0.f, 0.f, 0.f);
-    m_Light->GenerateProjectionMatrix(SCREEN_DEPTH, SCREEN_NEAR);
+    m_Light->GenerateOrthoMatrix(20.f, SHADOWMAP_NEAR, SHADOWMAP_DEPTH);
 
     m_RenderTexture = new RenderTexture;
-    result = m_RenderTexture->Initialize(m_Direct3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR, 1);
+    result = m_RenderTexture->Initialize(m_Direct3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SHADOWMAP_DEPTH, SHADOWMAP_NEAR, 1);
     if (!result)
     {
         MessageBox(hwnd, L"Could not initialize the render texture object.", L"Error", MB_OK);
-        return false;
-    }
-
-    m_BlackWhiteRenderTexture = new RenderTexture;
-    result = m_BlackWhiteRenderTexture->Initialize(m_Direct3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR, 1);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the black an white render texture object.", L"Error", MB_OK | MB_ICONERROR);
         return false;
     }
 
@@ -119,46 +102,19 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
+    m_TransparentDepthShader = new TransparentDepthShader;
+    result = m_TransparentDepthShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the transparent depth shader object.", L"Error", MB_OK);
+        return false;
+    }
+
     m_ShadowShader = new ShadowShader;
     result = m_ShadowShader->Initialize(m_Direct3D->GetDevice(), hwnd);
     if (!result)
     {
         MessageBox(hwnd, L"Could not initialize the shadow shader object.", L"Error", MB_OK);
-        return false;
-    }
-
-    m_SoftShadowShader = new SoftShadowShader;
-    result = m_SoftShadowShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the soft shadow shader object.", L"Error", MB_OK | MB_ICONERROR);
-        return false;
-    }
-
-    downSampleWidth = SHADOWMAP_WIDTH / 2;
-    downSampleHeight = SHADOWMAP_HEIGHT / 2;
-
-    m_Blur = new Blur;
-    result = m_Blur->Initialize(m_Direct3D, downSampleWidth, downSampleHeight, SCREEN_NEAR, SCREEN_DEPTH, SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the blur object.", L"Error", MB_OK | MB_ICONERROR);
-        return false;
-    }
-
-    m_TextureShader = new TextureShader;
-    result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK | MB_ICONERROR);
-        return false;
-    }
-
-    m_BlurShader = new BlurShader;
-    result = m_BlurShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the blur shader object.", L"Error", MB_OK | MB_ICONERROR);
         return false;
     }
 
@@ -169,34 +125,6 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Application::Shutdown()
 {
-    if (m_BlurShader)
-    {
-        m_BlurShader->Shutdown();
-        delete m_BlurShader;
-        m_BlurShader = nullptr;
-    }
-
-    if (m_TextureShader)
-    {
-        m_TextureShader->Shutdown();
-        delete m_TextureShader;
-        m_TextureShader = nullptr;
-    }
-
-    if (m_Blur)
-    {
-        m_Blur->Shutdown();
-        delete m_Blur;
-        m_Blur = nullptr;
-    }
-
-    if (m_SoftShadowShader)
-    {
-        m_SoftShadowShader->Shutdown();
-        delete m_SoftShadowShader;
-        m_SoftShadowShader = nullptr;
-    }
-
     if (m_ShadowShader)
     {
         m_ShadowShader->Shutdown();
@@ -211,18 +139,18 @@ void Application::Shutdown()
         m_DepthShader = nullptr;
     }
 
+    if (m_TransparentDepthShader)
+    {
+        m_TransparentDepthShader->Shutdown();
+        delete m_TransparentDepthShader;
+        m_TransparentDepthShader = nullptr;
+    }
+
     if (m_RenderTexture)
     {
         m_RenderTexture->Shutdown();
         delete m_RenderTexture;
         m_RenderTexture = nullptr;
-    }
-
-    if (m_BlackWhiteRenderTexture)
-    {
-        m_BlackWhiteRenderTexture->Shutdown();
-        delete m_BlackWhiteRenderTexture;
-        m_BlackWhiteRenderTexture = nullptr;
     }
 
     if (m_Light)
@@ -238,18 +166,18 @@ void Application::Shutdown()
         m_GroundModel = nullptr;
     }
 
-    if (m_SphereModel)
+    if (m_TreeLeafModel)
     {
-        m_SphereModel->Shutdown();
-        delete m_SphereModel;
-        m_SphereModel = nullptr;
+        m_TreeLeafModel->Shutdown();
+        delete m_TreeLeafModel;
+        m_TreeLeafModel = nullptr;
     }
 
-    if (m_CubeModel)
+    if (m_TreeTrunkModel)
     {
-        m_CubeModel->Shutdown();
-        delete m_CubeModel;
-        m_CubeModel = nullptr;
+        m_TreeTrunkModel->Shutdown();
+        delete m_TreeTrunkModel;
+        m_TreeTrunkModel = nullptr;
     }
 
     if (m_Camera)
@@ -269,7 +197,10 @@ void Application::Shutdown()
 bool Application::Frame(Input* Input)
 {
     static float rotation = 0;
-    static float lightPosX = -5.f;
+    static float lightAngle = 270.f;
+    static float lightPosX = 9.f;
+    float frameTime;
+    float radians;
     bool result;
     XMMATRIX translateMatrix = {}, lightViewMatrix = {}, lightProjectionMatrix = {};
 
@@ -278,31 +209,29 @@ bool Application::Frame(Input* Input)
         return false;
     }
 
-    lightPosX += 0.05f;
-    if (lightPosX > 5.f)
+    frameTime = 10.f;
+
+    lightPosX -= 0.003f * frameTime;
+    lightAngle -= 0.03f * frameTime;
+
+    if (lightAngle < 90.f)
     {
-        lightPosX = -5.f;
+        lightAngle = 270.f;
+        lightPosX = 9.f;
     } 
 
-    m_Light->SetPosition(lightPosX, 8.0f, -5.f);
+    radians = lightAngle * 0.0174532925f;
+
+    m_Light->SetDirection(sinf(radians), cosf(radians), 0.f);
+
+    m_Light->SetPosition(lightPosX, 10.f, 1.f);
+    m_Light->SetLookAt(-lightPosX, 0.f, 2.f);
     m_Light->GenerateViewMatrix();
 
-    result = RenderDepthToTexture(translateMatrix, lightViewMatrix, lightProjectionMatrix, m_RenderTexture, m_Light);
+    result = RenderSceneToTexture();
     if (!result)
     {
         return false;
-    }
-
-    result = RenderBlackAndWhiteShadows();
-    if (!result)
-    {
-        return false;
-    }
-
-    result = m_Blur->BlurTexture(m_Direct3D, m_Camera, m_BlackWhiteRenderTexture, m_TextureShader, m_BlurShader);
-    if (!result)
-    {
-        return true;
     }
     
     result = Render(rotation);
@@ -314,6 +243,7 @@ bool Application::Frame(Input* Input)
     return true;
 }
 
+/*
 bool Application::RenderDepthToTexture(XMMATRIX translateMatrix, XMMATRIX lightViewMatrix, XMMATRIX lightProjectionMatrix, RenderTexture* m_RenderTexture, Light* m_Light)
 {
     bool result;
@@ -403,47 +333,100 @@ bool Application::RenderBlackAndWhiteShadows()
 
     return true;
 }
+*/
+
+bool Application::RenderSceneToTexture()
+{
+    XMMATRIX worldMatrix, scaleMatrix, translateMatrix, lightViewMatrix, lightOrthoMatrix;
+    bool result;
+
+    m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+    m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.f);
+
+    m_Light->GetViewMatrix(lightViewMatrix);
+    m_Light->GetOrthoMatrix(lightOrthoMatrix);
+
+    scaleMatrix = XMMatrixScaling(0.1f, 0.1f, 0.1f);
+    translateMatrix = XMMatrixTranslation(0.f, 1.f, 0.f);
+    worldMatrix = XMMatrixMultiply(scaleMatrix, translateMatrix);
+
+    m_TreeTrunkModel->Render(m_Direct3D->GetDeviceContext());
+    result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_TreeTrunkModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightOrthoMatrix);
+    if (!result)
+    {
+        return false;
+    }
+
+    m_TreeLeafModel->Render(m_Direct3D->GetDeviceContext());
+    result = m_TransparentDepthShader->Render(m_Direct3D->GetDeviceContext(), m_TreeLeafModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightOrthoMatrix, m_TreeLeafModel->GetTexture(0));
+    if (!result)
+    {
+        return false;
+    }
+
+    scaleMatrix = XMMatrixScaling(2.f, 2.f, 2.f);
+    translateMatrix = XMMatrixTranslation(0.f, 1.f, 0.f);
+    worldMatrix = XMMatrixMultiply(scaleMatrix, translateMatrix);
+
+    m_GroundModel->Render(m_Direct3D->GetDeviceContext());
+    result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightOrthoMatrix);
+    if (!result)
+    {
+        return false;
+    }
+
+    m_Direct3D->SetBackBufferRenderTarget();
+    m_Direct3D->ResetViewport();
+
+    return true;
+}
 
 bool Application::Render(float rotation)
 {
-    XMMATRIX worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix;
+    XMMATRIX worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightOrthoMatrix, scaleMatrix, translateMatrix;
     bool result;
 
-    m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+    m_Direct3D->BeginScene(0.0f, 0.5f, 0.8f, 1.0f);
 
     m_Direct3D->GetWorldMatrix(worldMatrix);
     m_Camera->GetViewMatrix(viewMatrix);
     m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
     m_Light->GetViewMatrix(lightViewMatrix);
-    m_Light->GetProjectionMatrix(lightProjectionMatrix);
+    m_Light->GetOrthoMatrix(lightOrthoMatrix);
 
-    worldMatrix = XMMatrixTranslation(-2.0f, 2.0f, 0.0f);
-
-    m_CubeModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_SoftShadowShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_CubeModel->GetTexture(0), m_BlackWhiteRenderTexture->GetShaderResourceView(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetPosition(), m_shadowMapBias);
-    if (!result)
-    {
-        return false;
-    }
-
-    worldMatrix = XMMatrixTranslation(2.0f, 2.0f, 0.0f);
-
-    m_SphereModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_SoftShadowShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_SphereModel->GetTexture(0), m_BlackWhiteRenderTexture->GetShaderResourceView(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetPosition(), m_shadowMapBias);
-    if (!result)
-    {
-        return false;
-    }
-
-    worldMatrix = XMMatrixTranslation(0.0f, 1.0f, 0.0f);
+    scaleMatrix = XMMatrixScaling(2.0f, 2.0f, 2.0f);
+    translateMatrix = XMMatrixTranslation(0.0f, 1.0f, 0.0f);
+    worldMatrix = XMMatrixMultiply(scaleMatrix, translateMatrix);
 
     m_GroundModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_SoftShadowShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_GroundModel->GetTexture(0), m_BlackWhiteRenderTexture->GetShaderResourceView(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetPosition(), m_shadowMapBias);
+    result = m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightOrthoMatrix, m_GroundModel->GetTexture(0), m_RenderTexture->GetShaderResourceView(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetDirection(), m_shadowMapBias);
     if (!result)
     {
         return false;
     }
+
+    scaleMatrix = XMMatrixScaling(0.1f, 0.1f, 0.1f);
+    translateMatrix = XMMatrixTranslation(0.f, 1.f, 0.f);
+    worldMatrix = XMMatrixMultiply(scaleMatrix, translateMatrix);
+
+    m_TreeTrunkModel->Render(m_Direct3D->GetDeviceContext());
+    result = m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_TreeTrunkModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightOrthoMatrix, m_TreeTrunkModel->GetTexture(0), m_RenderTexture->GetShaderResourceView(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetDirection(), m_shadowMapBias);
+    if (!result)
+    {
+        return false;
+    }
+    
+    m_Direct3D->EnableAlphaBlending();
+
+    m_TreeLeafModel->Render(m_Direct3D->GetDeviceContext());
+    result = m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_TreeLeafModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightOrthoMatrix, m_TreeLeafModel->GetTexture(0), m_RenderTexture->GetShaderResourceView(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetDirection(), m_shadowMapBias);
+    if (!result)
+    {
+        return false;
+    }
+
+    m_Direct3D->DisableAlphaBlending();
 
     m_Direct3D->EndScene();
 
