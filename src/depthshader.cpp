@@ -18,13 +18,13 @@ bool DepthShader::Initialize(ID3D11Device* device, HWND hwnd)
 	int error;
 	bool result;
 
-	error = wcscpy_s(vsFilename, 128, L"../CustomEngine/src/shaders/depth.vs");
+	error = wcscpy_s(vsFilename, 128, L"src/shaders/depth.vs");
 	if (error != 0)
 	{
 		return false;
 	}
 
-	error = wcscpy_s(psFilename, 128, L"../CustomEngine/src/shaders/depth.ps");
+	error = wcscpy_s(psFilename, 128, L"src/shaders/depth.ps");
 	if (error != 0)
 	{
 		return false;

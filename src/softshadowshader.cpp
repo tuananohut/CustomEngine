@@ -22,13 +22,13 @@ bool SoftShadowShader::Initialize(ID3D11Device* device, HWND hwnd)
 	int error;
 	bool result;
 
-	error = wcscpy_s(vsFilename, 128, L"../CustomEngine/src/shaders/softshadow.vs");
+	error = wcscpy_s(vsFilename, 128, L"src/shaders/softshadow.vs");
 	if (error != 0)
 	{
 		return false;
 	}
 
-	error = wcscpy_s(psFilename, 128, L"../CustomEngine/src/shaders/softshadow.ps");
+	error = wcscpy_s(psFilename, 128, L"src/shaders/softshadow.ps");
 	if (error != 0)
 	{
 		return false;

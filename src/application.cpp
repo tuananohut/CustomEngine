@@ -44,10 +44,10 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_TreeTrunkModel = new Model;
 
-    strcpy_s(modelFilename, "../CustomEngine/assets/models/trunk001.txt");
-    strcpy_s(textureFilename, "../CustomEngine/assets/textures/trunk001.tga");
-    strcpy_s(textureFilename1, "../CustomEngine/assets/textures/stone01.tga");
-    strcpy_s(textureFilename2, "../CustomEngine/assets/textures/stone01.tga");
+    strcpy_s(modelFilename, "assets/models/trunk001.txt");
+    strcpy_s(textureFilename, "assets/textures/trunk001.tga");
+    strcpy_s(textureFilename1, "assets/textures/stone01.tga");
+    strcpy_s(textureFilename2, "assets/textures/stone01.tga");
 
     result = m_TreeTrunkModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
     if (!result)
@@ -58,8 +58,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_TreeLeafModel = new Model;
 
-    strcpy_s(modelFilename, "../CustomEngine/assets/models/leaf001.txt");
-    strcpy_s(textureFilename, "../CustomEngine/assets/textures/leaf001.tga");
+    strcpy_s(modelFilename, "assets/models/leaf001.txt");
+    strcpy_s(textureFilename, "assets/textures/leaf001.tga");
 
     result = m_TreeLeafModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
     if (!result)
@@ -70,8 +70,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_GroundModel = new Model;
 
-    strcpy_s(modelFilename, "../CustomEngine/assets/models/plane01.txt");
-    strcpy_s(textureFilename, "../CustomEngine/assets/textures/dirt.tga");
+    strcpy_s(modelFilename, "assets/models/plane01.txt");
+    strcpy_s(textureFilename, "assets/textures/dirt.tga");
 
     result = m_GroundModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
     if (!result)

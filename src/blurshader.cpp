@@ -20,13 +20,13 @@ bool BlurShader::Initialize(ID3D11Device* device, HWND hwnd)
 	int error; 
 	bool result;
 
-	error = wcscpy_s(vsFilename, 128, L"../CustomEngine/src/shaders/blur.vs");
+	error = wcscpy_s(vsFilename, 128, L"src/shaders/blur.vs");
 	if (error != 0)
 	{
 		return false;
 	}
 
-	error = wcscpy_s(psFilename, 128, L"../CustomEngine/src/shaders/blur.ps");
+	error = wcscpy_s(psFilename, 128, L"src/shaders/blur.ps");
 	if (error != 0)
 	{
 		return false;

@@ -22,13 +22,13 @@ bool WaterShader::Initialize(ID3D11Device* device, HWND hwnd)
 	wchar_t psFilename[128];
 	int error;
 
-	error = wcscpy_s(vsFilename, 128, L"../CustomEngine/src/shaders/water.vs");
+	error = wcscpy_s(vsFilename, 128, L"src/shaders/water.vs");
 	if (error != 0)
 	{
 		return false;
 	}
 
-	error = wcscpy_s(psFilename, 128, L"../CustomEngine/src/shaders/water.ps");
+	error = wcscpy_s(psFilename, 128, L"src/shaders/water.ps");
 	if (error != 0)
 	{
 		return false;

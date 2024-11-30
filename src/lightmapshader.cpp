@@ -20,13 +20,13 @@ bool LightMapShader::Initialize(ID3D11Device* device, HWND hwnd)
 	wchar_t psFilename[128];
 	int error;
 
-	error = wcscpy_s(vsFilename, 128, L"../CustomEngine/src/shaders/lightmap.vs");
+	error = wcscpy_s(vsFilename, 128, L"src/shaders/lightmap.vs");
 	if(error != 0)
 	{
 		return false;
 	}
 
-	error = wcscpy_s(psFilename, 128, L"../CustomEngine/src/shaders/lightmap.ps");
+	error = wcscpy_s(psFilename, 128, L"src/shaders/lightmap.ps");
 	if(error != 0)
 	{
 		return false;

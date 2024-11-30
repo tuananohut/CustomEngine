@@ -19,13 +19,13 @@ bool TransparentDepthShader::Initialize(ID3D11Device* device, HWND hwnd)
 	int error;
 	bool result;
 
-	error = wcscpy_s(vsFilename, 128, L"../CustomEngine/src/shaders/transparentdepth.vs");
+	error = wcscpy_s(vsFilename, 128, L"src/shaders/transparentdepth.vs");
 	if (error != 0)
 	{
 		return false;
 	}
 
-	error = wcscpy_s(psFilename, 128, L"../CustomEngine/src/shaders/transparentdepth.ps");
+	error = wcscpy_s(psFilename, 128, L"src/shaders/transparentdepth.ps");
 	if (error != 0)
 	{
 		return false;
@@ -281,7 +281,7 @@ bool TransparentDepthShader::SetShaderParameters(ID3D11DeviceContext* deviceCont
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 	
 	deviceContext->PSSetShaderResources(0, 1, &texture);
-	
+
 	return true;
 }
 

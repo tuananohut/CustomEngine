@@ -22,13 +22,13 @@ bool ReflectionShader::Initialize(ID3D11Device* device, HWND hwnd)
 	wchar_t psFilename[128];
 	int error; 
 
-	error = wcscpy_s(vsFilename, 128, L"../CustomEngine/src/shaders/reflection.vs");
+	error = wcscpy_s(vsFilename, 128, L"src/shaders/reflection.vs");
 	if (error != 0)
 	{
 		return false;
 	}
 
-	error = wcscpy_s(psFilename, 128, L"../CustomEngine/src/shaders/reflection.ps");
+	error = wcscpy_s(psFilename, 128, L"src/shaders/reflection.ps");
 	if (error != 0)
 	{
 		return false;

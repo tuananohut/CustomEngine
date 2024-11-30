@@ -21,13 +21,13 @@ bool TransparentShader::Initialize(ID3D11Device* device, HWND hwnd)
 	wchar_t psFilename[128];
 	int error;
 
-	error = wcscpy_s(vsFilename, 128, L"../CustomEngine/src/shaders/transparent.vs");
+	error = wcscpy_s(vsFilename, 128, L"src/shaders/transparent.vs");
 	if (error != 0)
 	{
 		return false;
 	}
 
-	error = wcscpy_s(psFilename, 128, L"../CustomEngine/src/shaders/transparent.ps");
+	error = wcscpy_s(psFilename, 128, L"src/shaders/transparent.ps");
 	if (error != 0)
 	{
 		return false;

@@ -44,7 +44,7 @@ bool Sound3D::PlayTrack()
 		return false;
 	}
 
-	return false;
+	return true;
 }
 
 bool Sound3D::StopTrack()
