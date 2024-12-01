@@ -121,10 +121,11 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>user32.lib;kernel32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -145,6 +146,7 @@
     <ClInclude Include="src\headers\fogshader.h" />
     <ClInclude Include="src\headers\frustum.h" />
     <ClInclude Include="src\headers\glassshader.h" />
+    <ClInclude Include="src\headers\glowshader.h" />
     <ClInclude Include="src\headers\input.h" />
     <ClInclude Include="src\headers\light.h" />
     <ClInclude Include="src\headers\lightmapshader.h" />
@@ -259,6 +261,8 @@
     <None Include="src\shaders\fog.vs" />
     <None Include="src\shaders\glass.ps" />
     <None Include="src\shaders\glass.vs" />
+    <None Include="src\shaders\glow.ps" />
+    <None Include="src\shaders\glow.vs" />
     <None Include="src\shaders\light.ps" />
     <None Include="src\shaders\light.vs" />
     <None Include="src\shaders\lightmap.ps" />

@@ -171,6 +171,9 @@
     <ClInclude Include="src\headers\transparentdepthshader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\headers\glowshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -400,6 +403,8 @@
     <None Include="src\shaders\softshadow.ps" />
     <None Include="src\shaders\transparentdepth.vs" />
     <None Include="src\shaders\transparentdepth.ps" />
+    <None Include="src\shaders\glow.vs" />
+    <None Include="src\shaders\glow.ps" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\assets\models\cube.txt" />
