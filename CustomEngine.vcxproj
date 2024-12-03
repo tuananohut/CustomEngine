@@ -201,6 +201,7 @@
     <ClCompile Include="src\fogshader.cpp" />
     <ClCompile Include="src\frustum.cpp" />
     <ClCompile Include="src\glassshader.cpp" />
+    <ClCompile Include="src\glowshader.cpp" />
     <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\light.cpp" />
     <ClCompile Include="src\lightmapshader.cpp" />
