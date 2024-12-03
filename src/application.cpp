@@ -4,14 +4,14 @@ Application::Application()
 {
     m_Direct3D = nullptr;
     m_Camera = nullptr;
-    m_TreeTrunkModel = nullptr;
-    m_GroundModel = nullptr;
-    m_TreeLeafModel = nullptr;
-    m_Light = nullptr;
+    m_Model = nullptr;
     m_RenderTexture = nullptr;
-    m_DepthShader = nullptr;
-    m_TransparentDepthShader = nullptr;
-    m_ShadowShader = nullptr;
+    m_GlowTexture = nullptr;
+    m_FullScreenWindow = nullptr;
+    m_TextureShader = nullptr;
+    m_BlurShader = nullptr;
+    m_Blur = nullptr;
+    m_GlowShader = nullptr;
 }
 
 Application::Application(const Application& other) {}
@@ -22,8 +22,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
     char modelFilename[128];
     char textureFilename[128];
+    char glowMapFilename[128];
     char textureFilename1[128];
-    char textureFilename2[128];
     int downSampleWidth, downSampleHeight;
     bool result;
 
@@ -38,112 +38,114 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_Camera = new Camera;
 
-    m_Camera->SetPosition(0.f, 7.f, -11.0f);
-    m_Camera->SetRotation(20.0f, 0.f, 0.f);
+    m_Camera->SetPosition(0.f, 0.f, -5.0f);
     m_Camera->Render();
+    m_Camera->RenderBaseViewMatrix();
 
-    m_TreeTrunkModel = new Model;
+    m_Model = new Model;
 
-    strcpy_s(modelFilename, "assets/models/trunk001.txt");
-    strcpy_s(textureFilename, "assets/textures/trunk001.tga");
+    strcpy_s(modelFilename, "assets/models/cube.txt");
+    strcpy_s(textureFilename, "assets/textures/red.tga");
+    strcpy_s(glowMapFilename, "assets/textures/tr.tga");
     strcpy_s(textureFilename1, "assets/textures/stone01.tga");
-    strcpy_s(textureFilename2, "assets/textures/stone01.tga");
 
-    result = m_TreeTrunkModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
+    result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, glowMapFilename, textureFilename1);
     if (!result)
     {
         MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK);
         return false;
     }
 
-    m_TreeLeafModel = new Model;
-
-    strcpy_s(modelFilename, "assets/models/leaf001.txt");
-    strcpy_s(textureFilename, "assets/textures/leaf001.tga");
-
-    result = m_TreeLeafModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the sphere model object.", L"Error", MB_OK);
-        return false;
-    }
-
-    m_GroundModel = new Model;
-
-    strcpy_s(modelFilename, "assets/models/plane01.txt");
-    strcpy_s(textureFilename, "assets/textures/dirt.tga");
-
-    result = m_GroundModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK);
-        return false;
-    }
-
-    m_Light = new Light;
-
-    m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.f);
-    m_Light->SetDiffuseColor(1.f, 1.f, 1.f, 1.f);
-    m_Light->GenerateOrthoMatrix(20.f, SHADOWMAP_NEAR, SHADOWMAP_DEPTH);
-
     m_RenderTexture = new RenderTexture;
-    result = m_RenderTexture->Initialize(m_Direct3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SHADOWMAP_DEPTH, SHADOWMAP_NEAR, 1);
+    result = m_RenderTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR, 1);
     if (!result)
     {
         MessageBox(hwnd, L"Could not initialize the render texture object.", L"Error", MB_OK);
         return false;
     }
 
-    m_DepthShader = new DepthShader;
-    result = m_DepthShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    m_GlowTexture = new RenderTexture;
+    result = m_GlowTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR, 1);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the depth shader object.", L"Error", MB_OK);
+        MessageBox(hwnd, L"Could not initialize the glow render texture object.", L"Error", MB_OK);
         return false;
     }
 
-    m_TransparentDepthShader = new TransparentDepthShader;
-    result = m_TransparentDepthShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    m_FullScreenWindow = new OrthoWindow;
+    result = m_FullScreenWindow->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the transparent depth shader object.", L"Error", MB_OK);
+        MessageBox(hwnd, L"Could not initialize the full screen window object.", L"Error", MB_OK);
         return false;
     }
 
-    m_ShadowShader = new ShadowShader;
-    result = m_ShadowShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    m_TextureShader = new TextureShader;
+    result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the shadow shader object.", L"Error", MB_OK);
+        MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
         return false;
     }
 
-    m_shadowMapBias = 0.0022f;
-    
+    m_BlurShader = new BlurShader;
+    result = m_BlurShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the blur shader object.", L"Error", MB_OK);
+        return false;
+    }
+
+    downSampleWidth = screenWidth / 2;
+    downSampleHeight = screenHeight / 2;
+
+    m_Blur = new Blur;
+    result = m_Blur->Initialize(m_Direct3D, downSampleWidth, downSampleHeight, SCREEN_NEAR, SCREEN_DEPTH, screenWidth, screenHeight);
+    if (!result)
+    { 
+        MessageBox(hwnd, L"Could not initialize the blur object.", L"Error", MB_OK);
+        return false;
+    }
+
+    m_GlowShader = new GlowShader;
+    result = m_GlowShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the glow shader object.", L"Error", MB_OK);
+        return false;
+    }
+
     return true;
 }
 
 void Application::Shutdown()
 {
-    if (m_ShadowShader)
+    if (m_GlowShader)
     {
-        m_ShadowShader->Shutdown();
-        delete m_ShadowShader;
-        m_ShadowShader = nullptr;
+        m_GlowShader->Shutdown();
+        delete m_GlowShader;
+        m_GlowShader = nullptr;
     }
 
-    if (m_DepthShader)
+    if (m_Blur)
     {
-        m_DepthShader->Shutdown();
-        delete m_DepthShader;
-        m_DepthShader = nullptr;
+        m_Blur->Shutdown();
+        delete m_Blur;
+        m_Blur = nullptr;
     }
 
-    if (m_TransparentDepthShader)
+    if (m_BlurShader)
     {
-        m_TransparentDepthShader->Shutdown();
-        delete m_TransparentDepthShader;
-        m_TransparentDepthShader = nullptr;
+        m_BlurShader->Shutdown();
+        delete m_BlurShader;
+        m_BlurShader = nullptr;
+    }
+
+    if (m_TextureShader)
+    {
+        m_TextureShader->Shutdown();
+        delete m_TextureShader;
+        m_TextureShader = nullptr;
     }
 
     if (m_RenderTexture)
@@ -153,31 +155,25 @@ void Application::Shutdown()
         m_RenderTexture = nullptr;
     }
 
-    if (m_Light)
+    if (m_FullScreenWindow)
     {
-        delete m_Light;
-        m_Light = nullptr;
+        m_FullScreenWindow->Shutdown();
+        delete m_FullScreenWindow;
+        m_FullScreenWindow = nullptr;
     }
 
-    if (m_GroundModel)
+    if (m_GlowTexture)
     {
-        m_GroundModel->Shutdown();
-        delete m_GroundModel;
-        m_GroundModel = nullptr;
+        m_GlowTexture->Shutdown();
+        delete m_GlowTexture;
+        m_GlowTexture = nullptr;
     }
 
-    if (m_TreeLeafModel)
+    if (m_Model)
     {
-        m_TreeLeafModel->Shutdown();
-        delete m_TreeLeafModel;
-        m_TreeLeafModel = nullptr;
-    }
-
-    if (m_TreeTrunkModel)
-    {
-        m_TreeTrunkModel->Shutdown();
-        delete m_TreeTrunkModel;
-        m_TreeTrunkModel = nullptr;
+        m_Model->Shutdown();
+        delete m_Model;
+        m_Model = nullptr;
     }
 
     if (m_Camera)
@@ -197,38 +193,32 @@ void Application::Shutdown()
 bool Application::Frame(Input* Input)
 {
     static float rotation = 0;
-    static float lightAngle = 270.f;
-    static float lightPosX = 9.f;
-    float frameTime;
-    float radians;
     bool result;
-    XMMATRIX translateMatrix = {}, lightViewMatrix = {}, lightProjectionMatrix = {};
 
     if (Input->IsEscapePressed())
     {
         return false;
     }
 
-    frameTime = 10.f;
-
-    lightPosX -= 0.003f * frameTime;
-    lightAngle -= 0.03f * frameTime;
-
-    if (lightAngle < 90.f)
+    rotation -= 0.0174532925f * 0.25f;
+    if (rotation < 0.0f)
     {
-        lightAngle = 270.f;
-        lightPosX = 9.f;
-    } 
+        rotation += 360.0f;
+    }
 
-    radians = lightAngle * 0.0174532925f;
+    result = RenderSceneToTexture(rotation);
+    if (!result)
+    {
+        return false;
+    }
 
-    m_Light->SetDirection(sinf(radians), cosf(radians), 0.f);
+    result = RenderGlowToTexture(rotation);
+    if (!result)
+    {
+        return false;
+    }
 
-    m_Light->SetPosition(lightPosX, 10.f, 1.f);
-    m_Light->SetLookAt(-lightPosX, 0.f, 2.f);
-    m_Light->GenerateViewMatrix();
-
-    result = RenderSceneToTexture();
+    result = m_Blur->BlurTexture(m_Direct3D, m_Camera, m_GlowTexture, m_TextureShader, m_BlurShader);
     if (!result)
     {
         return false;
@@ -243,133 +233,50 @@ bool Application::Frame(Input* Input)
     return true;
 }
 
-/*
-bool Application::RenderDepthToTexture(XMMATRIX translateMatrix, XMMATRIX lightViewMatrix, XMMATRIX lightProjectionMatrix, RenderTexture* m_RenderTexture, Light* m_Light)
+
+bool Application::RenderSceneToTexture(float rotation)
 {
-    bool result;
-
-    m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
-    m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
-
-    m_Light->GetViewMatrix(lightViewMatrix);
-    m_Light->GetProjectionMatrix(lightProjectionMatrix);
-
-    translateMatrix = XMMatrixTranslation(-2.0f, 2.0f, 0.0f);
-
-    m_CubeModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), translateMatrix, lightViewMatrix, lightProjectionMatrix);
-    if (!result)
-    {
-        return false;
-    }
-
-    translateMatrix = XMMatrixTranslation(2.0f, 2.0f, 0.0f);
-
-    m_SphereModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), translateMatrix, lightViewMatrix, lightProjectionMatrix);
-    if (!result)
-    {
-        return false;
-    }
-
-    translateMatrix = XMMatrixTranslation(0.0f, 1.0f, 0.0f);
-
-    m_GroundModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), translateMatrix, lightViewMatrix, lightProjectionMatrix);
-    if (!result)
-    {
-        return false;
-    }
-
-    m_Direct3D->SetBackBufferRenderTarget();
-    m_Direct3D->ResetViewport();
-
-    return true;
-}
-
-bool Application::RenderBlackAndWhiteShadows()
-{
-    XMMATRIX translateMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix;
-    bool result;
-
-    m_BlackWhiteRenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
-    m_BlackWhiteRenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.f);
-
-    m_Camera->GetViewMatrix(viewMatrix);
-    m_Direct3D->GetProjectionMatrix(projectionMatrix);
-
-    m_Light->GetViewMatrix(lightViewMatrix);
-    m_Light->GetProjectionMatrix(lightProjectionMatrix);
-
-    translateMatrix = XMMatrixTranslation(-2.f, 2.f, 0.f);
-
-    m_CubeModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), translateMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix, m_RenderTexture->GetShaderResourceView(), m_Light->GetPosition(), m_shadowMapBias);
-    if (!result)
-    {
-        return false;
-    }
-
-    translateMatrix = XMMatrixTranslation(2.f, 2.f, 0.f);
-    
-    m_SphereModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), translateMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix, m_RenderTexture->GetShaderResourceView(), m_Light->GetPosition(), m_shadowMapBias);
-    if (!result)
-    {
-        return false;
-    }
-
-    translateMatrix = XMMatrixTranslation(0.f, 1.f, 0.f);
-
-    m_GroundModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), translateMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix, m_RenderTexture->GetShaderResourceView(), m_Light->GetPosition(), m_shadowMapBias);
-    if (!result)
-    {
-        return false;
-    }
-
-    m_Direct3D->SetBackBufferRenderTarget();
-    m_Direct3D->ResetViewport();
-
-    return true;
-}
-*/
-
-bool Application::RenderSceneToTexture()
-{
-    XMMATRIX worldMatrix, scaleMatrix, translateMatrix, lightViewMatrix, lightOrthoMatrix;
+    XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
     bool result;
 
     m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
     m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.f);
 
-    m_Light->GetViewMatrix(lightViewMatrix);
-    m_Light->GetOrthoMatrix(lightOrthoMatrix);
+    m_Direct3D->GetWorldMatrix(worldMatrix);
+    m_Camera->GetViewMatrix(viewMatrix);
+    m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-    scaleMatrix = XMMatrixScaling(0.1f, 0.1f, 0.1f);
-    translateMatrix = XMMatrixTranslation(0.f, 1.f, 0.f);
-    worldMatrix = XMMatrixMultiply(scaleMatrix, translateMatrix);
+    worldMatrix = XMMatrixRotationY(rotation);
 
-    m_TreeTrunkModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_TreeTrunkModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightOrthoMatrix);
+    m_Model->Render(m_Direct3D->GetDeviceContext());
+    result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0));
     if (!result)
     {
         return false;
     }
 
-    m_TreeLeafModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_TransparentDepthShader->Render(m_Direct3D->GetDeviceContext(), m_TreeLeafModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightOrthoMatrix, m_TreeLeafModel->GetTexture(0));
-    if (!result)
-    {
-        return false;
-    }
+    m_Direct3D->SetBackBufferRenderTarget();
+    m_Direct3D->ResetViewport();
 
-    scaleMatrix = XMMatrixScaling(2.f, 2.f, 2.f);
-    translateMatrix = XMMatrixTranslation(0.f, 1.f, 0.f);
-    worldMatrix = XMMatrixMultiply(scaleMatrix, translateMatrix);
+    return true;
+}
 
-    m_GroundModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightOrthoMatrix);
+bool Application::RenderGlowToTexture(float rotation)
+{
+    XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+    bool result;
+
+    m_GlowTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+    m_GlowTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.f);
+
+    m_Direct3D->GetWorldMatrix(worldMatrix);
+    m_Camera->GetViewMatrix(viewMatrix);
+    m_Direct3D->GetProjectionMatrix(projectionMatrix);
+
+    worldMatrix = XMMatrixRotationY(rotation);
+
+    m_Model->Render(m_Direct3D->GetDeviceContext());
+    result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(1));
     if (!result)
     {
         return false;
@@ -383,50 +290,28 @@ bool Application::RenderSceneToTexture()
 
 bool Application::Render(float rotation)
 {
-    XMMATRIX worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightOrthoMatrix, scaleMatrix, translateMatrix;
+    XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
+    float glowValue;
     bool result;
 
     m_Direct3D->BeginScene(0.0f, 0.5f, 0.8f, 1.0f);
 
     m_Direct3D->GetWorldMatrix(worldMatrix);
-    m_Camera->GetViewMatrix(viewMatrix);
-    m_Direct3D->GetProjectionMatrix(projectionMatrix);
+    m_Camera->GetBaseViewMatrix(baseViewMatrix);
+    m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
-    m_Light->GetViewMatrix(lightViewMatrix);
-    m_Light->GetOrthoMatrix(lightOrthoMatrix);
+    m_Direct3D->TurnZBufferOff();
 
-    scaleMatrix = XMMatrixScaling(2.0f, 2.0f, 2.0f);
-    translateMatrix = XMMatrixTranslation(0.0f, 1.0f, 0.0f);
-    worldMatrix = XMMatrixMultiply(scaleMatrix, translateMatrix);
+    glowValue = 2.f;
 
-    m_GroundModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightOrthoMatrix, m_GroundModel->GetTexture(0), m_RenderTexture->GetShaderResourceView(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetDirection(), m_shadowMapBias);
+    m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
+    result = m_GlowShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_RenderTexture->GetShaderResourceView(), m_GlowTexture->GetShaderResourceView(), glowValue);
     if (!result)
     {
         return false;
     }
 
-    scaleMatrix = XMMatrixScaling(0.1f, 0.1f, 0.1f);
-    translateMatrix = XMMatrixTranslation(0.f, 1.f, 0.f);
-    worldMatrix = XMMatrixMultiply(scaleMatrix, translateMatrix);
-
-    m_TreeTrunkModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_TreeTrunkModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightOrthoMatrix, m_TreeTrunkModel->GetTexture(0), m_RenderTexture->GetShaderResourceView(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetDirection(), m_shadowMapBias);
-    if (!result)
-    {
-        return false;
-    }
-    
-    m_Direct3D->EnableAlphaBlending();
-
-    m_TreeLeafModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_TreeLeafModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightOrthoMatrix, m_TreeLeafModel->GetTexture(0), m_RenderTexture->GetShaderResourceView(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetDirection(), m_shadowMapBias);
-    if (!result)
-    {
-        return false;
-    }
-
-    m_Direct3D->DisableAlphaBlending();
+    m_Direct3D->TurnZBufferOn();
 
     m_Direct3D->EndScene();
 
