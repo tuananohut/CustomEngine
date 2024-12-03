@@ -62,7 +62,7 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [x] Tutorial 43: Directional Shadow Maps
 - [x] Tutorial 44: Soft Shadows
 - [x] Tutorial 45: Shadow Mapping and Transparency
-- [ ] Tutorial 46: Glow
+- [x] Tutorial 46: Glow
 - [ ] ... 
 - [x] Tutorial 55: Direct Sound
 - [x] Tutorial 56: 3D Sound
