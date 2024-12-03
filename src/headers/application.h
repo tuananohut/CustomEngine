@@ -32,7 +32,7 @@ private:
 	// bool SoundProcessing();
 	// bool RenderDepthToTexture(XMMATRIX, XMMATRIX, XMMATRIX, RenderTexture*, Light*);
 	// bool RenderBlackAndWhiteShadows();
-	bool Render(float);
+	bool Render(float, float);
 
 private:
 	D3D* m_Direct3D;
