@@ -44,8 +44,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_Model = new Model;
 
-    strcpy_s(modelFilename, "assets/models/cube.txt");
-    strcpy_s(textureFilename, "assets/textures/red.tga");
+    strcpy_s(modelFilename, "assets/models/black.txt");
+    strcpy_s(textureFilename, "assets/textures/stars.tga");
     strcpy_s(glowMapFilename, "assets/textures/tr.tga");
     strcpy_s(textureFilename1, "assets/textures/stone01.tga");
 
@@ -302,7 +302,7 @@ bool Application::Render(float rotation)
 
     m_Direct3D->TurnZBufferOff();
 
-    glowValue = 2.f;
+    glowValue = 5.f;
 
     m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
     result = m_GlowShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_RenderTexture->GetShaderResourceView(), m_GlowTexture->GetShaderResourceView(), glowValue);
