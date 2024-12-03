@@ -44,8 +44,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_Model = new Model;
 
-    strcpy_s(modelFilename, "assets/models/black.txt");
-    strcpy_s(textureFilename, "assets/textures/stars.tga");
+    strcpy_s(modelFilename, "assets/models/cube.txt");
+    strcpy_s(textureFilename, "assets/textures/red.tga");
     strcpy_s(glowMapFilename, "assets/textures/tr.tga");
     strcpy_s(textureFilename1, "assets/textures/stone01.tga");
 
@@ -193,6 +193,7 @@ void Application::Shutdown()
 bool Application::Frame(Input* Input)
 {
     static float rotation = 0;
+    static float glowStrength = 0;
     bool result;
 
     if (Input->IsEscapePressed())
@@ -224,7 +225,21 @@ bool Application::Frame(Input* Input)
         return false;
     }
     
-    result = Render(rotation);
+    float glowSpeed = 0.25f * 0.25f;
+    static int direction = 1;
+    glowStrength += glowSpeed * direction;
+
+    if (glowStrength >= 5.f)
+    {
+        direction = -1;
+    }
+
+    else if (glowStrength <= 0.f)
+    {
+        direction = 1;
+    }
+
+    result = Render(rotation, glowStrength);
     if (!result)
     {
         return false;
@@ -288,7 +303,7 @@ bool Application::RenderGlowToTexture(float rotation)
     return true;
 }
 
-bool Application::Render(float rotation)
+bool Application::Render(float rotation, float glowStrength)
 {
     XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
     float glowValue;
@@ -302,7 +317,7 @@ bool Application::Render(float rotation)
 
     m_Direct3D->TurnZBufferOff();
 
-    glowValue = 5.f;
+    glowValue = glowStrength;
 
     m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
     result = m_GlowShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_RenderTexture->GetShaderResourceView(), m_GlowTexture->GetShaderResourceView(), glowValue);
