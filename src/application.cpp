@@ -45,8 +45,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     m_Model = new Model;
 
     strcpy_s(modelFilename, "assets/models/cube.txt");
-    strcpy_s(textureFilename, "assets/textures/red.tga");
-    strcpy_s(glowMapFilename, "assets/textures/tr.tga");
+    strcpy_s(textureFilename, "assets/textures/black.tga");
+    strcpy_s(glowMapFilename, "assets/textures/glowmap001.tga");
     strcpy_s(textureFilename1, "assets/textures/stone01.tga");
 
     result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, glowMapFilename, textureFilename1);
@@ -261,7 +261,9 @@ bool Application::RenderSceneToTexture(float rotation)
     m_Camera->GetViewMatrix(viewMatrix);
     m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-    worldMatrix = XMMatrixRotationY(rotation);
+    // worldMatrix = XMMatrixMultiply(XMMatrixScaling(0.5f, 0.5f, 0.5f), XMMatrixRotationX(rotation));
+    // worldMatrix = XMMatrixMultiply(XMMatrixScaling(0.1f, 0.1f, 0.1f), XMMatrixTranslation(0.f, -1.f, 0.f));
+    worldMatrix = XMMatrixRotationX(rotation);
 
     m_Model->Render(m_Direct3D->GetDeviceContext());
     result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0));
@@ -288,7 +290,7 @@ bool Application::RenderGlowToTexture(float rotation)
     m_Camera->GetViewMatrix(viewMatrix);
     m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-    worldMatrix = XMMatrixRotationY(rotation);
+    worldMatrix = XMMatrixRotationX(rotation);
 
     m_Model->Render(m_Direct3D->GetDeviceContext());
     result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(1));
