@@ -33,6 +33,7 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [x] Tutorial 11: Multiple Point Lights
 - [x] Tutorial 12: 2D Rendering
 - [x] Tutorail 13: Sprites and Timers
+- [ ] Tutorial 14: Font Engine
 - [x] Tutorial 17: Multitexturing
 - [x] Tutorial 18: Light Maps
 - [x] Tutorial 19: Alpha Mapping
