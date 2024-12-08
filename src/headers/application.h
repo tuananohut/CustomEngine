@@ -6,9 +6,9 @@
 #include "camera.h"
 #include "model.h"
 #include "rendertexture.h"
-#include "depthshader.h"
-#include "blur.h"
-#include "glowshader.h"
+#include "fontshader.h"
+#include "font.h"
+#include "text.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -27,24 +27,24 @@ public:
 	bool Frame(Input*);
 
 private:
-	bool RenderSceneToTexture(float);
-	bool RenderGlowToTexture(float);
+	// bool RenderSceneToTexture(float);
+	// bool RenderGlowToTexture(float);
 	// bool SoundProcessing();
 	// bool RenderDepthToTexture(XMMATRIX, XMMATRIX, XMMATRIX, RenderTexture*, Light*);
 	// bool RenderBlackAndWhiteShadows();
-	bool Render(float, float);
+	bool Render(float);
 
 private:
 	D3D* m_Direct3D;
 	Camera* m_Camera;
-	Model* m_Model;
-	RenderTexture* m_RenderTexture;
-	RenderTexture* m_GlowTexture;
-	OrthoWindow* m_FullScreenWindow;
-	TextureShader* m_TextureShader;
-	BlurShader* m_BlurShader;
-	Blur* m_Blur;
-	GlowShader* m_GlowShader;
+	FontShader* m_FontShader;
+	Font* m_Font;
+	Text* m_Text1;
+	Text* m_Text2;
+	// Model* m_Model;
+	// RenderTexture* m_RenderTexture;
+	// RenderTexture* m_GlowTexture;
+	// RenderTexture* m_GlowTexture;
 };
 
 #endif
