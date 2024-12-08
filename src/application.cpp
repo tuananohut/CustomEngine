@@ -4,14 +4,10 @@ Application::Application()
 {
     m_Direct3D = nullptr;
     m_Camera = nullptr;
-    m_Model = nullptr;
-    m_RenderTexture = nullptr;
-    m_GlowTexture = nullptr;
-    m_FullScreenWindow = nullptr;
-    m_TextureShader = nullptr;
-    m_BlurShader = nullptr;
-    m_Blur = nullptr;
-    m_GlowShader = nullptr;
+    m_FontShader = nullptr;
+    m_Font = nullptr;
+    m_Text1 = nullptr;
+    m_Text2 = nullptr;
 }
 
 Application::Application(const Application& other) {}
@@ -24,7 +20,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     char textureFilename[128];
     char glowMapFilename[128];
     char textureFilename1[128];
-    int downSampleWidth, downSampleHeight;
+    char testString1[32];
+    char testString2[32];
     bool result;
 
     m_Direct3D = new D3D;
@@ -38,10 +35,9 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_Camera = new Camera;
 
-    m_Camera->SetPosition(0.f, 0.f, -5.0f);
+    m_Camera->SetPosition(0.f, 0.f, -10.0f);
     m_Camera->Render();
-    m_Camera->RenderBaseViewMatrix();
-
+    /*
     m_Model = new Model;
 
     strcpy_s(modelFilename, "assets/models/cube.txt");
@@ -63,55 +59,41 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         MessageBox(hwnd, L"Could not initialize the render texture object.", L"Error", MB_OK);
         return false;
     }
+    */
 
-    m_GlowTexture = new RenderTexture;
-    result = m_GlowTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR, 1);
+    m_FontShader = new FontShader;
+    result = m_FontShader->Initialize(m_Direct3D->GetDevice(), hwnd);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the glow render texture object.", L"Error", MB_OK);
+        MessageBox(hwnd, L"Could not initialize the font shader object.", L"Error", MB_OK);
         return false;
     }
 
-    m_FullScreenWindow = new OrthoWindow;
-    result = m_FullScreenWindow->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight);
+    m_Font = new Font;
+    result = m_Font->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), 0);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the full screen window object.", L"Error", MB_OK);
+        MessageBox(hwnd, L"Could not initialize the font object.", L"Error", MB_OK);
         return false;
     }
 
-    m_TextureShader = new TextureShader;
-    result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    strcpy_s(testString1, "Free");
+    strcpy_s(testString2, "Palestine");
+
+
+    m_Text1 = new Text;
+    result = m_Text1->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, 32, m_Font, testString1, screenWidth / 2, screenHeight / 2 - 64, 1.f, 0.f, 0.f);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
         return false;
     }
 
-    m_BlurShader = new BlurShader;
-    result = m_BlurShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    m_Font->GetFontHeight();
+
+    m_Text2 = new Text;
+    result = m_Text2->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, 32, m_Font, testString2, screenWidth / 2, screenHeight / 2 + 64, 1.f, 1.f, 1.f);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the blur shader object.", L"Error", MB_OK);
-        return false;
-    }
-
-    downSampleWidth = screenWidth / 2;
-    downSampleHeight = screenHeight / 2;
-
-    m_Blur = new Blur;
-    result = m_Blur->Initialize(m_Direct3D, downSampleWidth, downSampleHeight, SCREEN_NEAR, SCREEN_DEPTH, screenWidth, screenHeight);
-    if (!result)
-    { 
-        MessageBox(hwnd, L"Could not initialize the blur object.", L"Error", MB_OK);
-        return false;
-    }
-
-    m_GlowShader = new GlowShader;
-    result = m_GlowShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the glow shader object.", L"Error", MB_OK);
         return false;
     }
 
@@ -120,60 +102,32 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Application::Shutdown()
 {
-    if (m_GlowShader)
+    if (m_Text1)
     {
-        m_GlowShader->Shutdown();
-        delete m_GlowShader;
-        m_GlowShader = nullptr;
+        m_Text1->Shutdown();
+        delete m_Text1;
+        m_Text1 = nullptr;
     }
 
-    if (m_Blur)
+    if (m_Text2)
     {
-        m_Blur->Shutdown();
-        delete m_Blur;
-        m_Blur = nullptr;
+        m_Text2->Shutdown();
+        delete m_Text2;
+        m_Text2 = nullptr;
     }
 
-    if (m_BlurShader)
+    if (m_Font)
     {
-        m_BlurShader->Shutdown();
-        delete m_BlurShader;
-        m_BlurShader = nullptr;
+        m_Font->Shutdown();
+        delete m_Font;
+        m_Font = nullptr;
     }
 
-    if (m_TextureShader)
+    if (m_FontShader)
     {
-        m_TextureShader->Shutdown();
-        delete m_TextureShader;
-        m_TextureShader = nullptr;
-    }
-
-    if (m_RenderTexture)
-    {
-        m_RenderTexture->Shutdown();
-        delete m_RenderTexture;
-        m_RenderTexture = nullptr;
-    }
-
-    if (m_FullScreenWindow)
-    {
-        m_FullScreenWindow->Shutdown();
-        delete m_FullScreenWindow;
-        m_FullScreenWindow = nullptr;
-    }
-
-    if (m_GlowTexture)
-    {
-        m_GlowTexture->Shutdown();
-        delete m_GlowTexture;
-        m_GlowTexture = nullptr;
-    }
-
-    if (m_Model)
-    {
-        m_Model->Shutdown();
-        delete m_Model;
-        m_Model = nullptr;
+        m_FontShader->Shutdown();
+        delete m_FontShader;
+        m_FontShader = nullptr;
     }
 
     if (m_Camera)
@@ -193,7 +147,6 @@ void Application::Shutdown()
 bool Application::Frame(Input* Input)
 {
     static float rotation = 0;
-    static float glowStrength = 0;
     bool result;
 
     if (Input->IsEscapePressed())
@@ -207,39 +160,7 @@ bool Application::Frame(Input* Input)
         rotation += 360.0f;
     }
 
-    result = RenderSceneToTexture(rotation);
-    if (!result)
-    {
-        return false;
-    }
-
-    result = RenderGlowToTexture(rotation);
-    if (!result)
-    {
-        return false;
-    }
-
-    result = m_Blur->BlurTexture(m_Direct3D, m_Camera, m_GlowTexture, m_TextureShader, m_BlurShader);
-    if (!result)
-    {
-        return false;
-    }
-    
-    float glowSpeed = 0.25f * 0.25f;
-    static int direction = 1;
-    glowStrength += glowSpeed * direction;
-
-    if (glowStrength >= 5.f)
-    {
-        direction = -1;
-    }
-
-    else if (glowStrength <= 0.f)
-    {
-        direction = 1;
-    }
-
-    result = Render(rotation, glowStrength);
+    result = Render(rotation);
     if (!result)
     {
         return false;
@@ -248,7 +169,7 @@ bool Application::Frame(Input* Input)
     return true;
 }
 
-
+/*
 bool Application::RenderSceneToTexture(float rotation)
 {
     XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
@@ -305,30 +226,39 @@ bool Application::RenderGlowToTexture(float rotation)
     return true;
 }
 
-bool Application::Render(float rotation, float glowStrength)
+*/
+
+bool Application::Render(float rotation)
 {
-    XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
-    float glowValue;
+    XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
     bool result;
 
-    m_Direct3D->BeginScene(0.0f, 0.5f, 0.8f, 1.0f);
+    m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.0f);
 
     m_Direct3D->GetWorldMatrix(worldMatrix);
-    m_Camera->GetBaseViewMatrix(baseViewMatrix);
+    m_Camera->GetViewMatrix(viewMatrix);
     m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
     m_Direct3D->TurnZBufferOff();
+    m_Direct3D->EnableAlphaBlending();
 
-    glowValue = glowStrength;
-
-    m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
-    result = m_GlowShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_RenderTexture->GetShaderResourceView(), m_GlowTexture->GetShaderResourceView(), glowValue);
+    m_Text1->Render(m_Direct3D->GetDeviceContext());
+    result = m_FontShader->Render(m_Direct3D->GetDeviceContext(), m_Text1->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Font->GetTexture(), m_Text1->GetPixelColor());
     if (!result)
     {
         return false;
     }
 
+    m_Text2->Render(m_Direct3D->GetDeviceContext());
+    result = m_FontShader->Render(m_Direct3D->GetDeviceContext(), m_Text2->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Font->GetTexture(), m_Text2->GetPixelColor());
+    if (!result)
+    {
+        return false;
+    }
+
+
     m_Direct3D->TurnZBufferOn();
+    m_Direct3D->DisableAlphaBlending();
 
     m_Direct3D->EndScene();
 

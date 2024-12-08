@@ -20,7 +20,7 @@ bool Font::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, 
 	{
 	case 0:
 	{
-		strcpy_s(fontFilename, "assets/fonts/font01.txt");
+		strcpy_s(fontFilename, "assets/font/font01.txt");
 		strcpy_s(fontTextureFilename, "assets/font/font01.tga");
 		m_fontHeight = 32.f;
 		m_spaceSize = 3;
@@ -29,7 +29,7 @@ bool Font::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, 
 		
 	default:
 	{
-		strcpy_s(fontFilename, "assets/fonts/font01.txt");
+		strcpy_s(fontFilename, "assets/font/font01.txt");
 		strcpy_s(fontTextureFilename, "assets/font/font01.tga");
 		m_fontHeight = 32.f;
 		m_spaceSize = 3;
