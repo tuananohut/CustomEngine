@@ -173,6 +173,7 @@
     <ClInclude Include="src\headers\specmapshader.h" />
     <ClInclude Include="src\headers\sprite.h" />
     <ClInclude Include="src\headers\system.h" />
+    <ClInclude Include="src\headers\text.h" />
     <ClInclude Include="src\headers\texture.h" />
     <ClInclude Include="src\headers\textureshader.h" />
     <ClInclude Include="src\headers\timer.h" />
@@ -230,6 +231,7 @@
     <ClCompile Include="src\sound3d.cpp" />
     <ClCompile Include="src\specmapshader.cpp" />
     <ClCompile Include="src\sprite.cpp" />
+    <ClCompile Include="src\text.cpp" />
     <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\textureshader.cpp" />
     <ClCompile Include="src\system.cpp" />
