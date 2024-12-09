@@ -8,6 +8,7 @@ Application::Application()
     m_Font = nullptr;
     m_Text1 = nullptr;
     m_Text2 = nullptr;
+    m_Fps = nullptr;
 }
 
 Application::Application(const Application& other) {}
@@ -77,7 +78,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
-    strcpy_s(testString1, "Free");
+    strcpy_s(testString1, "Fps: 0");
     strcpy_s(testString2, "Palestine");
 
 
@@ -88,8 +89,6 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
-    m_Font->GetFontHeight();
-
     m_Text2 = new Text;
     result = m_Text2->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, 32, m_Font, testString2, screenWidth / 2, screenHeight / 2 + 64, 1.f, 1.f, 1.f);
     if (!result)
@@ -97,11 +96,22 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
+    m_Fps = new Fps;
+    m_Fps->Initialize();
+
+    m_previousFps = -1;
+
     return true;
 }
 
 void Application::Shutdown()
 {
+    if (m_Fps)
+    {
+        delete m_Fps;
+        m_Fps = nullptr;
+    }
+
     if (m_Text1)
     {
         m_Text1->Shutdown();
@@ -150,6 +160,12 @@ bool Application::Frame(Input* Input)
     bool result;
 
     if (Input->IsEscapePressed())
+    {
+        return false;
+    }
+
+    result = UpdateFps();
+    if (!result)
     {
         return false;
     }
@@ -261,6 +277,64 @@ bool Application::Render(float rotation)
     m_Direct3D->DisableAlphaBlending();
 
     m_Direct3D->EndScene();
+
+    return true;
+}
+
+bool Application::UpdateFps()
+{
+    int fps;
+    char tempString[16], finalString[16];
+    float red, green, blue;
+    bool result;
+
+    m_Fps->Frame();
+
+    fps = m_Fps->GetFps();
+
+    if (m_previousFps == fps)
+    {
+        return true;
+    }
+
+    m_previousFps = fps;
+
+    if (fps > 99999)
+    {
+        fps = 99999;
+    }
+
+    sprintf_s(tempString, "%d", fps);
+
+    strcpy_s(finalString, "Fps: ");
+    strcat_s(finalString, tempString);
+
+    if (fps >= 60)
+    {
+        red = 0.f;
+        green = 1.f;
+        blue = 0.f;
+    }
+
+    if (fps < 60)
+    {
+        red = 1.f;
+        green = 1.f;
+        blue = 0.f;
+    }
+
+    if (fps < 30)
+    {
+        red = 1.f; 
+        green = 0.f;
+        blue = 0.f;
+    }
+
+    result = m_Text1->UpdateText(m_Direct3D->GetDeviceContext(), m_Font, finalString, 10, 10, red, green, blue);
+    if (!result)
+    {
+        return false;
+    }
 
     return true;
 }
