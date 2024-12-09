@@ -9,7 +9,6 @@
 #include "fontshader.h"
 #include "font.h"
 #include "text.h"
-#include "fps.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -33,8 +32,9 @@ private:
 	// bool SoundProcessing();
 	// bool RenderDepthToTexture(XMMATRIX, XMMATRIX, XMMATRIX, RenderTexture*, Light*);
 	// bool RenderBlackAndWhiteShadows();
+	// bool UpdateFps();
 	bool Render(float);
-	bool UpdateFps();
+	bool UpdateMouseStrings(bool);
 
 private:
 	D3D* m_Direct3D;
@@ -43,8 +43,6 @@ private:
 	Font* m_Font;
 	Text* m_Text1;
 	Text* m_Text2;
-	Fps* m_Fps;
-	int m_previousFps;
 	// Model* m_Model;
 	// RenderTexture* m_RenderTexture;
 	// RenderTexture* m_GlowTexture;
