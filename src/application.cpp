@@ -8,7 +8,6 @@ Application::Application()
     m_Font = nullptr;
     m_Text1 = nullptr;
     m_Text2 = nullptr;
-    m_Fps = nullptr;
 }
 
 Application::Application(const Application& other) {}
@@ -79,13 +78,13 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     }
 
     strcpy_s(testString1, "Fps: 0");
-    strcpy_s(testString2, "Palestine");
-
+    strcpy_s(testString2, "Mouse Button: No");
 
     m_Text1 = new Text;
     result = m_Text1->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, 32, m_Font, testString1, screenWidth / 2, screenHeight / 2 - 64, 1.f, 0.f, 0.f);
     if (!result)
     {
+        MessageBox(hwnd, L"Could not initialize the text 1 object.", L"Error", MB_OK);
         return false;
     }
 
@@ -93,25 +92,15 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     result = m_Text2->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, 32, m_Font, testString2, screenWidth / 2, screenHeight / 2 + 64, 1.f, 1.f, 1.f);
     if (!result)
     {
+        MessageBox(hwnd, L"Could not initialize the text 2 object.", L"Error", MB_OK);
         return false;
     }
-
-    m_Fps = new Fps;
-    m_Fps->Initialize();
-
-    m_previousFps = -1;
 
     return true;
 }
 
 void Application::Shutdown()
 {
-    if (m_Fps)
-    {
-        delete m_Fps;
-        m_Fps = nullptr;
-    }
-
     if (m_Text1)
     {
         m_Text1->Shutdown();
@@ -157,14 +146,16 @@ void Application::Shutdown()
 bool Application::Frame(Input* Input)
 {
     static float rotation = 0;
-    bool result;
+    bool result, mouseDown;
 
     if (Input->IsEscapePressed())
     {
         return false;
     }
 
-    result = UpdateFps();
+    mouseDown = Input->IsMousePressed();
+
+    result = UpdateMouseStrings(mouseDown);
     if (!result)
     {
         return false;
@@ -262,6 +253,7 @@ bool Application::Render(float rotation)
     result = m_FontShader->Render(m_Direct3D->GetDeviceContext(), m_Text1->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Font->GetTexture(), m_Text1->GetPixelColor());
     if (!result)
     {
+        MessageBox(NULL, L"Render, 1", L"1", MB_OK);
         return false;
     }
 
@@ -269,6 +261,7 @@ bool Application::Render(float rotation)
     result = m_FontShader->Render(m_Direct3D->GetDeviceContext(), m_Text2->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Font->GetTexture(), m_Text2->GetPixelColor());
     if (!result)
     {
+        MessageBox(NULL, L"Render, 2", L"2", MB_OK);
         return false;
     }
 
@@ -280,7 +273,7 @@ bool Application::Render(float rotation)
 
     return true;
 }
-
+/*
 bool Application::UpdateFps()
 {
     int fps;
@@ -331,6 +324,30 @@ bool Application::UpdateFps()
     }
 
     result = m_Text1->UpdateText(m_Direct3D->GetDeviceContext(), m_Font, finalString, 10, 10, red, green, blue);
+    if (!result)
+    {
+        return false;
+    }
+
+    return true;
+}
+*/
+
+bool Application::UpdateMouseStrings(bool mouseDown)
+{
+    char finalString[32];
+    bool result;
+
+    if (mouseDown)
+    {
+        strcpy_s(finalString, sizeof(finalString), "Mouse Button: Yes");
+    }
+    else
+    {
+        strcpy_s(finalString, sizeof(finalString), "Mouse Button: No");
+    }
+
+    result = m_Text2->UpdateText(m_Direct3D->GetDeviceContext(), m_Font, finalString, 10, 60, 1.f, 1.f, 1.f);
     if (!result)
     {
         return false;
