@@ -35,7 +35,7 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [x] Tutorail 13: Sprites and Timers
 - [x] Tutorial 14: Font Engine
 - [x] Tutorial 15: FPS Counters
-- [ ] Tutorial 16: Direct Input
+- [x] Tutorial 16: Direct Input
 - [x] Tutorial 17: Multitexturing
 - [x] Tutorial 18: Light Maps
 - [x] Tutorial 19: Alpha Mapping
