@@ -4,10 +4,14 @@ Application::Application()
 {
     m_Direct3D = nullptr;
     m_Camera = nullptr;
+    m_Model = nullptr;
+    m_Light = nullptr;
+    m_LightShader = nullptr;
     m_FontShader = nullptr;
     m_Font = nullptr;
-    m_Text1 = nullptr;
-    m_Text2 = nullptr;
+    m_Text = nullptr;
+    m_MouseBitmap = nullptr;
+    m_TextureShader = nullptr;
 }
 
 Application::Application(const Application& other) {}
@@ -18,10 +22,9 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
     char modelFilename[128];
     char textureFilename[128];
-    char glowMapFilename[128];
     char textureFilename1[128];
-    char testString1[32];
-    char testString2[32];
+    char textureFilename2[128];
+    char testString[32];
     bool result;
 
     m_Direct3D = new D3D;
@@ -37,29 +40,34 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_Camera->SetPosition(0.f, 0.f, -10.0f);
     m_Camera->Render();
-    /*
+    m_Camera->RenderBaseViewMatrix();
+    
     m_Model = new Model;
 
-    strcpy_s(modelFilename, "assets/models/cube.txt");
-    strcpy_s(textureFilename, "assets/textures/black.tga");
-    strcpy_s(glowMapFilename, "assets/textures/glowmap001.tga");
+    strcpy_s(modelFilename, "assets/models/sphere.txt");
+    strcpy_s(textureFilename, "assets/textures/red.tga");
     strcpy_s(textureFilename1, "assets/textures/stone01.tga");
+    strcpy_s(textureFilename2, "assets/textures/glowmap001.tga");
 
-    result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, glowMapFilename, textureFilename1);
+    result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
     if (!result)
     {
         MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK);
         return false;
     }
 
-    m_RenderTexture = new RenderTexture;
-    result = m_RenderTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR, 1);
+    m_Light = new Light;
+
+    m_Light->SetDirection(0.f, 0.f, 1.f);
+    m_Light->SetDiffuseColor(1.f, 1.f, 1.f, 1.f);
+
+    m_LightShader = new LightShader;
+    result = m_LightShader->Initialize(m_Direct3D->GetDevice(), hwnd);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the render texture object.", L"Error", MB_OK);
+        MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK | MB_ICONERROR);
         return false;
     }
-    */
 
     m_FontShader = new FontShader;
     result = m_FontShader->Initialize(m_Direct3D->GetDevice(), hwnd);
@@ -77,42 +85,57 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
-    strcpy_s(testString1, "Fps: 0");
-    strcpy_s(testString2, "Mouse Button: No");
+    strcpy_s(testString, "Intersection: No");
 
-    m_Text1 = new Text;
-    result = m_Text1->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, 32, m_Font, testString1, screenWidth / 2, screenHeight / 2 - 64, 1.f, 0.f, 0.f);
+    m_Text = new Text;
+    result = m_Text->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, 32, m_Font, testString, screenWidth / 2, screenHeight / 2 - 64, 1.f, 0.f, 0.f);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the text 1 object.", L"Error", MB_OK);
+        MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
         return false;
     }
 
-    m_Text2 = new Text;
-    result = m_Text2->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, 32, m_Font, testString2, screenWidth / 2, screenHeight / 2 + 64, 1.f, 1.f, 1.f);
+    strcpy_s(textureFilename, "assets/textures/mouse.tga");
+    
+    m_MouseBitmap = new Bitmap;
+    result = m_MouseBitmap->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, textureFilename, 50, 50);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the text 2 object.", L"Error", MB_OK);
         return false;
     }
 
+    m_TextureShader = new TextureShader;
+    result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the text shader object.", L"Error", MB_OK | MB_ICONERROR);
+        return false;
+    }
+    
     return true;
 }
 
 void Application::Shutdown()
 {
-    if (m_Text1)
+    if (m_TextureShader)
     {
-        m_Text1->Shutdown();
-        delete m_Text1;
-        m_Text1 = nullptr;
+        m_TextureShader->Shutdown();
+        delete m_TextureShader;
+        m_TextureShader = nullptr;
     }
 
-    if (m_Text2)
+    if (m_MouseBitmap)
     {
-        m_Text2->Shutdown();
-        delete m_Text2;
-        m_Text2 = nullptr;
+        m_MouseBitmap->Shutdown();
+        delete m_MouseBitmap;
+        m_MouseBitmap = nullptr;
+    }
+
+    if (m_Text)
+    {
+        m_Text->Shutdown();
+        delete m_Text;
+        m_Text = nullptr;
     }
 
     if (m_Font)
@@ -127,6 +150,26 @@ void Application::Shutdown()
         m_FontShader->Shutdown();
         delete m_FontShader;
         m_FontShader = nullptr;
+    }
+
+    if (m_LightShader)
+    {
+        m_LightShader->Shutdown();
+        delete m_LightShader;
+        m_LightShader = nullptr;
+    }
+
+    if (m_Light)
+    {
+        delete m_Light;
+        m_Light = nullptr;
+    }
+
+    if (m_Model)
+    {
+        m_Model->Shutdown();
+        delete m_Model;
+        m_Model = nullptr;
     }
 
     if (m_Camera)
@@ -145,17 +188,34 @@ void Application::Shutdown()
 
 bool Application::Frame(Input* Input)
 {
+    char testString[32];
+    int mouseX, mouseY;
     static float rotation = 0;
-    bool result, mouseDown;
+    bool result;
+    static bool intersect;
 
-    if (Input->IsEscapePressed())
+    if (Input->IsEscapePressed() == true)
     {
         return false;
     }
 
-    mouseDown = Input->IsMousePressed();
+    Input->GetMouseLocation(mouseX, mouseY);
 
-    result = UpdateMouseStrings(mouseDown);
+    m_MouseBitmap->SetRenderLocation(mouseX, mouseY);
+
+    intersect = TestIntersection(mouseX, mouseY);
+
+    if (intersect == true && Input->IsMousePressed())
+    {
+        strcpy_s(testString, sizeof(testString), "Intersection: Yes");
+    }
+
+    else
+    {
+        strcpy_s(testString, sizeof(testString), "Intersection: No");
+    }
+
+    result = m_Text->UpdateText(m_Direct3D->GetDeviceContext(), m_Font, testString, 10, 10, 0.f, 1.f, 0.f);
     if (!result)
     {
         return false;
@@ -176,95 +236,49 @@ bool Application::Frame(Input* Input)
     return true;
 }
 
-/*
-bool Application::RenderSceneToTexture(float rotation)
-{
-    XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-    bool result;
-
-    m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
-    m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.f);
-
-    m_Direct3D->GetWorldMatrix(worldMatrix);
-    m_Camera->GetViewMatrix(viewMatrix);
-    m_Direct3D->GetProjectionMatrix(projectionMatrix);
-
-    // worldMatrix = XMMatrixMultiply(XMMatrixScaling(0.5f, 0.5f, 0.5f), XMMatrixRotationX(rotation));
-    // worldMatrix = XMMatrixMultiply(XMMatrixScaling(0.1f, 0.1f, 0.1f), XMMatrixTranslation(0.f, -1.f, 0.f));
-    worldMatrix = XMMatrixRotationX(rotation);
-
-    m_Model->Render(m_Direct3D->GetDeviceContext());
-    result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0));
-    if (!result)
-    {
-        return false;
-    }
-
-    m_Direct3D->SetBackBufferRenderTarget();
-    m_Direct3D->ResetViewport();
-
-    return true;
-}
-
-bool Application::RenderGlowToTexture(float rotation)
-{
-    XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-    bool result;
-
-    m_GlowTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
-    m_GlowTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.f);
-
-    m_Direct3D->GetWorldMatrix(worldMatrix);
-    m_Camera->GetViewMatrix(viewMatrix);
-    m_Direct3D->GetProjectionMatrix(projectionMatrix);
-
-    worldMatrix = XMMatrixRotationX(rotation);
-
-    m_Model->Render(m_Direct3D->GetDeviceContext());
-    result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(1));
-    if (!result)
-    {
-        return false;
-    }
-
-    m_Direct3D->SetBackBufferRenderTarget();
-    m_Direct3D->ResetViewport();
-
-    return true;
-}
-
-*/
-
 bool Application::Render(float rotation)
 {
-    XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
+    XMMATRIX worldMatrix, viewMatrix, projectionMatrix, baseViewMatrix, orthoMatrix, translateMatrix;
     bool result;
 
     m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.0f);
 
     m_Direct3D->GetWorldMatrix(worldMatrix);
     m_Camera->GetViewMatrix(viewMatrix);
+    m_Direct3D->GetProjectionMatrix(projectionMatrix);
+    m_Camera->GetBaseViewMatrix(baseViewMatrix);
     m_Direct3D->GetOrthoMatrix(orthoMatrix);
+
+    translateMatrix = XMMatrixTranslation(-5.f, 1.f, 5.f);
+
+    m_Model->Render(m_Direct3D->GetDeviceContext());
+    result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), translateMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), m_Light->GetDirection(), m_Light->GetDiffuseColor());
+    if (!result)
+    {
+        return false;
+    }
 
     m_Direct3D->TurnZBufferOff();
     m_Direct3D->EnableAlphaBlending();
 
-    m_Text1->Render(m_Direct3D->GetDeviceContext());
-    result = m_FontShader->Render(m_Direct3D->GetDeviceContext(), m_Text1->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Font->GetTexture(), m_Text1->GetPixelColor());
+    m_Text->Render(m_Direct3D->GetDeviceContext());
+    result = m_FontShader->Render(m_Direct3D->GetDeviceContext(), m_Text->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_Font->GetTexture(), m_Text->GetPixelColor());
     if (!result)
     {
-        MessageBox(NULL, L"Render, 1", L"1", MB_OK);
         return false;
     }
 
-    m_Text2->Render(m_Direct3D->GetDeviceContext());
-    result = m_FontShader->Render(m_Direct3D->GetDeviceContext(), m_Text2->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Font->GetTexture(), m_Text2->GetPixelColor());
+    result = m_MouseBitmap->Render(m_Direct3D->GetDeviceContext());
     if (!result)
     {
-        MessageBox(NULL, L"Render, 2", L"2", MB_OK);
         return false;
     }
 
+    result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_MouseBitmap->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_MouseBitmap->GetTexture());
+    if (!result)
+    {
+        return false;
+    }
 
     m_Direct3D->TurnZBufferOn();
     m_Direct3D->DisableAlphaBlending();
@@ -273,82 +287,64 @@ bool Application::Render(float rotation)
 
     return true;
 }
-/*
-bool Application::UpdateFps()
+
+bool Application::TestIntersection(int mouseX, int mouseY)
 {
-    int fps;
-    char tempString[16], finalString[16];
-    float red, green, blue;
-    bool result;
+    XMMATRIX projectionMatrix, viewMatrix, inverseViewMatrix, worldMatrix, inverseWorldMatrix;
+    XMFLOAT4X4 pMatrix, iViewMatrix;
+    XMVECTOR direction, origin, rayOrigin, rayDirection;
+    XMFLOAT3 cameraDirection, cameraOrigin, rayOri, rayDir;
+    float pointX, pointY;
+    bool intersect;
 
-    m_Fps->Frame();
+    pointX = ((2.f * (float)mouseX) / (float)m_screenWidth) - 1.f;
+    pointY = (((2.f * (float)mouseY) / (float)m_screenHeight) - 1.f) * -1.f;
 
-    fps = m_Fps->GetFps();
+    m_Direct3D->GetProjectionMatrix(projectionMatrix);
+    XMStoreFloat4x4(&pMatrix, projectionMatrix);
+    pointX = pointX / pMatrix._11;
+    pointY = pointY / pMatrix._22;
 
-    if (m_previousFps == fps)
-    {
-        return true;
-    }
+    m_Camera->GetViewMatrix(viewMatrix);
+    inverseViewMatrix = XMMatrixInverse(NULL, viewMatrix);
+    XMStoreFloat4x4(&iViewMatrix, inverseViewMatrix);
 
-    m_previousFps = fps;
+    cameraDirection.x = (pointX * iViewMatrix._11) + (pointY * iViewMatrix._21) + iViewMatrix._31;
+    cameraDirection.y = (pointX * iViewMatrix._12) + (pointY * iViewMatrix._22) + iViewMatrix._32;
+    cameraDirection.z = (pointX * iViewMatrix._13) + (pointY * iViewMatrix._23) + iViewMatrix._33;
+    direction = XMLoadFloat3(&cameraDirection);
 
-    if (fps > 99999)
-    {
-        fps = 99999;
-    }
+    cameraOrigin = m_Camera->GetPosition();
+    origin = XMLoadFloat3(&cameraOrigin);
 
-    sprintf_s(tempString, "%d", fps);
+    worldMatrix = XMMatrixTranslation(-5.f, 1.f, 5.f);
 
-    strcpy_s(finalString, "Fps: ");
-    strcat_s(finalString, tempString);
+    inverseWorldMatrix = XMMatrixInverse(NULL, worldMatrix);
 
-    if (fps >= 60)
-    {
-        red = 0.f;
-        green = 1.f;
-        blue = 0.f;
-    }
+    rayOrigin = XMVector3TransformCoord(origin, inverseWorldMatrix);
+    rayDirection = XMVector3TransformNormal(direction, inverseWorldMatrix);
 
-    if (fps < 60)
-    {
-        red = 1.f;
-        green = 1.f;
-        blue = 0.f;
-    }
+    rayDirection = XMVector3Normalize(rayDirection);
 
-    if (fps < 30)
-    {
-        red = 1.f; 
-        green = 0.f;
-        blue = 0.f;
-    }
+    XMStoreFloat3(&rayOri, rayOrigin);
+    XMStoreFloat3(&rayDir, rayDirection);
 
-    result = m_Text1->UpdateText(m_Direct3D->GetDeviceContext(), m_Font, finalString, 10, 10, red, green, blue);
-    if (!result)
-    {
-        return false;
-    }
+    intersect = RaySphereIntersect(rayOri, rayDir, 1.f);
 
-    return true;
+    return intersect;
 }
-*/
 
-bool Application::UpdateMouseStrings(bool mouseDown)
+bool Application::RaySphereIntersect(XMFLOAT3 rayOrigin, XMFLOAT3 rayDirection, float radius)
 {
-    char finalString[32];
-    bool result;
+    float a, b, c, discriminant;
 
-    if (mouseDown)
-    {
-        strcpy_s(finalString, sizeof(finalString), "Mouse Button: Yes");
-    }
-    else
-    {
-        strcpy_s(finalString, sizeof(finalString), "Mouse Button: No");
-    }
+    a = (rayDirection.x * rayDirection.x) + (rayDirection.y * rayDirection.y) + (rayDirection.z * rayDirection.z);
+    b = ((rayDirection.x * rayOrigin.x) + (rayDirection.y * rayOrigin.y) + (rayDirection.z * rayOrigin.z)) * 2.0f;
+    c = ((rayOrigin.x * rayOrigin.x) + (rayOrigin.y * rayOrigin.y) + (rayOrigin.z * rayOrigin.z)) - (radius * radius);
 
-    result = m_Text2->UpdateText(m_Direct3D->GetDeviceContext(), m_Font, finalString, 10, 60, 1.f, 1.f, 1.f);
-    if (!result)
+    discriminant = (b * b) - (4 * a * c);
+
+    if (discriminant < 0.0f)
     {
         return false;
     }
