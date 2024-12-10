@@ -5,10 +5,13 @@
 #include "input.h"
 #include "camera.h"
 #include "model.h"
-#include "rendertexture.h"
+#include "light.h"
+#include "lightshader.h"
 #include "fontshader.h"
 #include "font.h"
 #include "text.h"
+#include "bitmap.h"
+#include "textureshader.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -27,26 +30,22 @@ public:
 	bool Frame(Input*);
 
 private:
-	// bool RenderSceneToTexture(float);
-	// bool RenderGlowToTexture(float);
-	// bool SoundProcessing();
-	// bool RenderDepthToTexture(XMMATRIX, XMMATRIX, XMMATRIX, RenderTexture*, Light*);
-	// bool RenderBlackAndWhiteShadows();
-	// bool UpdateFps();
-	bool Render(float);
-	bool UpdateMouseStrings(bool);
+	bool Render(float);	
+	bool TestIntersection(int, int);
+	bool RaySphereIntersect(XMFLOAT3, XMFLOAT3, float);
 
 private:
 	D3D* m_Direct3D;
 	Camera* m_Camera;
+	Model* m_Model;
+	Light* m_Light;
+	LightShader* m_LightShader;
 	FontShader* m_FontShader;
 	Font* m_Font;
-	Text* m_Text1;
-	Text* m_Text2;
-	// Model* m_Model;
-	// RenderTexture* m_RenderTexture;
-	// RenderTexture* m_GlowTexture;
-	// RenderTexture* m_GlowTexture;
+	Text* m_Text;
+	Bitmap* m_MouseBitmap;
+	TextureShader* m_TextureShader;
+	int m_screenWidth, m_screenHeight;
 };
 
 #endif
