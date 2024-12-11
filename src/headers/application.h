@@ -31,6 +31,7 @@ public:
 
 private:
 	bool Render(float);	
+	bool UpdateMouseStrings(int, int, bool);
 	bool TestIntersection(int, int);
 	bool RaySphereIntersect(XMFLOAT3, XMFLOAT3, float);
 
@@ -43,6 +44,7 @@ private:
 	FontShader* m_FontShader;
 	Font* m_Font;
 	Text* m_Text;
+	Text* m_MouseStrings; 
 	Bitmap* m_MouseBitmap;
 	TextureShader* m_TextureShader;
 	int m_screenWidth, m_screenHeight;
