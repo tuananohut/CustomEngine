@@ -10,6 +10,7 @@ Application::Application()
     m_FontShader = nullptr;
     m_Font = nullptr;
     m_Text = nullptr;
+    m_MouseStrings = nullptr;
     m_MouseBitmap = nullptr;
     m_TextureShader = nullptr;
 }
@@ -25,6 +26,9 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     char textureFilename1[128];
     char textureFilename2[128];
     char testString[32];
+    char mouseString1[32];
+    char mouseString2[32];
+    char mouseString3[32];
     bool result;
 
     m_Direct3D = new D3D;
@@ -95,6 +99,29 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
+    strcpy_s(mouseString1, "Mouse X: 0");
+    strcpy_s(mouseString2, "Mouse Y: 0");
+    strcpy_s(mouseString3, "Mouse Button: No");
+
+    m_MouseStrings = new Text[3];
+    result = m_MouseStrings[0].Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, 32, m_Font, mouseString1, 500, 10, 1.f, 1.f, 1.f);
+    if (!result)
+    {
+        return false;
+    }
+    
+    result = m_MouseStrings[1].Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, 32, m_Font, mouseString2, 500, 35, 1.f, 1.f, 1.f);
+    if (!result)
+    {
+        return false;
+    }
+
+    result = m_MouseStrings[2].Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, 32, m_Font, mouseString3, 500, 60, 1.f, 1.f, 1.f);
+    if (!result)
+    {
+        return false;
+    }
+
     strcpy_s(textureFilename, "assets/textures/mouse.tga");
     
     m_MouseBitmap = new Bitmap;
@@ -117,6 +144,16 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Application::Shutdown()
 {
+    if (m_MouseStrings)
+    {
+        m_MouseStrings[0].Shutdown();
+        m_MouseStrings[1].Shutdown();
+        m_MouseStrings[2].Shutdown();
+
+        delete[] m_MouseStrings;
+        m_MouseStrings = nullptr;
+    }
+
     if (m_TextureShader)
     {
         m_TextureShader->Shutdown();
@@ -191,7 +228,7 @@ bool Application::Frame(Input* Input)
     char testString[32];
     int mouseX, mouseY;
     static float rotation = 0;
-    bool result;
+    bool result, mouseDown;
     static bool intersect;
 
     if (Input->IsEscapePressed() == true)
@@ -201,11 +238,19 @@ bool Application::Frame(Input* Input)
 
     Input->GetMouseLocation(mouseX, mouseY);
 
+    mouseDown = Input->IsMousePressed();
+
+    result = UpdateMouseStrings(mouseX, mouseY, mouseDown);
+    if (!result)
+    {
+        return false;
+    }
+
     m_MouseBitmap->SetRenderLocation(mouseX, mouseY);
 
     intersect = TestIntersection(mouseX, mouseY);
 
-    if (intersect == true && Input->IsMousePressed())
+    if (intersect == true)
     {
         strcpy_s(testString, sizeof(testString), "Intersection: Yes");
     }
@@ -240,6 +285,7 @@ bool Application::Render(float rotation)
 {
     XMMATRIX worldMatrix, viewMatrix, projectionMatrix, baseViewMatrix, orthoMatrix, translateMatrix;
     bool result;
+    int i;
 
     m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.0f);
 
@@ -266,6 +312,16 @@ bool Application::Render(float rotation)
     if (!result)
     {
         return false;
+    }
+
+    for (i = 0; i < 3; i++)
+    {
+        m_MouseStrings[i].Render(m_Direct3D->GetDeviceContext());
+        result = m_FontShader->Render(m_Direct3D->GetDeviceContext(), m_MouseStrings[i].GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Font->GetTexture(), m_MouseStrings[i].GetPixelColor());
+        if (!result)
+        {
+            return false;
+        }
     }
 
     result = m_MouseBitmap->Render(m_Direct3D->GetDeviceContext());
@@ -345,6 +401,51 @@ bool Application::RaySphereIntersect(XMFLOAT3 rayOrigin, XMFLOAT3 rayDirection, 
     discriminant = (b * b) - (4 * a * c);
 
     if (discriminant < 0.0f)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool Application::UpdateMouseStrings(int mouseX, int mouseY, bool mouseDown)
+{
+    char tempString[16], finalString[32];
+    bool result;
+
+    sprintf_s(tempString, "%d", mouseX);
+
+    strcpy_s(finalString, "Mouse X: ");
+    strcat_s(finalString, tempString);
+
+    result = m_MouseStrings[0].UpdateText(m_Direct3D->GetDeviceContext(), m_Font, finalString, 500, 10, 1.0f, 1.0f, 1.0f);
+    if (!result)
+    {
+        return false;
+    }
+
+    sprintf_s(tempString, "%d", mouseY);
+
+    strcpy_s(finalString, "Mouse Y: ");
+    strcat_s(finalString, tempString);
+
+    result = m_MouseStrings[1].UpdateText(m_Direct3D->GetDeviceContext(), m_Font, finalString, 500, 35, 1.0f, 1.0f, 1.0f);
+    if (!result)
+    {
+        return false;
+    }
+
+    if (mouseDown)
+    {
+        strcpy_s(finalString, "Mouse Button: Yes");
+    }
+    else
+    {
+        strcpy_s(finalString, "Mouse Button: No");
+    }
+
+    result = m_MouseStrings[2].UpdateText(m_Direct3D->GetDeviceContext(), m_Font, finalString, 500, 60, 1.0f, 1.0f, 1.0f);
+    if (!result)
     {
         return false;
     }
