@@ -9,6 +9,7 @@ struct VertexInputType
 {
 	float4 position: POSITION;
 	float2 tex: TEXCOORD0;
+	float3 instancePosition: TEXCOORD1;
 };
 
 struct PixelInputType
@@ -22,6 +23,10 @@ PixelInputType TextureVertexShader(VertexInputType input)
 	PixelInputType output;
 
 	input.position.w = 1.0f;
+
+	input.position.x += input.instancePosition.x;
+	input.position.y += input.instancePosition.y;
+	input.position.z += input.instancePosition.z;
 
 	output.position = mul(input.position, worldMatrix);
 	output.position = mul(output.position, viewMatrix);
