@@ -236,36 +236,6 @@ bool Application::Frame(Input* Input)
         return false;
     }
 
-    Input->GetMouseLocation(mouseX, mouseY);
-
-    mouseDown = Input->IsMousePressed();
-
-    result = UpdateMouseStrings(mouseX, mouseY, mouseDown);
-    if (!result)
-    {
-        return false;
-    }
-
-    m_MouseBitmap->SetRenderLocation(mouseX, mouseY);
-
-    intersect = TestIntersection(mouseX, mouseY);
-
-    if (intersect == true)
-    {
-        strcpy_s(testString, sizeof(testString), "Intersection: Yes");
-    }
-
-    else
-    {
-        strcpy_s(testString, sizeof(testString), "Intersection: No");
-    }
-
-    result = m_Text->UpdateText(m_Direct3D->GetDeviceContext(), m_Font, testString, 10, 10, 0.f, 1.f, 0.f);
-    if (!result)
-    {
-        return false;
-    }
-
     rotation -= 0.0174532925f * 0.25f;
     if (rotation < 0.0f)
     {
@@ -292,52 +262,13 @@ bool Application::Render(float rotation)
     m_Direct3D->GetWorldMatrix(worldMatrix);
     m_Camera->GetViewMatrix(viewMatrix);
     m_Direct3D->GetProjectionMatrix(projectionMatrix);
-    m_Camera->GetBaseViewMatrix(baseViewMatrix);
-    m_Direct3D->GetOrthoMatrix(orthoMatrix);
-
-    translateMatrix = XMMatrixTranslation(-5.f, 1.f, 5.f);
 
     m_Model->Render(m_Direct3D->GetDeviceContext());
-    result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), translateMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), m_Light->GetDirection(), m_Light->GetDiffuseColor());
+    result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetVertexCount(), m_Model->GetInstanceCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0));
     if (!result)
     {
         return false;
     }
-
-    m_Direct3D->TurnZBufferOff();
-    m_Direct3D->EnableAlphaBlending();
-
-    m_Text->Render(m_Direct3D->GetDeviceContext());
-    result = m_FontShader->Render(m_Direct3D->GetDeviceContext(), m_Text->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_Font->GetTexture(), m_Text->GetPixelColor());
-    if (!result)
-    {
-        return false;
-    }
-
-    for (i = 0; i < 3; i++)
-    {
-        m_MouseStrings[i].Render(m_Direct3D->GetDeviceContext());
-        result = m_FontShader->Render(m_Direct3D->GetDeviceContext(), m_MouseStrings[i].GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Font->GetTexture(), m_MouseStrings[i].GetPixelColor());
-        if (!result)
-        {
-            return false;
-        }
-    }
-
-    result = m_MouseBitmap->Render(m_Direct3D->GetDeviceContext());
-    if (!result)
-    {
-        return false;
-    }
-
-    result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_MouseBitmap->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_MouseBitmap->GetTexture());
-    if (!result)
-    {
-        return false;
-    }
-
-    m_Direct3D->TurnZBufferOn();
-    m_Direct3D->DisableAlphaBlending();
 
     m_Direct3D->EndScene();
 
