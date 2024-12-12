@@ -19,11 +19,17 @@ private:
 	{
 		XMFLOAT3 position;
 		XMFLOAT2 texture;
-		XMFLOAT3 normal;
-		XMFLOAT3 tangent;
-		XMFLOAT3 binormal;
+		// XMFLOAT3 normal;
+		// XMFLOAT3 tangent;
+		// XMFLOAT3 binormal;
+	};
+	
+	struct InstanceType
+	{
+		XMFLOAT3 position;
 	};
 
+	/*
 	struct ModelType
 	{
 		float x, y, z;
@@ -44,6 +50,7 @@ private:
 	{
 		float x, y, z;
 	};
+	*/
 
 public:
 	Model();
@@ -54,7 +61,10 @@ public:
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 
-	int GetIndexCount();
+	//int GetIndexCount();
+	int GetVertexCount();
+	int GetInstanceCount();
+	
 	ID3D11ShaderResourceView* GetTexture(int);
 
 private:
@@ -65,17 +75,19 @@ private:
 	bool LoadTextures(ID3D11Device*, ID3D11DeviceContext*, char*, char*, char*);
 	void ReleaseTextures();
 
-	bool LoadModel(char*);
-	void ReleaseModel();
-
-	void CalculateModelVectors();
-	void CalculateTangentBinormal(TempVertexType, TempVertexType, TempVertexType, VectorType&, VectorType&);
+	// bool LoadModel(char*);
+	// void ReleaseModel();
+	// 
+	// void CalculateModelVectors();
+	// void CalculateTangentBinormal(TempVertexType, TempVertexType, TempVertexType, VectorType&, VectorType&);
 
 private:
-	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;
-	int m_vertexCount, m_indexCount;
+	ID3D11Buffer* m_vertexBuffer;
+	ID3D11Buffer* m_instanceBuffer;
+	int m_vertexCount;
+	int m_instanceCount;
 	Texture* m_Textures;
-	ModelType* m_model;
+	// ModelType* m_model;
 };
 
 #endif
