@@ -27,6 +27,7 @@ private:
 	struct InstanceType
 	{
 		XMFLOAT3 position;
+		XMFLOAT4 color;
 	};
 
 	/*
