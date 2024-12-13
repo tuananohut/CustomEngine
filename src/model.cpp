@@ -107,6 +107,11 @@ bool Model::InitializeBuffers(ID3D11Device* device)
 	instances[2].position = XMFLOAT3(1.5f, -1.5f, 5.f);
 	instances[3].position = XMFLOAT3(1.5f, 1.5f, 5.f);
 
+	instances[0].color = XMFLOAT4(1.f, 0.f, 0.f, 1.f);
+	instances[1].color = XMFLOAT4(0.f, 1.f, 0.f, 1.f);
+	instances[2].color = XMFLOAT4(0.f, 0.f, 1.f, 1.f);
+	instances[3].color = XMFLOAT4(1.f, 1.f, 0.f, 1.f);
+
 	instanceBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	instanceBufferDesc.ByteWidth = sizeof(InstanceType) * m_instanceCount;
 	instanceBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
