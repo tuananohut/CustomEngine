@@ -67,7 +67,8 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [x] Tutorial 45: Shadow Mapping and Transparency
 - [x] Tutorial 46: Glow
 - [ ] Tutorial 47: Picking
-- [ ] Tutorial 48: Instancing 
+- [x] Tutorial 48: Instancing
+- [ ] Tutorial 49: Hardware Tessellation
 - [ ] ... 
 - [x] Tutorial 55: Direct Sound
 - [x] Tutorial 56: 3D Sound
