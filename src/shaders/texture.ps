@@ -5,6 +5,7 @@ struct PixelInputType
 {
 	float4 position: SV_POSITION;
 	float2 tex: TEXCOORD0;
+	float4 color: COLOR;
 };
 
 float4 TexturePixelShader(PixelInputType input): SV_TARGET
@@ -13,5 +14,7 @@ float4 TexturePixelShader(PixelInputType input): SV_TARGET
 
 	textureColor = shaderTexture.Sample(SampleType, input.tex);
 
-	return textureColor;
+	float4 finalColor = textureColor * input.color;
+
+	return finalColor;
 }

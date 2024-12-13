@@ -10,12 +10,14 @@ struct VertexInputType
 	float4 position: POSITION;
 	float2 tex: TEXCOORD0;
 	float3 instancePosition: TEXCOORD1;
+	float4 instanceColor: COLOR;
 };
 
 struct PixelInputType
 {	
 	float4 position: SV_POSITION;
 	float2 tex: TEXCOORD0;
+	float4 color: COLOR;
 };
 
 PixelInputType TextureVertexShader(VertexInputType input)
@@ -33,6 +35,8 @@ PixelInputType TextureVertexShader(VertexInputType input)
 	output.position = mul(output.position, projectionMatrix);
 
 	output.tex = input.tex;
+
+	output.color = input.instanceColor;
 
 	return output;
 }
