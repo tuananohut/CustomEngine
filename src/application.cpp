@@ -5,14 +5,7 @@ Application::Application()
     m_Direct3D = nullptr;
     m_Camera = nullptr;
     m_Model = nullptr;
-    m_Light = nullptr;
-    m_LightShader = nullptr;
-    m_FontShader = nullptr;
-    m_Font = nullptr;
-    m_Text = nullptr;
-    m_MouseStrings = nullptr;
-    m_MouseBitmap = nullptr;
-    m_TextureShader = nullptr;
+    m_ColorShader = nullptr;
 }
 
 Application::Application(const Application& other) {}
@@ -21,14 +14,14 @@ Application::~Application() {}
 
 bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
-    char modelFilename[128];
-    char textureFilename[128];
-    char textureFilename1[128];
-    char textureFilename2[128];
-    char testString[32];
-    char mouseString1[32];
-    char mouseString2[32];
-    char mouseString3[32];
+    //char modelFilename[128];
+    //char textureFilename[128];
+    //char textureFilename1[128];
+    //char textureFilename2[128];
+    //char testString[32];
+    //char mouseString1[32];
+    //char mouseString2[32];
+    //char mouseString3[32];
     bool result;
 
     m_Direct3D = new D3D;
@@ -42,100 +35,29 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_Camera = new Camera;
 
-    m_Camera->SetPosition(0.f, 0.f, -10.0f);
+    m_Camera->SetPosition(0.f, 0.f, -5.f);
     m_Camera->Render();
     m_Camera->RenderBaseViewMatrix();
     
+
+    // strcpy_s(modelFilename, "assets/models/sphere.txt");
+    // strcpy_s(textureFilename, "assets/textures/red.tga");
+    // strcpy_s(textureFilename1, "assets/textures/stone01.tga");
+    // strcpy_s(textureFilename2, "assets/textures/glowmap001.tga");
+
     m_Model = new Model;
-
-    strcpy_s(modelFilename, "assets/models/sphere.txt");
-    strcpy_s(textureFilename, "assets/textures/red.tga");
-    strcpy_s(textureFilename1, "assets/textures/stone01.tga");
-    strcpy_s(textureFilename2, "assets/textures/glowmap001.tga");
-
-    result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename1, textureFilename2);
+    result = m_Model->Initialize(m_Direct3D->GetDevice());
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK);
+        MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK | MB_ICONERROR);
         return false;
     }
 
-    m_Light = new Light;
-
-    m_Light->SetDirection(0.f, 0.f, 1.f);
-    m_Light->SetDiffuseColor(1.f, 1.f, 1.f, 1.f);
-
-    m_LightShader = new LightShader;
-    result = m_LightShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    m_ColorShader = new ColorShader;
+    result = m_ColorShader->Initialize(m_Direct3D->GetDevice(), hwnd);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK | MB_ICONERROR);
-        return false;
-    }
-
-    m_FontShader = new FontShader;
-    result = m_FontShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the font shader object.", L"Error", MB_OK);
-        return false;
-    }
-
-    m_Font = new Font;
-    result = m_Font->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), 0);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the font object.", L"Error", MB_OK);
-        return false;
-    }
-
-    strcpy_s(testString, "Intersection: No");
-
-    m_Text = new Text;
-    result = m_Text->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, 32, m_Font, testString, screenWidth / 2, screenHeight / 2 - 64, 1.f, 0.f, 0.f);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
-        return false;
-    }
-
-    strcpy_s(mouseString1, "Mouse X: 0");
-    strcpy_s(mouseString2, "Mouse Y: 0");
-    strcpy_s(mouseString3, "Mouse Button: No");
-
-    m_MouseStrings = new Text[3];
-    result = m_MouseStrings[0].Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, 32, m_Font, mouseString1, 500, 10, 1.f, 1.f, 1.f);
-    if (!result)
-    {
-        return false;
-    }
-    
-    result = m_MouseStrings[1].Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, 32, m_Font, mouseString2, 500, 35, 1.f, 1.f, 1.f);
-    if (!result)
-    {
-        return false;
-    }
-
-    result = m_MouseStrings[2].Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, 32, m_Font, mouseString3, 500, 60, 1.f, 1.f, 1.f);
-    if (!result)
-    {
-        return false;
-    }
-
-    strcpy_s(textureFilename, "assets/textures/mouse.tga");
-    
-    m_MouseBitmap = new Bitmap;
-    result = m_MouseBitmap->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, textureFilename, 50, 50);
-    if (!result)
-    {
-        return false;
-    }
-
-    m_TextureShader = new TextureShader;
-    result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the text shader object.", L"Error", MB_OK | MB_ICONERROR);
+        MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK | MB_ICONERROR);
         return false;
     }
     
@@ -144,62 +66,11 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Application::Shutdown()
 {
-    if (m_MouseStrings)
+    if (m_ColorShader)
     {
-        m_MouseStrings[0].Shutdown();
-        m_MouseStrings[1].Shutdown();
-        m_MouseStrings[2].Shutdown();
-
-        delete[] m_MouseStrings;
-        m_MouseStrings = nullptr;
-    }
-
-    if (m_TextureShader)
-    {
-        m_TextureShader->Shutdown();
-        delete m_TextureShader;
-        m_TextureShader = nullptr;
-    }
-
-    if (m_MouseBitmap)
-    {
-        m_MouseBitmap->Shutdown();
-        delete m_MouseBitmap;
-        m_MouseBitmap = nullptr;
-    }
-
-    if (m_Text)
-    {
-        m_Text->Shutdown();
-        delete m_Text;
-        m_Text = nullptr;
-    }
-
-    if (m_Font)
-    {
-        m_Font->Shutdown();
-        delete m_Font;
-        m_Font = nullptr;
-    }
-
-    if (m_FontShader)
-    {
-        m_FontShader->Shutdown();
-        delete m_FontShader;
-        m_FontShader = nullptr;
-    }
-
-    if (m_LightShader)
-    {
-        m_LightShader->Shutdown();
-        delete m_LightShader;
-        m_LightShader = nullptr;
-    }
-
-    if (m_Light)
-    {
-        delete m_Light;
-        m_Light = nullptr;
+        m_ColorShader->Shutdown();
+        delete m_ColorShader;
+        m_ColorShader = nullptr;
     }
 
     if (m_Model)
@@ -253,9 +124,9 @@ bool Application::Frame(Input* Input)
 
 bool Application::Render(float rotation)
 {
-    XMMATRIX worldMatrix, viewMatrix, projectionMatrix, baseViewMatrix, orthoMatrix, translateMatrix;
+    XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+    float tessellationValue = 12.f; 
     bool result;
-    int i;
 
     m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.0f);
 
@@ -264,7 +135,7 @@ bool Application::Render(float rotation)
     m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
     m_Model->Render(m_Direct3D->GetDeviceContext());
-    result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetVertexCount(), m_Model->GetInstanceCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0));
+    result = m_ColorShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, tessellationValue);
     if (!result)
     {
         return false;
@@ -274,7 +145,7 @@ bool Application::Render(float rotation)
 
     return true;
 }
-
+/*
 bool Application::TestIntersection(int mouseX, int mouseY)
 {
     XMMATRIX projectionMatrix, viewMatrix, inverseViewMatrix, worldMatrix, inverseWorldMatrix;
@@ -383,3 +254,4 @@ bool Application::UpdateMouseStrings(int mouseX, int mouseY, bool mouseDown)
 
     return true;
 }
+*/
