@@ -25,7 +25,7 @@ struct PixelInputType
 
 [domain("tri")]
 
-PixelInputType ColorDomainShader(ConstantInputType input, float3 uvwCoord: SV_DomainLocation, const OutputPatch patch)
+PixelInputType ColorDomainShader(ConstantOutputType input, float3 uvwCoord: SV_DomainLocation, const OutputPatch<HullOutputType, 3> patch)
 {
 	float3 vertexPosition;
 	PixelInputType output;

@@ -22,7 +22,7 @@ struct HullOutputType
 	float4 color: COLOR;
 };
 
-ConstantOutputType ColorPatchConstantFunction(InputPatch inputPatch, uint patchId: SV_PrimitiveID)
+ConstantOutputType ColorPatchConstantFunction(InputPatch<HullInputType, 3> inputPatch, uint patchId: SV_PrimitiveID)
 {
 	ConstantOutputType output;
 
@@ -41,7 +41,7 @@ ConstantOutputType ColorPatchConstantFunction(InputPatch inputPatch, uint patchI
 [outputcontrolpoints(3)]
 [patchconstantfunc("ColorPatchConstantFunction")]
 
-HullOutputType ColorHullShader(InputPatch patch, uint pointId: SV_OutputControlPointID, uint patchId: SV_PrimitiveID)
+HullOutputType ColorHullShader(InputPatch<HullInputType, 3> patch, uint pointId: SV_OutputControlPointID, uint patchId: SV_PrimitiveID)
 {
 	HullOutputType output;
 
@@ -51,4 +51,3 @@ HullOutputType ColorHullShader(InputPatch patch, uint pointId: SV_OutputControlP
 
 	return output;
 }
-
