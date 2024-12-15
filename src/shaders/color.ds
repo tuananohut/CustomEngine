@@ -24,14 +24,13 @@ struct PixelInputType
 };
 
 [domain("tri")]
-
 PixelInputType ColorDomainShader(ConstantOutputType input, float3 uvwCoord: SV_DomainLocation, const OutputPatch<HullOutputType, 3> patch)
 {
 	float3 vertexPosition;
-	PixelInputType output;
-
+	PixelInputType output; 
+	
 	// Linear Interpolation
-	vertexPosition = uvwCoord.x * patch[0].position + uvwCoord.y * patch[1].position + uvwCoord.z * patch[2].position;
+	// vertexPosition = uvwCoord.x * patch[0].position + uvwCoord.y * patch[1].position + uvwCoord.z * patch[2].position;
 
 	// Changed weights
 	// vertexPosition = uvwCoord.x * patch[0].position * 1.5 + uvwCoord.y * patch[1].position + uvwCoord.z * patch[2].position * 3;
@@ -48,8 +47,7 @@ PixelInputType ColorDomainShader(ConstantOutputType input, float3 uvwCoord: SV_D
 	// float angle = uvwCoord.x * 3.1415 * 2.0;
 	// float radius = uvwCoord.y * 0.5;         
 	// vertexPosition = float3(cos(angle) * radius, sin(angle) * radius, uvwCoord.z) + (uvwCoord.x * patch[0].position + uvwCoord.y * patch[1].position + uvwCoord.z * patch[2].position);
-
-
+	
 	output.position = mul(float4(vertexPosition, 1.f), worldMatrix);
 	output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);

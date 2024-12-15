@@ -25,12 +25,12 @@ struct HullOutputType
 ConstantOutputType ColorPatchConstantFunction(InputPatch<HullInputType, 3> inputPatch, uint patchId: SV_PrimitiveID)
 {
 	ConstantOutputType output;
-
+	
 	output.edges[0] = tessellationAmount;
 	output.edges[1] = tessellationAmount;
 	output.edges[2] = tessellationAmount;
 
-	output.inside = tessellationAmount;
+    output.inside = tessellationAmount;
 
 	return output;
 }
@@ -46,7 +46,6 @@ HullOutputType ColorHullShader(InputPatch<HullInputType, 3> patch, uint pointId:
 	HullOutputType output;
 
 	output.position = patch[pointId].position;
-
 	output.color = patch[pointId].color;
 
 	return output;
