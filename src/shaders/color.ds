@@ -30,7 +30,25 @@ PixelInputType ColorDomainShader(ConstantOutputType input, float3 uvwCoord: SV_D
 	float3 vertexPosition;
 	PixelInputType output;
 
+	// Linear Interpolation
 	vertexPosition = uvwCoord.x * patch[0].position + uvwCoord.y * patch[1].position + uvwCoord.z * patch[2].position;
+
+	// Changed weights
+	// vertexPosition = uvwCoord.x * patch[0].position * 1.5 + uvwCoord.y * patch[1].position + uvwCoord.z * patch[2].position * 3;
+	
+	// Curved geometry
+	float curvature = 0.8;
+	vertexPosition = uvwCoord.x * patch[0].position * 2 + 
+					 uvwCoord.y * patch[1].position * 2 + 
+					 uvwCoord.z * patch[2].position * 2;
+	
+	vertexPosition.z += curvature * length(vertexPosition.xy);
+
+	// Spiral Effect
+	// float angle = uvwCoord.x * 3.1415 * 2.0;
+	// float radius = uvwCoord.y * 0.5;         
+	// vertexPosition = float3(cos(angle) * radius, sin(angle) * radius, uvwCoord.z) + (uvwCoord.x * patch[0].position + uvwCoord.y * patch[1].position + uvwCoord.z * patch[2].position);
+
 
 	output.position = mul(float4(vertexPosition, 1.f), worldMatrix);
 	output.position = mul(output.position, viewMatrix);
