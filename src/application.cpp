@@ -125,7 +125,7 @@ bool Application::Frame(Input* Input)
 bool Application::Render(float rotation)
 {
     XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-    float tessellationValue = 12.f; 
+    float tessellationValue = 58.f; 
     bool result;
 
     m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.0f);
