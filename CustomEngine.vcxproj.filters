@@ -434,6 +434,8 @@
     <None Include="src\shaders\glow.ps" />
     <None Include="src\shaders\font.vs" />
     <None Include="src\shaders\font.ps" />
+    <None Include="src\shaders\color.hs" />
+    <None Include="src\shaders\color.ds" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\assets\models\cube.txt" />

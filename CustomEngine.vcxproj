@@ -258,6 +258,8 @@
     <None Include="src\shaders\blur.vs" />
     <None Include="src\shaders\clipplane.ps" />
     <None Include="src\shaders\clipplane.vs" />
+    <None Include="src\shaders\color.ds" />
+    <None Include="src\shaders\color.hs" />
     <None Include="src\shaders\color.ps" />
     <None Include="src\shaders\color.vs" />
     <None Include="src\shaders\depth.ps" />
