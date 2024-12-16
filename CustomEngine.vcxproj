@@ -138,6 +138,7 @@
     <ClInclude Include="src\headers\clipplaneshader.h" />
     <ClInclude Include="src\headers\colorshader.h" />
     <ClInclude Include="src\headers\d3d.h" />
+    <ClInclude Include="src\headers\deferredbuffers.h" />
     <ClInclude Include="src\headers\depthshader.h" />
     <ClInclude Include="src\headers\directsound.h" />
     <ClInclude Include="src\headers\displayplane.h" />
@@ -197,6 +198,7 @@
     <ClCompile Include="src\clipplaneshader.cpp" />
     <ClCompile Include="src\colorshader.cpp" />
     <ClCompile Include="src\d3d.cpp" />
+    <ClCompile Include="src\deferredbuffers.cpp" />
     <ClCompile Include="src\depthshader.cpp" />
     <ClCompile Include="src\directsound.cpp" />
     <ClCompile Include="src\displayplane.cpp" />
