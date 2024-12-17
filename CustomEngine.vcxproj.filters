@@ -189,6 +189,9 @@
     <ClInclude Include="src\headers\deferredbuffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\headers\deferredshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -368,6 +371,9 @@
     <ClCompile Include="src\deferredbuffers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\deferredshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\color.vs" />
@@ -442,6 +448,8 @@
     <None Include="src\shaders\font.ps" />
     <None Include="src\shaders\color.hs" />
     <None Include="src\shaders\color.ds" />
+    <None Include="src\shaders\deferred.vs" />
+    <None Include="src\shaders\deferred.ps" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\assets\models\cube.txt" />
