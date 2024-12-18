@@ -7,8 +7,6 @@ LightShader::LightShader()
 	m_layout = nullptr;
 	m_sampleState = nullptr;
 	m_matrixBuffer = nullptr;
-	m_lightColorBuffer = nullptr;
-	m_lightPositionBuffer = nullptr;
 	m_lightBuffer = nullptr;
 }
 
@@ -54,14 +52,14 @@ void LightShader::Shutdown()
 bool LightShader::Render(ID3D11DeviceContext* deviceContext,
 						 int indexCount, 
 						 XMMATRIX worldMatrix, XMMATRIX viewMatrix,XMMATRIX projectionMatrix, 
-						 ID3D11ShaderResourceView* texture,
-						 XMFLOAT3 lightDirection,
-						 XMFLOAT4 diffuseColor)
+					     ID3D11ShaderResourceView* colorTexture,
+						 ID3D11ShaderResourceView* normalTexture,
+						 XMFLOAT3 lightDirection)
 						 	     
 {
 	bool result;
 
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, diffuseColor);
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, colorTexture, normalTexture, lightDirection);
 	if(!result)
 	{
 		return false;
@@ -78,21 +76,14 @@ bool LightShader::InitializeShader(ID3D11Device* device,
 								   WCHAR* psFilename)
 {
 	HRESULT result;
-	ID3D10Blob* errorMessage;
-	ID3D10Blob* vertexShaderBuffer;
-	ID3D10Blob* pixelShaderBuffer;
-
-	D3D11_INPUT_ELEMENT_DESC polygonLayout[3];
+	ID3D10Blob* errorMessage = nullptr;
+	ID3D10Blob* vertexShaderBuffer = nullptr;
+	ID3D10Blob* pixelShaderBuffer = nullptr;
+	D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
 	unsigned int numElements;
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
-	
-	
-	
-	errorMessage = NULL;
-	vertexShaderBuffer = NULL;
-	pixelShaderBuffer = NULL;
 
 	result = D3DCompileFromFile(vsFilename, NULL, NULL, "LightVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage);
 	if(FAILED(result))
@@ -152,14 +143,6 @@ bool LightShader::InitializeShader(ID3D11Device* device,
 	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[1].InstanceDataStepRate = 0;
 
-	polygonLayout[2].SemanticName = "NORMAL";
-	polygonLayout[2].SemanticIndex = 0;
-	polygonLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	polygonLayout[2].InputSlot = 0;
-	polygonLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[2].InstanceDataStepRate = 0;
-
 	numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
 	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_layout);
@@ -169,16 +152,16 @@ bool LightShader::InitializeShader(ID3D11Device* device,
 	}
 
 	vertexShaderBuffer->Release();
-	vertexShaderBuffer = NULL;
+	vertexShaderBuffer = nullptr;
 
 	pixelShaderBuffer->Release();
-	pixelShaderBuffer = NULL;
+	pixelShaderBuffer = nullptr;
 
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.MipLODBias = 0.f;
 	samplerDesc.MaxAnisotropy = 1;
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	samplerDesc.BorderColor[0] = 0;
@@ -225,58 +208,40 @@ bool LightShader::InitializeShader(ID3D11Device* device,
 
 void LightShader::ShutdownShader()
 {
-	// if (m_lightBuffer) 
-	// {
-	// 	m_lightBuffer->Release();
-	// 	m_lightBuffer = NULL;
-	// }
-	// 
-	// if(m_cameraBuffer)
-	// {
-	// 	m_cameraBuffer->Release();
-	// 	m_cameraBuffer = NULL;
-	// }
-
-	if(m_lightColorBuffer)
+	if (m_lightBuffer) 
 	{
-		m_lightColorBuffer->Release();
-		m_lightColorBuffer = NULL;
-	}
-
-	if(m_lightPositionBuffer)
-	{
-		m_lightPositionBuffer->Release();
-		m_lightPositionBuffer = NULL;
+		m_lightBuffer->Release();
+		m_lightBuffer = nullptr;
 	}
 
 	if(m_matrixBuffer)
 	{
 		m_matrixBuffer->Release();
-		m_matrixBuffer = NULL;
+		m_matrixBuffer = nullptr;
 	}
 
 	if(m_sampleState)
 	{
 		m_sampleState->Release();
-		m_sampleState = NULL;
+		m_sampleState = nullptr;
 	}
 
 	if(m_layout)
 	{
 		m_layout->Release();
-		m_layout = NULL;
+		m_layout = nullptr;
 	}
 
 	if(m_pixelShader)
 	{
 		m_pixelShader->Release();
-		m_pixelShader = NULL;
+		m_pixelShader = nullptr;
 	}	
 
 	if(m_vertexShader)
 	{
 		m_vertexShader->Release();
-		m_vertexShader = NULL;
+		m_vertexShader = nullptr;
 	}
 
 	return;
@@ -313,9 +278,9 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 									  XMMATRIX worldMatrix, 
 									  XMMATRIX viewMatrix,
 									  XMMATRIX projectionMatrix,
-									  ID3D11ShaderResourceView* texture,
-									  XMFLOAT3 lightDirection,
-									  XMFLOAT4 diffuseColor)
+									  ID3D11ShaderResourceView* colorTexture,
+									  ID3D11ShaderResourceView* normalTexture,
+									  XMFLOAT3 lightDirection)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -345,7 +310,8 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
-	deviceContext->PSSetShaderResources(0, 1, &texture);
+	deviceContext->PSSetShaderResources(0, 1, &colorTexture);
+	deviceContext->PSSetShaderResources(1, 1, &normalTexture);
 
 	result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
@@ -355,9 +321,8 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 
 	dataPtr2 = (LightBufferType*)mappedResource.pData;
 
-	dataPtr2->diffuseColor = diffuseColor;
 	dataPtr2->lightDirection = lightDirection;
-	dataPtr2->padding = 0.0f;
+	dataPtr2->padding = 0.f;
 
 	deviceContext->Unmap(m_lightBuffer, 0);
 
