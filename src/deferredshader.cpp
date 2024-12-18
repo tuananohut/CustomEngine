@@ -25,7 +25,7 @@ bool DeferredShader::Initialize(ID3D11Device* device, HWND hwnd)
 		return false;
 	}
 
-	error = wcscpy_s(vsFilename, 128, L"src/shaders/deferred.ps");
+	error = wcscpy_s(psFilename, 128, L"src/shaders/deferred.ps");
 	if (error != 0)
 	{
 		return false;
