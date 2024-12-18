@@ -45,39 +45,6 @@ void DeferredShader::Shutdown()
 	ShutdownShader();
 }
 
-void DeferredShader::ShutdownShader()
-{
-	if (m_vertexShader)
-	{
-		m_vertexShader->Release();
-		m_vertexShader = nullptr;
-	}
-
-	if (m_pixelShader)
-	{
-		m_pixelShader->Release();
-		m_pixelShader = nullptr;
-	}
-	
-	if (m_layout)
-	{
-		m_layout->Release();
-		m_layout = nullptr;
-	}
-
-	if (m_sampleStateWrap)
-	{
-		m_sampleStateWrap->Release();
-		m_sampleStateWrap = nullptr;
-	}
-
-	if (m_matrixBuffer)
-	{
-		m_matrixBuffer->Release();
-		m_matrixBuffer = nullptr;
-	}
-}
-
 bool DeferredShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
 {
 	bool result; 
@@ -164,7 +131,7 @@ bool DeferredShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
 	polygonLayout[1].InputSlot = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[1].InstanceDataStepRate = 0;
 
-	polygonLayout[2].SemanticName = "POSITION";
+	polygonLayout[2].SemanticName = "NORMAL";
 	polygonLayout[2].SemanticIndex = 0;
 	polygonLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	polygonLayout[2].InputSlot = 0;
@@ -221,6 +188,40 @@ bool DeferredShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
 	
 	return true;
 }
+
+void DeferredShader::ShutdownShader()
+{
+	if (m_vertexShader)
+	{
+		m_vertexShader->Release();
+		m_vertexShader = nullptr;
+	}
+
+	if (m_pixelShader)
+	{
+		m_pixelShader->Release();
+		m_pixelShader = nullptr;
+	}
+
+	if (m_layout)
+	{
+		m_layout->Release();
+		m_layout = nullptr;
+	}
+
+	if (m_sampleStateWrap)
+	{
+		m_sampleStateWrap->Release();
+		m_sampleStateWrap = nullptr;
+	}
+
+	if (m_matrixBuffer)
+	{
+		m_matrixBuffer->Release();
+		m_matrixBuffer = nullptr;
+	}
+}
+
 
 void DeferredShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
 {
