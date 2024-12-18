@@ -4,18 +4,32 @@ Model::Model()
 {
 	m_vertexBuffer = nullptr;
 	m_indexBuffer = nullptr;
+	m_Textures = nullptr; 
+	m_model = nullptr;
 }
 
 Model::Model(const Model& other) {}
 
 Model::~Model() {}
 
-bool Model::Initialize(ID3D11Device* device)
+bool Model::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* modelFilename, char* textureFilename)
 {
 	bool result;
 
+	result = LoadModel(modelFilename);
+	if (!result)
+	{
+		return false;
+	}
+
 	result = InitializeBuffers(device);
-	if(!result)
+	if (!result)
+	{
+		return false;
+	}
+
+	result = LoadTextures(device, deviceContext, textureFilename);
+	if (!result)
 	{
 		return false;
 	}
@@ -25,17 +39,27 @@ bool Model::Initialize(ID3D11Device* device)
 
 void Model::Shutdown()
 {
+	ReleaseTextures();
+
 	ShutdownBuffers();
+	
+	ReleaseModel();
 }
 
 void Model::Render(ID3D11DeviceContext* deviceContext)
 {
+
 	RenderBuffers(deviceContext);
 }
 
 int Model::GetIndexCount()
 {
 	return m_indexCount;
+}
+
+ID3D11ShaderResourceView* Model::GetTexture()
+{
+	return m_Textures->GetTexture();
 }
 
 bool Model::InitializeBuffers(ID3D11Device* device)
@@ -45,34 +69,20 @@ bool Model::InitializeBuffers(ID3D11Device* device)
 	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
 	HRESULT result;
-
-	m_vertexCount = 4;
-
-	m_indexCount = 6;
+	int i;
 
 	vertices = new VertexType[m_vertexCount];
 
 	indices = new unsigned long[m_indexCount];
 
-	vertices[0].position = XMFLOAT3(-1.f, -1.f, 0.f); 
-	vertices[0].color = XMFLOAT4(1.f, 0.f, 0.f, 1.f); 
+	for (i = 0; i < m_vertexCount; i++)
+	{
+		vertices[i].position = XMFLOAT3(m_model[i].x, m_model[i].y, m_model[i].z);
+		vertices[i].texture = XMFLOAT2(m_model[i].tu, m_model[i].tv);
+		vertices[i].normal = XMFLOAT3(m_model[i].nx, m_model[i].ny, m_model[i].nz);
 
-	vertices[1].position = XMFLOAT3(-1.f, 1.f, 0.f);  
-	vertices[1].color = XMFLOAT4(0.f, 1.f, 0.f, 1.f); 
-
-	vertices[2].position = XMFLOAT3(1.f, 1.f, 0.f);   
-	vertices[2].color = XMFLOAT4(0.f, 0.f, 1.f, 1.f); 
-
-	vertices[3].position = XMFLOAT3(1.f, -1.f, 0.f);  
-	vertices[3].color = XMFLOAT4(1.f, 0.f, 1.f, 1.f); 
-
-	indices[0] = 0; 
-	indices[1] = 1; 
-	indices[2] = 2; 
-
-	indices[3] = 0; 
-	indices[4] = 2; 
-	indices[5] = 3; 
+		indices[i] = i;
+	}
 
 	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	vertexBufferDesc.ByteWidth = sizeof(VertexType) * m_vertexCount;
@@ -86,7 +96,7 @@ bool Model::InitializeBuffers(ID3D11Device* device)
 	vertexData.SysMemSlicePitch = 0;
 
 	result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer);
-	if(FAILED(result))
+	if (FAILED(result))
 	{
 		return false;
 	}
@@ -125,7 +135,7 @@ void Model::ShutdownBuffers()
 		m_indexBuffer = nullptr;
 	}
 
-	if(m_vertexBuffer)
+	if (m_vertexBuffer)
 	{
 		m_vertexBuffer->Release();
 		m_vertexBuffer = nullptr;
@@ -144,29 +154,17 @@ void Model::RenderBuffers(ID3D11DeviceContext* deviceContext)
 
 	deviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-/*
-bool Model::LoadTextures(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename1, char* filename2, char* filename3)
+
+bool Model::LoadTextures(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* textureFilename)
 {
 	bool result;
 
-	m_Textures = new Texture[3];
+	m_Textures = new Texture;
 
-	result = m_Textures[0].Initialize(device, deviceContext, filename1);
-	if (!result)
-	{
-		return false;
-	}
-
-	result = m_Textures[1].Initialize(device, deviceContext, filename2);
-	if (!result)
-	{
-		return false;
-	}
-
-	result = m_Textures[2].Initialize(device, deviceContext, filename3);
+	result = m_Textures->Initialize(device, deviceContext, textureFilename);
 	if (!result)
 	{
 		return false;
@@ -179,16 +177,13 @@ void Model::ReleaseTextures()
 {
 	if(m_Textures)
 	{
-		m_Textures[0].Shutdown();
-		m_Textures[1].Shutdown();
-		m_Textures[2].Shutdown();
-
+		m_Textures->Shutdown();
 		delete[] m_Textures;
 		m_Textures = nullptr;
 	}
 }
 
-W
+
 bool Model::LoadModel(char* filename)
 {
 	ifstream fin;
@@ -243,6 +238,7 @@ void Model::ReleaseModel()
 	}
 }
 
+/*
 void Model::CalculateModelVectors()
 {
 	int faceCount, i, index;
@@ -323,7 +319,7 @@ void Model::CalculateTangentBinormal(TempVertexType vertex1, TempVertexType vert
 	tvVector[1] = vertex3.tv - vertex1.tv;
 
 	den = 1.0f / (tuVector[0] * tvVector[1] - tuVector[1] * tvVector[0]);
-	
+
 	tangent.x = (tvVector[1] * vector1[0] - tvVector[0] * vector2[0]) * den;
 	tangent.y = (tvVector[1] * vector1[1] - tvVector[0] * vector2[1]) * den;
 	tangent.z = (tvVector[1] * vector1[2] - tvVector[0] * vector2[2]) * den;
