@@ -4,8 +4,12 @@
 #include "d3d.h"
 #include "input.h"
 #include "camera.h"
+#include "light.h"
 #include "model.h"
-#include "colorshader.h" 
+#include "orthowindow.h"
+#include "deferredbuffers.h"
+#include "deferredshader.h"
+#include "lightshader.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -24,6 +28,7 @@ public:
 	bool Frame(Input*);
 
 private:
+	bool RenderSceneToTexture(float);
 	bool Render(float);	
 	// bool UpdateMouseStrings(int, int, bool);
 	// bool TestIntersection(int, int);
@@ -32,8 +37,12 @@ private:
 private:
 	D3D* m_Direct3D;
 	Camera* m_Camera;
+	Light* m_Light;
 	Model* m_Model;
-	ColorShader* m_ColorShader;
+	OrthoWindow* m_FullScreenWindow; 
+	DeferredBuffers* m_DeferredBuffers; 
+	DeferredShader* m_DeferredShader; 
+	LightShader* m_LightShader;
 };
 
 #endif
