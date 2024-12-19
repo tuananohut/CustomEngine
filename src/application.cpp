@@ -221,8 +221,6 @@ bool Application::Render(float rotation)
     m_Direct3D->TurnZBufferOff(); 
 
     m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
-
-    m_Model->Render(m_Direct3D->GetDeviceContext());
     result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_DeferredBuffers->GetShaderResourceView(0), m_DeferredBuffers->GetShaderResourceView(1), m_Light->GetDirection());
     if (!result)
     {
