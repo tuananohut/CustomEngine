@@ -90,11 +90,11 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Application::Shutdown()
 {
-    if (m_FullScreenWindow)
+    if (m_LightShader)
     {
-        m_FullScreenWindow->Shutdown();
-        delete m_FullScreenWindow;
-        m_FullScreenWindow = nullptr;
+        m_LightShader->Shutdown();
+        delete m_LightShader;
+        m_LightShader = nullptr;
     }
 
     if (m_DeferredShader)
@@ -104,19 +104,6 @@ void Application::Shutdown()
         m_DeferredShader = nullptr;
     }
 
-    if (m_LightShader)
-    {
-        m_LightShader->Shutdown();
-        delete m_LightShader;
-        m_LightShader = nullptr;
-    }
-
-    if (m_Light)
-    {
-        delete m_Light;
-        m_Light = nullptr;
-    }
-
     if (m_DeferredBuffers)
     {
         m_DeferredBuffers->Shutdown();
@@ -124,11 +111,24 @@ void Application::Shutdown()
         m_DeferredBuffers = nullptr;
     }
 
+    if (m_FullScreenWindow)
+    {
+        m_FullScreenWindow->Shutdown();
+        delete m_FullScreenWindow;
+        m_FullScreenWindow = nullptr;
+    }
+
     if (m_Model)
     {
         m_Model->Shutdown();
         delete m_Model;
         m_Model = nullptr;
+    }
+
+    if (m_Light)
+    {
+        delete m_Light;
+        m_Light = nullptr;
     }
 
     if (m_Camera)
