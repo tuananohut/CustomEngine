@@ -2,7 +2,7 @@
 
 DeferredBuffers::DeferredBuffers()
 {
-	int i; 
+	int i = 0; 
 
 	for (i = 0; i < BUFFER_COUNT; i++)
 	{
@@ -27,7 +27,7 @@ bool DeferredBuffers::Initialize(ID3D11Device* device, int textureWidth, int tex
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
 	D3D11_TEXTURE2D_DESC depthBufferDesc;
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-	int i;
+	int i = 0;
 
 	m_textureWidth = textureWidth;
 	m_textureHeight = textureHeight;
