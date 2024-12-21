@@ -38,7 +38,7 @@ void Light::SetSpecularPower(float power)
 
 void Light::SetPosition(float x, float y, float z)
 {
-	m_position = XMFLOAT3(x, y, z);
+	m_position = XMFLOAT4(x, y, z, 1.f);
 	return;
 }
 
@@ -72,7 +72,7 @@ float Light::GetSpecularPower()
 	return m_specularPower;
 }
 
-XMFLOAT3 Light::GetPosition()
+XMFLOAT4 Light::GetPosition()
 {
 	return m_position;
 }
@@ -86,11 +86,11 @@ void Light::GenerateViewMatrix()
 	up.y = 1.f;
 	up.z = 0.f;
 
-	positionVector = XMLoadFloat3(&m_position);
+	// positionVector = XMLoadFloat3(&m_position);
 	lookAtVector = XMLoadFloat3(&m_lookAt);
 	upVector = XMLoadFloat3(&up);
 
-	m_viewMatrix = XMMatrixLookAtLH(positionVector, lookAtVector, upVector);
+	// m_viewMatrix = XMMatrixLookAtLH(positionVector, lookAtVector, upVector);
 }
 
 void Light::GenerateProjectionMatrix(float screenDepth, float screenNear)

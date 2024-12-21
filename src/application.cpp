@@ -1,5 +1,11 @@
 #include "headers/application.h"
 
+#include <random>
+
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+
 Application::Application()
 {
     m_Direct3D = nullptr;
@@ -21,6 +27,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     char modelFilename[128];
     char textureFilename[128];
     bool result;
+    int i = 0;
 
     m_Direct3D = new D3D;
 
@@ -37,11 +44,18 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     m_Camera->Render();
     m_Camera->RenderBaseViewMatrix();
 
-    m_Light = new Light;
+    m_Light = new Light[m_numLights];
 
-    m_Light->SetDiffuseColor(1.f, 1.f, 1.f, 1.f);
-    m_Light->SetDirection(0.f, 0.f, 1.f);
-        
+    for (int i = 0; i < m_numLights; i++)
+    {
+        float randomX = dist(gen); 
+        float randomY = dist(gen); 
+        float randomZ = dist(gen); 
+
+        m_Light[i].SetPosition(randomX * 10.0f - 5.0f, randomY * 10.0f - 5.0f, randomZ * 10.0f - 5.0f); 
+        m_Light[i].SetDiffuseColor(randomX, randomY, randomZ, 1.0f); 
+    }
+
     strcpy_s(modelFilename, "assets/models/cube.txt");
     strcpy_s(textureFilename, "assets/textures/stone01.tga");
 
@@ -127,7 +141,7 @@ void Application::Shutdown()
 
     if (m_Light)
     {
-        delete m_Light;
+        delete[] m_Light;
         m_Light = nullptr;
     }
 
@@ -192,7 +206,7 @@ bool Application::RenderSceneToTexture(float rotation)
     m_Camera->GetViewMatrix(viewMatrix);
     m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-    worldMatrix = XMMatrixRotationY(rotation);
+    worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixRotationX(rotation));
     
     m_Model->Render(m_Direct3D->GetDeviceContext());
     result = m_DeferredShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture());
@@ -210,7 +224,9 @@ bool Application::RenderSceneToTexture(float rotation)
 bool Application::Render(float rotation)
 {
     XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
+    XMFLOAT4 diffuseColor[4], lightPosition[4];
     bool result;
+    int i = 0;
 
     m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.0f);
 
@@ -218,10 +234,17 @@ bool Application::Render(float rotation)
     m_Camera->GetBaseViewMatrix(baseViewMatrix);
     m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
+    for (i = 0; i < m_numLights; i++)
+    {
+        diffuseColor[i] = m_Light[i].GetDiffuseColor();
+
+        lightPosition[i] = m_Light[i].GetPosition();
+    }
+
     m_Direct3D->TurnZBufferOff(); 
 
     m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
-    result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_DeferredBuffers->GetShaderResourceView(0), m_DeferredBuffers->GetShaderResourceView(1), m_Light->GetDirection());
+    result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_DeferredBuffers->GetShaderResourceView(0), m_DeferredBuffers->GetShaderResourceView(1), diffuseColor, lightPosition);
     if (!result)
     {
         return false;
