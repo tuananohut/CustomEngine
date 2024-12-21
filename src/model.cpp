@@ -178,11 +178,10 @@ void Model::ReleaseTextures()
 	if(m_Textures)
 	{
 		m_Textures->Shutdown();
-		delete[] m_Textures;
+		delete m_Textures;
 		m_Textures = nullptr;
 	}
 }
-
 
 bool Model::LoadModel(char* filename)
 {
@@ -233,7 +232,7 @@ void Model::ReleaseModel()
 {
 	if(m_model)
 	{
-		delete[] m_model;
+		delete m_model;
 		m_model = NULL;
 	}
 }
