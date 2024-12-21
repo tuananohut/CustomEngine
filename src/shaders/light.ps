@@ -2,35 +2,34 @@ Texture2D colorTexture: register(t0);
 Texture2D normalTexture: register(t1);
 SamplerState SampleTypePoint: register(s0);
 
-cbuffer LightBuffer
+#define NUM_LIGHTS 4
+
+cbuffer LightColorBuffer
 {
-	float3 lightDirection;
-	float padding;
+	float4 diffuseColor[NUM_LIGHTS];
 };
 
 struct PixelInputType
 {
 	float4 position: SV_POSITION;
 	float2 tex: TEXCOORD0;
+	float3 lightPos[NUM_LIGHTS]: TEXCOORD1;
 };
 
 float4 LightPixelShader(PixelInputType input): SV_TARGET
 {
-	float4 colors; 
-	float4 normals; 
-	float3 lightDir;
-	float lightIntensity;
-	float4 outputColor;
-		 
-	colors = colorTexture.Sample(SampleTypePoint, input.tex);
+    float4 colors = colorTexture.Sample(SampleTypePoint, input.tex);
+    float4 normals = normalTexture.Sample(SampleTypePoint, input.tex);
 
-	normals = normalTexture.Sample(SampleTypePoint, input.tex); 
+    float4 outputColor = float4(0.f, 0.f, 0.f, colors.a); 
 
-	lightDir = -lightDirection; 
+    for (int i = 0; i < NUM_LIGHTS; i++)
+    {
+        float lightIntensity = saturate(abs(dot(normals.xyz, input.lightPos[i])));
+        outputColor += diffuseColor[i] * lightIntensity * colors;
+    }
 
-	lightIntensity = saturate(dot(normals.xyz, lightDir));
+    outputColor = saturate(outputColor);
 
-	outputColor = saturate(colors  * lightIntensity);
-	
-	return outputColor;
+    return outputColor;
 }
