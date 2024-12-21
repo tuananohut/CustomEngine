@@ -11,7 +11,7 @@
 #include "deferredshader.h"
 #include "lightshader.h"
 
-const bool FULL_SCREEN = true;
+const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_NEAR = 0.3;
 const float SCREEN_DEPTH = 1000.0f;
@@ -43,6 +43,7 @@ private:
 	DeferredBuffers* m_DeferredBuffers; 
 	DeferredShader* m_DeferredShader; 
 	LightShader* m_LightShader;
+	int m_numLights = 4;
 };
 
 #endif

@@ -27,7 +27,7 @@ public:
 	XMFLOAT3 GetDirection();
 	XMFLOAT4 GetSpecularColor();
 	float GetSpecularPower();
-	XMFLOAT3 GetPosition();
+	XMFLOAT4 GetPosition();
 
 	void GenerateViewMatrix();
 	void GenerateProjectionMatrix(float, float);
@@ -44,7 +44,7 @@ private:
 	XMFLOAT3 m_direction;
 	XMFLOAT4 m_specularColor;
 	float m_specularPower;
-	XMFLOAT3 m_position;
+	XMFLOAT4 m_position;
 	XMFLOAT3 m_lookAt;
 	XMMATRIX m_viewMatrix;
 	XMMATRIX m_projectionMatrix;
