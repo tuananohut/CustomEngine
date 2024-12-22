@@ -1,4 +1,4 @@
-#define NUM_LIGHTS 4
+#define NUM_LIGHTS 30
 
 cbuffer MatrixBuffer
 {	
