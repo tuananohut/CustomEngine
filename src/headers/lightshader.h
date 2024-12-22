@@ -9,7 +9,7 @@
 using namespace DirectX;
 using namespace std;
 
-const int NUM_LIGHTS = 4;
+const int NUM_LIGHTS = 30;
 
 class LightShader
 {
