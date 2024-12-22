@@ -52,7 +52,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         float randomY = dist(gen); 
         float randomZ = dist(gen); 
 
-        m_Light[i].SetPosition(randomX * 10.0f - 5.0f, randomY * 10.0f - 5.0f, randomZ * 10.0f - 5.0f); 
+        // m_Light[i].SetPosition(randomX * 10.f - 5.f, randomY * 10.f - 5.f, randomZ * 10.f - 5.f);
+        m_Light[i].SetPosition(0.f, 0.f, 0.5f);
         m_Light[i].SetDiffuseColor(randomX, randomY, randomZ, 1.0f); 
     }
 
@@ -207,7 +208,9 @@ bool Application::RenderSceneToTexture(float rotation)
     m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
     worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixRotationX(rotation));
-    
+    //  = XMMatrixRotationY(rotation);
+   //  worldMatrix = XMMatrixRotationY(rotation);
+
     m_Model->Render(m_Direct3D->GetDeviceContext());
     result = m_DeferredShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture());
     if (!result)
@@ -224,7 +227,8 @@ bool Application::RenderSceneToTexture(float rotation)
 bool Application::Render(float rotation)
 {
     XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
-    XMFLOAT4 diffuseColor[4], lightPosition[4];
+    const int numLights = 100;
+    XMFLOAT4 diffuseColor[numLights], lightPosition[numLights];
     bool result;
     int i = 0;
 
@@ -237,7 +241,6 @@ bool Application::Render(float rotation)
     for (i = 0; i < m_numLights; i++)
     {
         diffuseColor[i] = m_Light[i].GetDiffuseColor();
-
         lightPosition[i] = m_Light[i].GetPosition();
     }
 
@@ -248,6 +251,7 @@ bool Application::Render(float rotation)
     if (!result)
     {
         return false;
+
     }
 
     m_Direct3D->TurnZBufferOn();
