@@ -22,8 +22,8 @@ struct PixelInputType
 float4 NormalMapPixelShader(PixelInputType input): SV_TARGET
 {
 	float4 textureColor;
-	float4 bumpMap;
-	float3 bumpNormal;
+	float4 bumpMap 
+	float3 bumpNormal 
 	float3 lightDir;
 	float lightIntensity;
 	float4 color;
@@ -84,7 +84,7 @@ float4 NormalMapPixelShader(PixelInputType input): SV_TARGET
 
 	lightDir = -lightDirection;
 	
-	lightIntensity = saturate(dot(bumpNormal, lightDir));
+	lightIntensity = saturate(dot(bumpMap, lightDir));
 
 	color = saturate(diffuseColor * lightIntensity);
 
