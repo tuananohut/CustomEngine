@@ -50,10 +50,18 @@ struct PixelOutputType
 PixelOutputType DeferredPixelShader(PixelInputType input): SV_TARGET
 {
 	PixelOutputType output;
+	float4 bumpMap;
+	float3 bumpNormal;
 
-	output.color = shaderTexture.Sample(SampleTypeWrap, input.tex); 
+	output.color = shaderTexture.Sample(SampleTypeWrap, input.tex);
+	bumpMap = shaderTexture2.Sample(SampleTypeWrap, input.tex);
 
-	output.normal = float4(input.normal, 1.f);
+	bumpMap = (bumpMap * 2.0f) - 1.0f;
 
-	return output; 
+	bumpNormal = (bumpMap.x * input.tangent) + (bumpMap.y * input.binormal) + (bumpMap.z * input.normal);
+	bumpNormal = normalize(bumpNormal);
+
+	output.normal = float4(bumpNormal, 1.f); 
+	
+	return output;	
 }
