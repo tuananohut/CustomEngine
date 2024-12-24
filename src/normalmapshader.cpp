@@ -76,7 +76,7 @@ bool NormalMapShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 	ID3D10Blob* errorMessage;
 	ID3D10Blob* vertexShaderBuffer;
 	ID3D10Blob* pixelShaderBuffer;
-	D3D11_INPUT_ELEMENT_DESC polygonLayout[5];
+	D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
 	unsigned int numElements;
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
@@ -154,22 +154,6 @@ bool NormalMapShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 	polygonLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 	polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[2].InstanceDataStepRate = 0;
-
-	polygonLayout[3].SemanticName = "TANGENT";
-	polygonLayout[3].SemanticIndex = 0;
-	polygonLayout[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	polygonLayout[3].InputSlot = 0;
-	polygonLayout[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[3].InstanceDataStepRate = 0;
-
-	polygonLayout[4].SemanticName = "BINORMAL";
-	polygonLayout[4].SemanticIndex = 0;
-	polygonLayout[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	polygonLayout[4].InputSlot = 0;
-	polygonLayout[4].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[4].InstanceDataStepRate = 0;
 
 	numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
