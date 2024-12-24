@@ -9,9 +9,10 @@
 #include "orthowindow.h"
 #include "deferredbuffers.h"
 #include "deferredshader.h"
-#include "lightshader.h"
+// #include "lightshader.h"
+#include "normalmapshader.h"
 
-const bool FULL_SCREEN = true;
+const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_NEAR = 0.3;
 const float SCREEN_DEPTH = 1000.0f;
@@ -29,7 +30,7 @@ public:
 
 private:
 	bool RenderSceneToTexture(float);
-	bool Render(float);	
+	bool Render(float);
 	// bool UpdateMouseStrings(int, int, bool);
 	// bool TestIntersection(int, int);
 	// bool RaySphereIntersect(XMFLOAT3, XMFLOAT3, float);
@@ -39,11 +40,10 @@ private:
 	Camera* m_Camera;
 	Light* m_Light;
 	Model* m_Model;
-	OrthoWindow* m_FullScreenWindow; 
-	DeferredBuffers* m_DeferredBuffers; 
-	DeferredShader* m_DeferredShader; 
-	LightShader* m_LightShader;
-	const int m_numLights = 30;
+	OrthoWindow* m_FullScreenWindow;
+	DeferredBuffers* m_DeferredBuffers;
+	DeferredShader* m_DeferredShader;
+	NormalMapShader* m_NormalMapShader;
 };
 
 #endif
