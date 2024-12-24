@@ -1,11 +1,5 @@
 #include "headers/application.h"
 
-#include <random>
-
-std::random_device rd;
-std::mt19937 gen(rd());
-std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-
 Application::Application()
 {
     m_Direct3D = nullptr;
@@ -15,7 +9,7 @@ Application::Application()
     m_FullScreenWindow = nullptr;
     m_DeferredBuffers = nullptr;
     m_DeferredShader = nullptr;
-    m_LightShader = nullptr;
+    m_NormalMapShader = nullptr;
 }
 
 Application::Application(const Application& other) {}
@@ -26,8 +20,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
     char modelFilename[128];
     char textureFilename[128];
+    char textureFilename2[128];
     bool result;
-    int i = 0;
 
     m_Direct3D = new D3D;
 
@@ -44,24 +38,20 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     m_Camera->Render();
     m_Camera->RenderBaseViewMatrix();
 
-    m_Light = new Light[m_numLights];
-
-    for (int i = 0; i < m_numLights; i++)
+    m_NormalMapShader = new NormalMapShader;
+    result = m_NormalMapShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    if (!result)
     {
-        float randomX = dist(gen); 
-        float randomY = dist(gen); 
-        float randomZ = dist(gen); 
-
-        // m_Light[i].SetPosition(randomX * 10.f - 5.f, randomY * 10.f - 5.f, randomZ * 10.f - 5.f);
-        m_Light[i].SetPosition(0.f, 0.f, 0.5f);
-        m_Light[i].SetDiffuseColor(randomX, randomY, randomZ, 1.0f); 
+        MessageBox(hwnd, L"Could not initialize the normal map shader object.", L"Error", MB_OK);
+        return false;
     }
 
     strcpy_s(modelFilename, "assets/models/cube.txt");
     strcpy_s(textureFilename, "assets/textures/stone01.tga");
+    strcpy_s(textureFilename2, "assets/textures/normal01.tga");
 
     m_Model = new Model;
-    result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename);
+    result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename2);
     if (!result)
     {
         MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK | MB_ICONERROR);
@@ -92,24 +82,21 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
-    m_LightShader = new LightShader;
-    m_LightShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK | MB_ICONERROR);
-        return false;
-    }
+    m_Light = new Light;
+
+    m_Light->SetDiffuseColor(1.f, 1.f, 1.f, 1.f);
+    m_Light->SetDirection(0.f, 0.f, 0.f);
 
     return true;
 }
 
 void Application::Shutdown()
 {
-    if (m_LightShader)
+    if (m_NormalMapShader)
     {
-        m_LightShader->Shutdown();
-        delete m_LightShader;
-        m_LightShader = nullptr;
+        m_NormalMapShader->Shutdown();
+        delete m_NormalMapShader;
+        m_NormalMapShader = nullptr;
     }
 
     if (m_DeferredShader)
@@ -212,7 +199,7 @@ bool Application::RenderSceneToTexture(float rotation)
    //  worldMatrix = XMMatrixRotationY(rotation);
 
     m_Model->Render(m_Direct3D->GetDeviceContext());
-    result = m_DeferredShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture());
+    result = m_DeferredShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), m_Model->GetTexture(1));
     if (!result)
     {
         return false;
@@ -238,16 +225,10 @@ bool Application::Render(float rotation)
     m_Camera->GetBaseViewMatrix(baseViewMatrix);
     m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
-    for (i = 0; i < m_numLights; i++)
-    {
-        diffuseColor[i] = m_Light[i].GetDiffuseColor();
-        lightPosition[i] = m_Light[i].GetPosition();
-    }
-
     m_Direct3D->TurnZBufferOff(); 
 
     m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
-    result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_DeferredBuffers->GetShaderResourceView(0), m_DeferredBuffers->GetShaderResourceView(1), diffuseColor, lightPosition);
+    result = m_NormalMapShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_DeferredBuffers->GetShaderResourceView(0), m_DeferredBuffers->GetShaderResourceView(1), XMFLOAT3(0.f, 1.f, 1.f), XMFLOAT4(1.f, 1.f, 1.f, 1.f));;
     if (!result)
     {
         return false;

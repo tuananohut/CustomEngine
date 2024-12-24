@@ -12,7 +12,7 @@ Model::Model(const Model& other) {}
 
 Model::~Model() {}
 
-bool Model::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* modelFilename, char* textureFilename)
+bool Model::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* modelFilename, char* textureFilename, char* textureFilename2)
 {
 	bool result;
 
@@ -28,7 +28,7 @@ bool Model::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext,
 		return false;
 	}
 
-	result = LoadTextures(device, deviceContext, textureFilename);
+	result = LoadTextures(device, deviceContext, textureFilename, textureFilename2);
 	if (!result)
 	{
 		return false;
@@ -57,9 +57,9 @@ int Model::GetIndexCount()
 	return m_indexCount;
 }
 
-ID3D11ShaderResourceView* Model::GetTexture()
+ID3D11ShaderResourceView* Model::GetTexture(int count)
 {
-	return m_Textures->GetTexture();
+	return m_Textures[count].GetTexture();
 }
 
 bool Model::InitializeBuffers(ID3D11Device* device)
@@ -80,6 +80,8 @@ bool Model::InitializeBuffers(ID3D11Device* device)
 		vertices[i].position = XMFLOAT3(m_model[i].x, m_model[i].y, m_model[i].z);
 		vertices[i].texture = XMFLOAT2(m_model[i].tu, m_model[i].tv);
 		vertices[i].normal = XMFLOAT3(m_model[i].nx, m_model[i].ny, m_model[i].nz);
+		vertices[i].tangent = XMFLOAT3(m_model[i].tx, m_model[i].ty, m_model[i].tz);
+		vertices[i].binormal = XMFLOAT3(m_model[i].bx, m_model[i].by, m_model[i].bz);
 
 		indices[i] = i;
 	}
@@ -158,13 +160,20 @@ void Model::RenderBuffers(ID3D11DeviceContext* deviceContext)
 }
 
 
-bool Model::LoadTextures(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* textureFilename)
+bool Model::LoadTextures(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* textureFilename, char* textureFilename2)
 {
 	bool result;
 
-	m_Textures = new Texture;
+	m_Textures = new Texture[2];
 
-	result = m_Textures->Initialize(device, deviceContext, textureFilename);
+	result = m_Textures[0].Initialize(device, deviceContext, textureFilename);
+	if (!result)
+	{
+		return false;
+	}
+
+
+	result = m_Textures[1].Initialize(device, deviceContext, textureFilename2);
 	if (!result)
 	{
 		return false;
@@ -177,8 +186,10 @@ void Model::ReleaseTextures()
 {
 	if(m_Textures)
 	{
-		m_Textures->Shutdown();
-		delete m_Textures;
+		m_Textures[0].Shutdown();
+		m_Textures[1].Shutdown();
+
+		delete[] m_Textures;
 		m_Textures = nullptr;
 	}
 }
@@ -233,11 +244,10 @@ void Model::ReleaseModel()
 	if(m_model)
 	{
 		delete m_model;
-		m_model = NULL;
+		m_model = nullptr;
 	}
 }
 
-/*
 void Model::CalculateModelVectors()
 {
 	int faceCount, i, index;
@@ -339,4 +349,3 @@ void Model::CalculateTangentBinormal(TempVertexType vertex1, TempVertexType vert
 	binormal.y = binormal.y / length;
 	binormal.z = binormal.z / length;
 }
-*/
