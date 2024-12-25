@@ -245,7 +245,7 @@ void Model::ReleaseModel()
 {
 	if(m_model)
 	{
-		delete m_model;
+		delete[] m_model;
 		m_model = nullptr;
 	}
 }
