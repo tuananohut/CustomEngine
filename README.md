@@ -69,7 +69,7 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [ ] Tutorial 47: Picking
 - [x] Tutorial 48: Instancing
 - [x] Tutorial 49: Hardware Tessellation
-- [ ] Tutorial 50: Deferred Shading
+- [x] Tutorial 50: Deferred Shading
 - [ ] ... 
 - [x] Tutorial 55: Direct Sound
 - [x] Tutorial 56: 3D Sound
