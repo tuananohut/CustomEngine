@@ -51,11 +51,12 @@ bool DeferredShader::Render(ID3D11DeviceContext* deviceContext,
 							XMMATRIX worldMatrix, 
 							XMMATRIX viewMatrix,
 							XMMATRIX projectionMatrix, 
-							ID3D11ShaderResourceView* texture)
+							ID3D11ShaderResourceView* texture,
+							ID3D11ShaderResourceView* normalMap)
 {
 	bool result;
 
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture);
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, normalMap);
 	if (!result)
 	{
 		return false;
@@ -271,8 +272,7 @@ void DeferredShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwn
 	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
 }
 
-bool DeferredShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix,
-	XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
+bool DeferredShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -302,6 +302,7 @@ bool DeferredShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMM
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
 	deviceContext->PSSetShaderResources(0, 1, &texture);
+	deviceContext->PSSetShaderResources(1, 1, &normalMap);
 
 	return true;
 }
