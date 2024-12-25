@@ -62,9 +62,9 @@ struct VertexInputType
 {
 	float4 position: POSITION;
 	float2 tex: TEXCOORD0;
-	float3 normal: NORMAL;
-	float3 tangent: TANGENT;
-	float3 binormal: BINORMAL;
+	// float3 normal: NORMAL;
+	// float3 tangent: TANGENT;
+	// float3 binormal: BINORMAL;
 };
 
 struct PixelInputType
@@ -88,9 +88,9 @@ PixelInputType NormalMapVertexShader(VertexInputType input)
 
 	output.tex = input.tex;
 
-	output.normal = input.normal;
-	output.tangent = input.tangent;
-	output.binormal = input.binormal;
+	// output.normal = input.normal;
+	// output.tangent = input.tangent;
+	// output.binormal = input.binormal;
 
 	return output;
 }
