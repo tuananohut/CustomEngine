@@ -22,6 +22,8 @@ bool Model::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext,
 		return false;
 	}
 
+	CalculateModelVectors();
+
 	result = InitializeBuffers(device);
 	if (!result)
 	{
