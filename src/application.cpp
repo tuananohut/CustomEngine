@@ -34,7 +34,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_Camera = new Camera;
 
-    m_Camera->SetPosition(0.f, 0.f, -10.f);
+    m_Camera->SetPosition(0.f, 0.f, -5.f);
     m_Camera->Render();
     m_Camera->RenderBaseViewMatrix();
 
@@ -47,8 +47,8 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     }
 
     strcpy_s(modelFilename, "assets/models/cube.txt");
-    strcpy_s(textureFilename, "assets/textures/stone01.tga");
-    strcpy_s(textureFilename2, "assets/textures/normal01.tga");
+    strcpy_s(textureFilename, "assets/textures/dirt02.tga");
+    strcpy_s(textureFilename2, "assets/textures/normal04.tga");
 
     m_Model = new Model;
     result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename2);
@@ -129,7 +129,7 @@ void Application::Shutdown()
 
     if (m_Light)
     {
-        delete[] m_Light;
+        delete m_Light;
         m_Light = nullptr;
     }
 
@@ -195,6 +195,7 @@ bool Application::RenderSceneToTexture(float rotation)
     m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
     worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixRotationX(rotation));
+    // worldMatrix = XMMatrixMultiply(worldMatrix, XMMatrixScaling(2.f, 2.f, 2.f));
     //  = XMMatrixRotationY(rotation);
    //  worldMatrix = XMMatrixRotationY(rotation);
 
@@ -228,7 +229,7 @@ bool Application::Render(float rotation)
     m_Direct3D->TurnZBufferOff(); 
 
     m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
-    result = m_NormalMapShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_DeferredBuffers->GetShaderResourceView(0), m_DeferredBuffers->GetShaderResourceView(1), XMFLOAT3(0.f, 1.f, 1.f), XMFLOAT4(1.f, 1.f, 1.f, 1.f));;
+    result = m_NormalMapShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_DeferredBuffers->GetShaderResourceView(0), m_DeferredBuffers->GetShaderResourceView(1), XMFLOAT3(0.f, 0.f, 1.f), XMFLOAT4(1.f, 1.f, 1.f, 1.f));;
     if (!result)
     {
         return false;
