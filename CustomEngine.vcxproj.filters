@@ -239,9 +239,6 @@
     <ClCompile Include="src\timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\multitextureshader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\lightmapshader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -326,9 +323,6 @@
     <ClCompile Include="src\orthowindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\blur.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\fadeshader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -372,6 +366,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\deferredshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\blur.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\multitextureshader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -450,6 +450,8 @@
     <None Include="src\shaders\color.ds" />
     <None Include="src\shaders\deferred.vs" />
     <None Include="src\shaders\deferred.ps" />
+    <None Include="src\shaders\gbuffer.vs" />
+    <None Include="src\shaders\gbuffer.ps" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\assets\models\cube.txt" />
