@@ -70,6 +70,7 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [x] Tutorial 48: Instancing
 - [x] Tutorial 49: Hardware Tessellation
 - [x] Tutorial 50: Deferred Shading
+- [ ] Tutorial 51: Screen Space Ambient Occlusion
 - [ ] ... 
 - [x] Tutorial 55: Direct Sound
 - [x] Tutorial 56: 3D Sound
