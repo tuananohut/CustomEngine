@@ -21,64 +21,33 @@ DeferredBuffers::~DeferredBuffers() {}
 
 bool DeferredBuffers::Initialize(ID3D11Device* device, int textureWidth, int textureHeight, float screenDepth, float screenNear)
 {
-	D3D11_TEXTURE2D_DESC textureDesc;
 	HRESULT result;
-	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
-	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
 	D3D11_TEXTURE2D_DESC depthBufferDesc;
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-	int i = 0;
+	bool result2;
 
 	m_textureWidth = textureWidth;
 	m_textureHeight = textureHeight;
 
-	ZeroMemory(&textureDesc, sizeof(textureDesc));
-
-	textureDesc.Width = textureWidth;
-	textureDesc.Height = textureHeight;
-	textureDesc.MipLevels = 1;
-	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	textureDesc.SampleDesc.Count = 1;
-	textureDesc.Usage = D3D11_USAGE_DEFAULT;
-	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	textureDesc.CPUAccessFlags = 0;
-	textureDesc.MiscFlags = 0;
-
-	for (i = 0; i < BUFFER_COUNT; i++)
+	// Positions
+	result2 = BuildRenderTexture(DXGI_FORMAT_R32G32B32A32_FLOAT, 0, device);
+	if (!result2)
 	{
-		result = device->CreateTexture2D(&textureDesc, NULL, &m_renderTargetTextureArray[i]);
-		if (FAILED(result))
-		{
-			return false;
-		}
+		return false;
 	}
 
-	renderTargetViewDesc.Format = textureDesc.Format;
-	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-	renderTargetViewDesc.Texture2D.MipSlice = 0;
-
-	for (i = 0; i < BUFFER_COUNT; i++)
+	// Normals
+	result2 = BuildRenderTexture(DXGI_FORMAT_R32G32B32A32_FLOAT, 1, device); 
+	if (!result2)
 	{
-		result = device->CreateRenderTargetView(m_renderTargetTextureArray[i], &renderTargetViewDesc, &m_renderTargetViewArray[i]);
-		if (FAILED(result))
-		{
-			return false;
-		}
+		return false;
 	}
 
-	shaderResourceViewDesc.Format = textureDesc.Format;
-	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-	shaderResourceViewDesc.Texture2D.MipLevels = 1;
-
-	for (i = 0; i < BUFFER_COUNT; i++)
+	// Colors
+	result2 = BuildRenderTexture(DXGI_FORMAT_R8G8B8A8_UNORM, 2, device);
+	if (!result2)
 	{
-		result = device->CreateShaderResourceView(m_renderTargetTextureArray[i], &shaderResourceViewDesc, &m_shaderResourceViewArray[i]);
-		if (FAILED(result))
-		{
-			return false;
-		}
+		return false;
 	}
 
 	ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
@@ -119,6 +88,10 @@ bool DeferredBuffers::Initialize(ID3D11Device* device, int textureWidth, int tex
 	m_viewport.MaxDepth = 1.f;
 	m_viewport.TopLeftX = 0.f; 
 	m_viewport.TopLeftY = 0.f; 
+
+	m_projectionMatrix = XMMatrixPerspectiveFovLH((3.141592654f / 4.0f), ((float)textureWidth / (float)textureHeight), screenNear, screenDepth);
+
+	m_orthoMatrix = XMMatrixOrthographicLH((float)textureWidth, (float)textureHeight, screenNear, screenDepth);
 
 	return true;
 }
@@ -186,7 +159,87 @@ void DeferredBuffers::ClearRenderTargets(ID3D11DeviceContext* deviceContext, flo
 	deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.f, 0);
 }
 
-ID3D11ShaderResourceView* DeferredBuffers::GetShaderResourceView(int view)
+bool DeferredBuffers::BuildRenderTexture(DXGI_FORMAT rtFormat, int arraySlot, ID3D11Device* device)
 {
-	return m_shaderResourceViewArray[view];
+	HRESULT result; 
+	D3D11_TEXTURE2D_DESC textureDesc; 
+	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc; 
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc; 
+
+	ZeroMemory(&textureDesc, sizeof(textureDesc));
+
+	textureDesc.Width = m_textureWidth; 
+	textureDesc.Height = m_textureHeight; 
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1; 
+	textureDesc.Format = rtFormat;
+	textureDesc.SampleDesc.Count = 1; 
+	textureDesc.Usage = D3D11_USAGE_DEFAULT; 
+	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	textureDesc.CPUAccessFlags = 0; 
+	textureDesc.MiscFlags = 0;
+
+	result = device->CreateTexture2D(&textureDesc, NULL, &m_renderTargetTextureArray[arraySlot]);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	renderTargetViewDesc.Format = textureDesc.Format;
+	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D; 
+	renderTargetViewDesc.Texture2D.MipSlice = 0;
+
+	result = device->CreateRenderTargetView(m_renderTargetTextureArray[arraySlot], &renderTargetViewDesc, &m_renderTargetViewArray[arraySlot]);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	shaderResourceViewDesc.Format = textureDesc.Format; 
+	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+	shaderResourceViewDesc.Texture2D.MipLevels = 1;
+
+	result = device->CreateShaderResourceView(m_renderTargetTextureArray[arraySlot], &shaderResourceViewDesc, &m_shaderResourceViewArray[arraySlot]);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void DeferredBuffers::GetProjectionMatrix(XMMATRIX& projectionMatrix) 
+{
+	projectionMatrix = m_projectionMatrix;
+}
+
+void DeferredBuffers::GetOrthoMatrix(XMMATRIX& orthoMatrix)
+{
+	orthoMatrix = m_orthoMatrix;
+}
+
+int DeferredBuffers::GetTextureWidth()
+{
+	return m_textureWidth;
+}
+
+int DeferredBuffers::GetTextureHeight()
+{
+	return m_textureHeight;
+}
+
+ID3D11ShaderResourceView* DeferredBuffers::GetShaderResourcePositions()
+{
+	return m_shaderResourceViewArray[0];
+}
+
+ID3D11ShaderResourceView* DeferredBuffers::GetShaderResourceNormals()
+{
+	return m_shaderResourceViewArray[1];
+}
+
+ID3D11ShaderResourceView* DeferredBuffers::GetShaderResourceColors()
+{
+	return m_shaderResourceViewArray[2];
 }
