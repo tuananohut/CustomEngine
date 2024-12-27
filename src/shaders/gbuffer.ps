@@ -1,0 +1,32 @@
+SamplerState SampleTypeClamp: register(s0);
+Texture2D shaderTexture: register(t0);
+
+struct PixelInputType
+{
+	float4 position: SV_POSITION;
+	float2 tex: TEXCOORD0;
+	float4 viewPosition: POSITION; 
+	float3 normal: NORMAL; 
+};
+
+struct PixelOutputType
+{
+	float4 position: SV_Target0;
+	float4 normal: SV_Target1;
+	float4 color: SV_Target2;
+};
+
+PixelOutputType GBufferPixelShader(PixelInputType input): SV_TARGET
+{
+	PixelOutputType output;
+
+	output.position = float4(input.viewPosition.x, input.viewPosition.y, input.viewPosition.z, 1.f);
+	
+	input.normal = normalize(input.normal);
+
+	output.normal = float4(input.normal.x, input.normal.y, input.normal.z, 1.f);
+	
+	output.color = shaderTexture.Sample(SampleTypeClamp, input.tex);
+
+	return output;
+}
