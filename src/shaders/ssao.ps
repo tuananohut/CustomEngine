@@ -1,0 +1,102 @@
+cbuffer SSAOBuffer
+{
+	float screenWidth;
+	float screenHeight;
+	float randomTextureSize;
+	float sampleRadius;
+	float ssaoScale;
+	float ssaoBias;
+	float ssaoIntensity;
+	float padding;
+};
+
+Texture2D positionTexture: register(t0);
+Texture2D normalTexture: register(t1);
+Texture2D randomTexture: register(t2);
+
+SamplerState SampleTypeWrap: register(s0);
+SamplerState SampleTypeClamp: register(s1);
+
+struct PixelInputType
+{
+	float4 position: SV_POSITION;
+	float2 tex: TEXCOORD0;
+};
+
+float AmbientOcclusionFunction(float2 texCoords, float2 uv, float3 position, float3 normal)
+{
+	float3 posVector;
+	float3 vec;
+	float distance;
+	float occlusion;
+
+	posVector = positionTexture.Sample(SampleTypeClamp, (texCoords + uv));
+
+	posVector = posVector - position;
+
+	vec = normalize(posVector);
+
+	distance = length(posVector) * ssaoScale;
+
+	occlusion = max(0., dot(normal, vec) - ssaoBias) * (1.f / (1.f + distance)) * ssaoIntensity;
+
+	return occlusion;
+}
+
+float SSAOPixelShader(PixelInputType input): SV_TARGET
+{
+	float3 position;
+	float3 normal;
+	float2 texCoords; 
+	float2 randomVector;
+	float2 vectorArray[4];
+	float ambientOcclusion;
+	float radius;
+	int count;
+	int i;
+	float2 texCoord1;
+	float2 texCoord2;
+
+	position = positionTexture.Sample(SampleTypeClamp, input.tex);
+	normal = normalTexture.Sample(SampleTypeClamp, input.tex);
+
+	normal = (normal * 2.f) - 1.f;
+	normal = normalize(normal);
+
+	texCoords.x = screenWidth / randomTextureSize;
+	texCoords.y = screenHeight / randomTextureSize;
+	texCoords = texCoords * input.tex;
+
+	randomVector = randomTexture.Sample(SampleTypeWrap, texCoords).xy;
+
+	randomVector = (randomVector * 2.f) - 1.f;
+	randomVector = normalize(randomVector);
+
+	vectorArray[0] = float2(1.f, 0.f);
+	vectorArray[1] = float2(-1.f, 0.f);
+	vectorArray[2] = float2(0.f, 1.f);
+	vectorArray[3] = float2(0.f, -1.f);
+
+	radius = sampleRadius / position.z;
+
+	count = 4;
+
+	ambientOcclusion = 0.f;
+
+	for (i = 0; i < count; i++)
+	{
+		texCoord1 = reflect(vectorArray[i], randomVector) * radius;
+		texCoord2 = float2(((texCoord11.x * 0.7f) - (texCoord1.y * 0.7f)), ((texCoord1.x * 0.7f) + (texCoord1.y * 0.7f)));
+
+		ambientOcclusion += AmbientOcclusionFunction(input.tex, (texCoord1 * 0.25f), position, normal);
+		ambientOcclusion += AmbientOcclusionFunction(input.tex, (texCoord1 * 0.50f), position, normal);
+		ambientOcclusion += AmbientOcclusionFunction(input.tex, (texCoord1 * 0.75f), position, normal);
+		ambientOcclusion += AmbientOcclusionFunction(input.tex, (texCoord1 * 1.00f), position, normal);
+	}
+	
+	ambientOcclusion = ambientOcclusion / ((float)count * 4.f);
+
+	ambientOcclusion = 1.f - ambientOcclusion;
+
+	return ambientOcclusion;
+}
