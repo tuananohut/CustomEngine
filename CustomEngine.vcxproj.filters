@@ -192,6 +192,12 @@
     <ClInclude Include="src\headers\deferredshader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\headers\gbuffershader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\ssaoshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -374,6 +380,12 @@
     <ClCompile Include="src\multitextureshader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\gbuffershader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssaoshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\color.vs" />
@@ -452,6 +464,8 @@
     <None Include="src\shaders\deferred.ps" />
     <None Include="src\shaders\gbuffer.vs" />
     <None Include="src\shaders\gbuffer.ps" />
+    <None Include="src\shaders\ssao.vs" />
+    <None Include="src\shaders\ssao.ps" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\assets\models\cube.txt" />
