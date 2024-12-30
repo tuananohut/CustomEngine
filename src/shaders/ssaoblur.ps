@@ -1,0 +1,80 @@
+cbuffer ScreenBuffer
+{
+	float screenWidth;
+	float screenHeight;
+	float blurType;
+	float padding;
+};
+
+SamplerState SampleTypePoint: register(s0);
+Texture2D ssaoTexture: register(t0);
+Texture2D normalDepthTexture: register(t1);
+
+struct PixelInputType
+{
+	float4 position: SV_POSITION;
+	float2 tex: TEXCOORD0;
+};
+
+float SSAOBlurPixelShader(PixelInputType input): SV_TARGET
+{
+	float texelSize;
+	float2 texOffset;
+	int radius;
+	float colorSum;
+	float weightSum;
+	float4 centerDepth;
+	int i;
+	float2 tex;
+	float4 neighborDepth;
+	float ssaoValue;
+	float weight;
+
+	if (blurType < 0.1f)
+	{
+		texelSize = 1.f / screenWidth;
+		texOffset = float2(texelSize, 0.f);
+	}
+
+	else
+	{
+		texelSize = 1.f / screenHeight;
+		texOffset = float2(0.f, texelSize);
+	}
+
+	radius = 5;
+
+	float weightArray[11] = { 0.05f, 0.05f, 0.1f, 0.1f, 0.1f, 0.2f, 0.1f, 0.1f, 0.1f, 0.05f, 0.05f };
+
+	colorSum = weightArray[radius] * ssaoTexture.SampleLevel(SampleTypePoint, input.tex, 0).r;
+	weightSum = weightArray[radius];
+
+	centerDepth = normalDepthTexture.SampleLevel(SampleTypePoint, input.tex, 0);
+
+	for (i = -radius; i <= radius; i++)
+	{
+		if (i == 0)
+		{
+			continue;
+		}
+
+		tex = input.tex + (i * texOffset);
+
+		neighborDepth = normalDepthTexture.SampleLevel(SampleTypePoint, tex, 0);
+
+		if (dot(neighborDepth.xyz, centerDepth.xyz) >= 0.8f)
+		{
+			ssaoValue = ssaoTexture.SampleLevel(SampleTypePoint, tex, 0).r;
+
+			weight = weightArray[i + radius];
+
+			colorSum += (ssaoValue * weight);
+
+			weightSum += weight;
+		}
+	}
+
+	colorSum = colorSum / weightSum;
+
+	return colorSum;
+}
