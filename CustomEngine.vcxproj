@@ -180,6 +180,7 @@
     <ClInclude Include="src\headers\sound3d.h" />
     <ClInclude Include="src\headers\specmapshader.h" />
     <ClInclude Include="src\headers\sprite.h" />
+    <ClInclude Include="src\headers\ssaoblurshader.h" />
     <ClInclude Include="src\headers\ssaoshader.h" />
     <ClInclude Include="src\headers\system.h" />
     <ClInclude Include="src\headers\text.h" />
@@ -244,6 +245,7 @@
     <ClCompile Include="src\deferredshader.cpp" />
     <ClCompile Include="src\specmapshader.cpp" />
     <ClCompile Include="src\sprite.cpp" />
+    <ClCompile Include="src\ssaoblurshader.cpp" />
     <ClCompile Include="src\ssaoshader.cpp" />
     <ClCompile Include="src\text.cpp" />
     <ClCompile Include="src\texture.cpp" />
@@ -316,6 +318,8 @@
     <None Include="src\shaders\specmap.vs" />
     <None Include="src\shaders\ssao.ps" />
     <None Include="src\shaders\ssao.vs" />
+    <None Include="src\shaders\ssaoblur.ps" />
+    <None Include="src\shaders\ssaoblur.vs" />
     <None Include="src\shaders\texture.ps" />
     <None Include="src\shaders\texture.vs" />
     <None Include="src\shaders\translate.ps" />

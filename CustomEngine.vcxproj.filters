@@ -198,6 +198,9 @@
     <ClInclude Include="src\headers\ssaoshader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\headers\ssaoblurshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -386,6 +389,9 @@
     <ClCompile Include="src\ssaoshader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ssaoblurshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\color.vs" />
@@ -466,6 +472,8 @@
     <None Include="src\shaders\gbuffer.ps" />
     <None Include="src\shaders\ssao.vs" />
     <None Include="src\shaders\ssao.ps" />
+    <None Include="src\shaders\ssaoblur.vs" />
+    <None Include="src\shaders\ssaoblur.ps" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\assets\models\cube.txt" />
