@@ -6,11 +6,15 @@
 #include "camera.h"
 #include "light.h"
 #include "model.h"
-#include "orthowindow.h"
 #include "deferredbuffers.h"
-#include "deferredshader.h"
-// #include "lightshader.h"
-#include "normalmapshader.h"
+#include "gbuffershader.h"
+#include "rendertexture.h"
+#include "orthowindow.h"
+#include "ssaoshader.h"
+#include "ssaoblurshader.h"
+#include "lightshader.h"
+// #include "deferredshader.h"
+// #include "normalmapshader.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -29,8 +33,11 @@ public:
 	bool Frame(Input*);
 
 private:
-	bool RenderSceneToTexture(float);
+	bool RenderGBuffer();
+	bool RenderSSAO();
+	bool BlurSSAOTexture();
 	bool Render(float);
+	// bool RenderSceneToTexture(float);
 	// bool UpdateMouseStrings(int, int, bool);
 	// bool TestIntersection(int, int);
 	// bool RaySphereIntersect(XMFLOAT3, XMFLOAT3, float);
@@ -39,11 +46,17 @@ private:
 	D3D* m_Direct3D;
 	Camera* m_Camera;
 	Light* m_Light;
-	Model* m_Model;
-	OrthoWindow* m_FullScreenWindow;
+	Model* m_SphereModel, *m_GroundModel;
 	DeferredBuffers* m_DeferredBuffers;
-	DeferredShader* m_DeferredShader;
-	NormalMapShader* m_NormalMapShader;
+	GBufferShader* m_GBufferShader;
+	RenderTexture* m_SSAORenderTexture;
+	OrthoWindow* m_FullScreenWindow;
+	SSAOShader* m_SSAOShader;
+	Texture* m_RandomTexture;
+	RenderTexture* m_BlurSSAORenderTexture;
+	SSAOBlurShader* m_SSAOBlurShader;
+	LightShader* m_LightShader;
+	int m_screenWidth,m_screenHeight;
 };
 
 #endif
