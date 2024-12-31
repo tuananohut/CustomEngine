@@ -4,6 +4,7 @@ Application::Application()
 {
     m_Direct3D = nullptr;
     m_Camera = nullptr;
+    m_Light = nullptr;
     m_SphereModel = nullptr;
     m_GroundModel = nullptr;
     m_DeferredBuffers = nullptr;
@@ -14,7 +15,7 @@ Application::Application()
     m_RandomTexture = nullptr;
     m_BlurSSAORenderTexture = nullptr;
     m_SSAOBlurShader = nullptr;
-    m_Light = nullptr;
+    m_LightShader = nullptr;
 }
 
 Application::Application(const Application& other) {}
@@ -76,7 +77,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     }
 
     m_DeferredBuffers = new DeferredBuffers;
-    m_DeferredBuffers->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
+    result = m_DeferredBuffers->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
     if (!result)
     {
         MessageBox(hwnd, L"Could not initialize the deferred buffers object.", L"Error", MB_OK | MB_ICONERROR);
@@ -86,7 +87,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     m_GBufferShader = new GBufferShader;
     result = m_GBufferShader->Initialize(m_Direct3D->GetDevice(), hwnd);
     if (!result)
-    { 
+    {
         MessageBox(hwnd, L"Could not initialize the gbuffer shader object.", L"Error", MB_OK | MB_ICONERROR);
         return false;
     }
@@ -108,10 +109,10 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     }
 
     m_FullScreenWindow = new OrthoWindow;
-    m_FullScreenWindow->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight);
+    result = m_FullScreenWindow->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the full screen window object.", L"Error", MB_OK | MB_ICONERROR);
+        MessageBox(hwnd, L"Could not initialize the full screen ortho window object.", L"Error", MB_OK | MB_ICONERROR);
         return false;
     }
 
@@ -123,7 +124,7 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
-    strcpy_s(textureFilename, "assets/textures/random_vec.tga"); 
+    strcpy_s(textureFilename, "assets/textures/random_vec.tga");
     
     m_RandomTexture = new Texture;
     result = m_RandomTexture->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), textureFilename);
@@ -253,21 +254,12 @@ void Application::Shutdown()
 
 bool Application::Frame(Input* Input)
 {
-    char testString[32];
-    int mouseX, mouseY;
-    static float rotation = 0;
-    bool result, mouseDown;
-    static bool intersect;
+    bool result;
+    float rotation = 0.f;
 
     if (Input->IsEscapePressed() == true)
     {
         return false;
-    }
-
-    rotation -= 0.0174532925f * 0.25f;
-    if (rotation < 0.0f)
-    {
-        rotation += 360.0f;
     }
 
     result = RenderGBuffer();
@@ -342,7 +334,6 @@ bool Application::RenderSSAO()
     ssaoScale = 1.f;
     ssaoBias = 0.1f;
     ssaoIntensity = 2.f;
-
     randomTextureSize = 64.f;
 
     screenWidth = (float)m_screenWidth;
@@ -358,7 +349,7 @@ bool Application::RenderSSAO()
     m_Direct3D->TurnZBufferOff();
 
     m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
-    result = m_SSAOShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_DeferredBuffers->GetShaderResourcePositions(), m_DeferredBuffers->GetShaderResourceNormals(), m_RandomTexture->GetTexture(), screenWidth, screenHeight, randomTextureSize, sampleRadius, ssaoScale, ssaoBias, ssaoIntensity);
+    result = m_SSAOShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_DeferredBuffers->GetShaderResourcePositions(),m_DeferredBuffers->GetShaderResourceNormals(), m_RandomTexture->GetTexture(), screenWidth, screenHeight, randomTextureSize, sampleRadius, ssaoScale, ssaoBias, ssaoIntensity);
     if (!result)
     {
         return false;
@@ -371,6 +362,7 @@ bool Application::RenderSSAO()
 
     return true;
 }
+
 
 bool Application::BlurSSAOTexture()
 {
@@ -397,7 +389,7 @@ bool Application::BlurSSAOTexture()
     m_SSAORenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.f);
 
     m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
-    result = m_SSAOBlurShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_SSAORenderTexture->GetShaderResourceView(), m_DeferredBuffers->GetShaderResourceNormals(), m_screenWidth, m_screenHeight, 1);
+    result = m_SSAOBlurShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_BlurSSAORenderTexture->GetShaderResourceView(), m_DeferredBuffers->GetShaderResourceNormals(), m_screenWidth, m_screenHeight, 1);
     if (!result)
     {
         return false;
@@ -421,9 +413,9 @@ bool Application::Render(float rotation)
     m_Camera->GetBaseViewMatrix(baseViewMatrix);
     m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
-    m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.0f);
+    m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.f);
 
-    m_Direct3D->TurnZBufferOff(); 
+    m_Direct3D->TurnZBufferOff();
 
     m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
     result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Camera->GetPosition(), m_DeferredBuffers->GetShaderResourceNormals(), m_SSAORenderTexture->GetShaderResourceView(), viewMatrix, m_DeferredBuffers->GetShaderResourceColors());
@@ -438,6 +430,7 @@ bool Application::Render(float rotation)
 
     return true;
 }
+
 /*
 bool Application::TestIntersection(int mouseX, int mouseY)
 {
@@ -581,4 +574,3 @@ bool Application::RenderSceneToTexture(float rotation)
     return true;
 }
 */
-
