@@ -18,8 +18,8 @@ private:
 		XMFLOAT3 position;
 		XMFLOAT2 texture;
 		XMFLOAT3 normal;
-		XMFLOAT3 tangent;
-		XMFLOAT3 binormal;
+		// XMFLOAT3 tangent;
+		// XMFLOAT3 binormal;
 	};
 
 	/*
@@ -35,11 +35,11 @@ private:
 		float x, y, z;
 		float tu, tv;
 		float nx, ny, nz;
-		float tx, ty, tz;
-		float bx, by, bz;
+		// float tx, ty, tz;
+		// float bx, by, bz;
 	};
 
-	
+	/*
 	struct TempVertexType
 	{
 		float x, y, z;
@@ -51,7 +51,7 @@ private:
 	{
 		float x, y, z;
 	};
-	
+	*/
 
 public:
 	Model();
@@ -78,8 +78,8 @@ private:
 	bool LoadModel(char*);
 	void ReleaseModel();
 	
-	void CalculateModelVectors();
-	void CalculateTangentBinormal(TempVertexType, TempVertexType, TempVertexType, VectorType&, VectorType&);
+	// void CalculateModelVectors();
+	// void CalculateTangentBinormal(TempVertexType, TempVertexType, TempVertexType, VectorType&, VectorType&);
 
 private:
 	ID3D11Buffer* m_vertexBuffer;
