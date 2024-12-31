@@ -86,7 +86,7 @@ float SSAOPixelShader(PixelInputType input): SV_TARGET
 	for (i = 0; i < count; i++)
 	{
 		texCoord1 = reflect(vectorArray[i], randomVector) * radius;
-		texCoord2 = float2(((texCoord11.x * 0.7f) - (texCoord1.y * 0.7f)), ((texCoord1.x * 0.7f) + (texCoord1.y * 0.7f)));
+		texCoord2 = float2(((texCoord1.x * 0.7f) - (texCoord1.y * 0.7f)), ((texCoord1.x * 0.7f) + (texCoord1.y * 0.7f)));
 
 		ambientOcclusion += AmbientOcclusionFunction(input.tex, (texCoord1 * 0.25f), position, normal);
 		ambientOcclusion += AmbientOcclusionFunction(input.tex, (texCoord1 * 0.50f), position, normal);

@@ -1,51 +1,50 @@
-#define NUM_LIGHTS 30
-
 cbuffer MatrixBuffer
-{	
+{
 	matrix worldMatrix;
 	matrix viewMatrix;
 	matrix projectionMatrix;
 };
 
-cbuffer LightPositionBuffer
+cbuffer ViewBuffer
 {
-	float4 lightPosition[NUM_LIGHTS];
+	matrix cameraViewMatrix;
+};
+
+cbuffer LightBuffer
+{
+    float3 lightDirection;
+    float padding;
 };
 
 struct VertexInputType
 {
-	float4 position: POSITION;
-	float2 tex: TEXCOORD0;
+    float4 position : POSITION;
+    float2 tex : TEXCOORD0;
 };
 
 struct PixelInputType
 {
-	float4 position: SV_POSITION;
-	float2 tex: TEXCOORD0;
-	float3 lightPos[NUM_LIGHTS]: TEXCOORD1;
+    float4 position : SV_POSITION;
+    float2 tex : TEXCOORD0;
+    float3 lightDirection : TEXCOORD1;
 };
 
 PixelInputType LightVertexShader(VertexInputType input)
 {
-	PixelInputType output;
-	float4 worldPosition;
-	int i;
+    PixelInputType output;
+	float3 lightDir;
 
-	input.position.w = 1.0f;
+    input.position.w = 1.f;
 
-	output.position = mul(input.position, worldMatrix);
-	output.position = mul(output.position, viewMatrix);
-	output.position = mul(output.position, projectionMatrix);
+    output.position = mul(input.position, worldMatrix);
+    output.position = mul(output.position, viewMatrix);
+    output.position = mul(output.position, projectionMatrix);
+    
+    output.tex = input.tex;
 
-	output.tex = input.tex;
+    lightDir = -lightDirection;
 
-	worldPosition = mul(input.position, worldMatrix); 
-
-	for (i = 0; i < NUM_LIGHTS; i++)
-	{
-		output.lightPos[i] = lightPosition[i].xyz - worldPosition.xyz;
-		output.lightPos[i] = normalize(output.lightPos[i]);
-	}
+	output.lightDirection = mul(lightDir, (float3x3)cameraViewMatrix);
 
 	return output;
 }

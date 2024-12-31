@@ -1,40 +1,42 @@
-Texture2D colorTexture: register(t0); 
-Texture2D normalTexture: register(t1);
-SamplerState SampleTypePoint: register(s0);
-
-#define NUM_LIGHTS 30
-
-cbuffer LightColorBuffer
-{
-	float4 diffuseColor[NUM_LIGHTS];
-};
+SamplerState SampleTypePoint : register(s0);
+Texture2D normalsTexture : register(t0);
+Texture2D ssaoTexture : register(t1);
+Texture2D colorsTexture : register(t2);
 
 struct PixelInputType
 {
-	float4 position: SV_POSITION;
-	float2 tex: TEXCOORD0;
-	float3 lightPos[NUM_LIGHTS]: TEXCOORD1;
+    float4 position : SV_POSITION;
+    float2 tex : TEXCOORD0;
+    float3 lightDirection : TEXCOORD1;
 };
 
-float4 LightPixelShader(PixelInputType input): SV_TARGET
+float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
-    float3 lightDir;
-    float lightIntensity;
+	float4 textureColor;
+	float ambientOcclusion;
+	float4 ambientColor;
+	float4 color;
+	float3 normal;
+	float lightIntensity;
 
-    float4 colors = colorTexture.Sample(SampleTypePoint, input.tex);
-    float4 normals = normalTexture.Sample(SampleTypePoint, input.tex);
+	textureColor = colorsTexture.Sample(SampleTypePoint, input.tex);
 
-    float4 outputColor = float4(0.f, 0.f, 0.f, colors.a); 
+    ambientOcclusion = ssaoTexture.Sample(SampleTypePoint, input.tex).r;
+	ambientColor = float4(ambientOcclusion, ambientOcclusion, ambientOcclusion, 1.0f);
+	
+	color = 1.f - ambientColor;
 
-    for (int i = 0; i < NUM_LIGHTS; i++)
-    {
-        lightDir = normalize(input.lightPos[i] - input.position.xyz);
-        lightIntensity = saturate(abs(dot(normals.xyz, lightDir)));
-        outputColor += diffuseColor[i] * lightIntensity * colors;
-    }
+    normal = normalsTexture.Sample(SampleTypePoint, input.tex).xyz;
 
-    outputColor = saturate(outputColor);
+    lightIntensity = saturate(dot(normal, input.lightDirection));
+	if(lightIntensity > 0.f)
+	{
+		color += float4(1.f, 1.f, 1.f, 1.f) * lightIntensity;
+	}
 
-    return outputColor;
+    color = saturate(color);
+	
+	color = color * textureColor;
+
+    return color;
 }
-
