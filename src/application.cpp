@@ -4,12 +4,17 @@ Application::Application()
 {
     m_Direct3D = nullptr;
     m_Camera = nullptr;
-    m_Model = nullptr;
-    m_Light = nullptr;
-    m_FullScreenWindow = nullptr;
+    m_SphereModel = nullptr;
+    m_GroundModel = nullptr;
     m_DeferredBuffers = nullptr;
-    m_DeferredShader = nullptr;
-    m_NormalMapShader = nullptr;
+    m_GBufferShader = nullptr;
+    m_SSAORenderTexture = nullptr;
+    m_FullScreenWindow = nullptr;
+    m_SSAOShader = nullptr;
+    m_RandomTexture = nullptr;
+    m_BlurSSAORenderTexture = nullptr;
+    m_SSAOBlurShader = nullptr;
+    m_Light = nullptr;
 }
 
 Application::Application(const Application& other) {}
@@ -23,46 +28,50 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     char textureFilename2[128];
     bool result;
 
-    m_Direct3D = new D3D;
+    m_screenWidth = screenWidth;
+    m_screenHeight = screenHeight;
 
+    m_Direct3D = new D3D;
     result = m_Direct3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
+        MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK | MB_ICONERROR);
         return false;
     }
 
     m_Camera = new Camera;
 
-    m_Camera->SetPosition(0.f, 0.f, -5.f);
-    m_Camera->Render();
+    m_Camera->SetPosition(0.f, 0.f, -10.f);
     m_Camera->RenderBaseViewMatrix();
 
-    m_NormalMapShader = new NormalMapShader;
-    result = m_NormalMapShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    m_Camera->SetPosition(0.f, 7.f, -10.f);
+    m_Camera->SetRotation(35.f, 0.f, 0.f);
+    m_Camera->Render();
+
+    m_Light = new Light;
+
+    m_Light->SetDiffuseColor(1.f, 1.f, 1.f, 1.f);
+    m_Light->SetDirection(1.f, -0.5f, 0.f);
+
+    strcpy_s(modelFilename, "assets/models/sphere.txt");
+    strcpy_s(textureFilename, "assets/textures/ice01.tga");
+    strcpy_s(textureFilename2, "assets/textures/metal001.tga");
+
+    m_SphereModel = new Model;
+    result = m_SphereModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename2);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the normal map shader object.", L"Error", MB_OK);
+        MessageBox(hwnd, L"Could not initialize the sphere model object.", L"Error", MB_OK | MB_ICONERROR);
         return false;
     }
 
-    strcpy_s(modelFilename, "assets/models/cube.txt");
-    strcpy_s(textureFilename, "assets/textures/dirt02.tga");
-    strcpy_s(textureFilename2, "assets/textures/normal04.tga");
+    strcpy_s(modelFilename, "assets/models/plane01.txt");
 
-    m_Model = new Model;
-    result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename2);
+    m_GroundModel = new Model;
+    result = m_GroundModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename2);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK | MB_ICONERROR);
-        return false;
-    }
-
-    m_FullScreenWindow = new OrthoWindow;
-    m_FullScreenWindow->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the full screen window object.", L"Error", MB_OK | MB_ICONERROR);
+        MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK | MB_ICONERROR);
         return false;
     }
 
@@ -74,43 +83,103 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         return false;
     }
 
-    m_DeferredShader = new DeferredShader; 
-    m_DeferredShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    m_GBufferShader = new GBufferShader;
+    result = m_GBufferShader->Initialize(m_Direct3D->GetDevice(), hwnd);
     if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the deferred shader object.", L"Error", MB_OK | MB_ICONERROR);
+    { 
+        MessageBox(hwnd, L"Could not initialize the gbuffer shader object.", L"Error", MB_OK | MB_ICONERROR);
         return false;
     }
 
-    m_Light = new Light;
+    m_SSAORenderTexture = new RenderTexture;
+    result = m_SSAORenderTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR, 2);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the ssao render texture object.", L"Error", MB_OK | MB_ICONERROR);
+        return false;
+    }
 
-    m_Light->SetDiffuseColor(1.f, 1.f, 1.f, 1.f);
-    m_Light->SetDirection(0.f, 0.f, 0.f);
+    m_BlurSSAORenderTexture = new RenderTexture;
+    result = m_BlurSSAORenderTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR, 2);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the blur ssao render texture object.", L"Error", MB_OK | MB_ICONERROR);
+        return false;
+    }
+
+    m_FullScreenWindow = new OrthoWindow;
+    m_FullScreenWindow->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the full screen window object.", L"Error", MB_OK | MB_ICONERROR);
+        return false;
+    }
+
+    m_SSAOShader = new SSAOShader;
+    result = m_SSAOShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the ssao shader object.", L"Error", MB_OK | MB_ICONERROR);
+        return false;
+    }
+
+    strcpy_s(textureFilename, "assets/textures/random_vec.tga"); 
+    
+    m_RandomTexture = new Texture;
+    result = m_RandomTexture->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), textureFilename);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the random texture object.", L"Error", MB_OK | MB_ICONERROR);
+        return false;
+    }
+
+    m_SSAOBlurShader = new SSAOBlurShader;
+    result = m_SSAOBlurShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the ssao blur shader object.", L"Error", MB_OK | MB_ICONERROR);
+        return false;
+    }
+
+    m_LightShader = new LightShader;
+    result = m_LightShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK | MB_ICONERROR);
+        return false;
+    }
 
     return true;
 }
 
 void Application::Shutdown()
 {
-    if (m_NormalMapShader)
+    if (m_LightShader)
     {
-        m_NormalMapShader->Shutdown();
-        delete m_NormalMapShader;
-        m_NormalMapShader = nullptr;
+        m_LightShader->Shutdown();
+        delete m_LightShader;
+        m_LightShader = nullptr;
     }
 
-    if (m_DeferredShader)
+    if (m_SSAOBlurShader)
     {
-        m_DeferredShader->Shutdown();
-        delete m_DeferredShader;
-        m_DeferredShader = nullptr;
+        m_SSAOBlurShader->Shutdown();
+        delete m_SSAOBlurShader;
+        m_SSAOBlurShader = nullptr;
     }
 
-    if (m_DeferredBuffers)
+    if (m_RandomTexture)
     {
-        m_DeferredBuffers->Shutdown();
-        delete m_DeferredBuffers;
-        m_DeferredBuffers = nullptr;
+        m_RandomTexture->Shutdown();
+        delete m_RandomTexture;
+        m_RandomTexture = nullptr;
+    }
+
+    if (m_SSAOShader)
+    {
+        m_SSAOShader->Shutdown();
+        delete m_SSAOShader;
+        m_SSAOShader = nullptr;
     }
 
     if (m_FullScreenWindow)
@@ -120,11 +189,46 @@ void Application::Shutdown()
         m_FullScreenWindow = nullptr;
     }
 
-    if (m_Model)
+    if (m_BlurSSAORenderTexture)
     {
-        m_Model->Shutdown();
-        delete m_Model;
-        m_Model = nullptr;
+        m_BlurSSAORenderTexture->Shutdown();
+        delete m_BlurSSAORenderTexture;
+        m_BlurSSAORenderTexture = nullptr;
+    }
+
+    if (m_SSAORenderTexture)
+    {
+        m_SSAORenderTexture->Shutdown();
+        delete m_SSAORenderTexture;
+        m_SSAORenderTexture = nullptr;
+    }
+
+    if (m_GBufferShader)
+    {
+        m_GBufferShader->Shutdown();
+        delete m_GBufferShader;
+        m_GBufferShader = nullptr;
+    }
+
+    if (m_DeferredBuffers)
+    {
+        m_DeferredBuffers->Shutdown();
+        delete m_DeferredBuffers;
+        m_DeferredBuffers = nullptr;
+    }
+
+    if (m_GroundModel)
+    {
+        m_GroundModel->Shutdown();
+        delete m_GroundModel;
+        m_GroundModel = nullptr;
+    }
+
+    if (m_SphereModel)
+    {
+        m_SphereModel->Shutdown();
+        delete m_SphereModel;
+        m_SphereModel = nullptr;
     }
 
     if (m_Light)
@@ -166,7 +270,19 @@ bool Application::Frame(Input* Input)
         rotation += 360.0f;
     }
 
-    result = RenderSceneToTexture(rotation);
+    result = RenderGBuffer();
+    if (!result)
+    {
+        return false;
+    }
+
+    result = RenderSSAO();
+    if (!result)
+    {
+        return false;
+    }
+
+    result = BlurSSAOTexture();
     if (!result)
     {
         return false;
@@ -181,26 +297,30 @@ bool Application::Frame(Input* Input)
     return true;
 }
 
-bool Application::RenderSceneToTexture(float rotation)
+bool Application::RenderGBuffer()
 {
-    XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-    bool result; 
+    XMMATRIX translateMatrix, viewMatrix, projectionMatrix;
+    bool result;
 
-    m_DeferredBuffers->SetRenderTargets(m_Direct3D->GetDeviceContext());
-
-    m_DeferredBuffers->ClearRenderTargets(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.f);
-
-    m_Direct3D->GetWorldMatrix(worldMatrix);
     m_Camera->GetViewMatrix(viewMatrix);
     m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-    worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixRotationX(rotation));
-    // worldMatrix = XMMatrixMultiply(worldMatrix, XMMatrixScaling(2.f, 2.f, 2.f));
-    //  = XMMatrixRotationY(rotation);
-   //  worldMatrix = XMMatrixRotationY(rotation);
+    m_DeferredBuffers->SetRenderTargets(m_Direct3D->GetDeviceContext());
+    m_DeferredBuffers->ClearRenderTargets(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 0.f);
 
-    m_Model->Render(m_Direct3D->GetDeviceContext());
-    result = m_DeferredShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), m_Model->GetTexture(1));
+    translateMatrix = XMMatrixTranslation(2.f, 2.f, 0.f);
+
+    m_SphereModel->Render(m_Direct3D->GetDeviceContext());
+    result = m_GBufferShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), translateMatrix, viewMatrix, projectionMatrix, m_SphereModel->GetTexture(0));
+    if (!result)
+    {
+        return false;
+    }
+
+    translateMatrix = XMMatrixTranslation(0.f, 1.f, 0.f);
+
+    m_GroundModel->Render(m_Direct3D->GetDeviceContext());
+    result = m_GBufferShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), translateMatrix, viewMatrix, projectionMatrix, m_GroundModel->GetTexture(1));
     if (!result)
     {
         return false;
@@ -212,28 +332,104 @@ bool Application::RenderSceneToTexture(float rotation)
     return true;
 }
 
-bool Application::Render(float rotation)
+bool Application::RenderSSAO()
 {
     XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
-    const int numLights = 100;
-    XMFLOAT4 diffuseColor[numLights], lightPosition[numLights];
+    float sampleRadius, ssaoScale, ssaoBias, ssaoIntensity, randomTextureSize, screenWidth, screenHeight;
     bool result;
-    int i = 0;
 
-    m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.0f);
+    sampleRadius = 1.f;
+    ssaoScale = 1.f;
+    ssaoBias = 0.1f;
+    ssaoIntensity = 2.f;
+
+    randomTextureSize = 64.f;
+
+    screenWidth = (float)m_screenWidth;
+    screenHeight = (float)m_screenHeight;
 
     m_Direct3D->GetWorldMatrix(worldMatrix);
     m_Camera->GetBaseViewMatrix(baseViewMatrix);
     m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
-    m_Direct3D->TurnZBufferOff(); 
+    m_SSAORenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+    m_SSAORenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 0.f);
+
+    m_Direct3D->TurnZBufferOff();
 
     m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
-    result = m_NormalMapShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_DeferredBuffers->GetShaderResourceView(0), m_DeferredBuffers->GetShaderResourceView(1), XMFLOAT3(0.f, 0.f, 1.f), XMFLOAT4(1.f, 1.f, 1.f, 1.f));;
+    result = m_SSAOShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_DeferredBuffers->GetShaderResourcePositions(), m_DeferredBuffers->GetShaderResourceNormals(), m_RandomTexture->GetTexture(), screenWidth, screenHeight, randomTextureSize, sampleRadius, ssaoScale, ssaoBias, ssaoIntensity);
     if (!result)
     {
         return false;
+    }
 
+    m_Direct3D->TurnZBufferOn();
+
+    m_Direct3D->SetBackBufferRenderTarget();
+    m_Direct3D->ResetViewport();
+
+    return true;
+}
+
+bool Application::BlurSSAOTexture()
+{
+    XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
+    bool result;
+
+    m_Direct3D->GetWorldMatrix(worldMatrix);
+    m_Camera->GetBaseViewMatrix(baseViewMatrix);
+    m_Direct3D->GetOrthoMatrix(orthoMatrix);
+
+    m_Direct3D->TurnZBufferOff();
+
+    m_BlurSSAORenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+    m_BlurSSAORenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.f);
+
+    m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
+    result = m_SSAOBlurShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_SSAORenderTexture->GetShaderResourceView(), m_DeferredBuffers->GetShaderResourceNormals(), m_screenWidth, m_screenHeight, 0);
+    if (!result)
+    {
+        return false;
+    }
+
+    m_SSAORenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+    m_SSAORenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.f);
+
+    m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
+    result = m_SSAOBlurShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_SSAORenderTexture->GetShaderResourceView(), m_DeferredBuffers->GetShaderResourceNormals(), m_screenWidth, m_screenHeight, 1);
+    if (!result)
+    {
+        return false;
+    }
+
+    m_Direct3D->TurnZBufferOn();
+
+    m_Direct3D->SetBackBufferRenderTarget();
+    m_Direct3D->ResetViewport();
+
+    return true;
+}
+
+bool Application::Render(float rotation)
+{
+    XMMATRIX worldMatrix, viewMatrix, baseViewMatrix, orthoMatrix;
+    bool result;
+
+    m_Direct3D->GetWorldMatrix(worldMatrix);
+    m_Camera->GetViewMatrix(viewMatrix);
+    m_Camera->GetBaseViewMatrix(baseViewMatrix);
+    m_Direct3D->GetOrthoMatrix(orthoMatrix);
+
+    m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.0f);
+
+    m_Direct3D->TurnZBufferOff(); 
+
+    m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
+    result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Camera->GetPosition(), m_DeferredBuffers->GetShaderResourceNormals(), m_SSAORenderTexture->GetShaderResourceView(), viewMatrix, m_DeferredBuffers->GetShaderResourceColors());
+    if (!result)
+    {
+        return false;
     }
 
     m_Direct3D->TurnZBufferOn();
@@ -352,3 +548,37 @@ bool Application::UpdateMouseStrings(int mouseX, int mouseY, bool mouseDown)
     return true;
 }
 */
+
+/*
+bool Application::RenderSceneToTexture(float rotation)
+{
+    XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+    bool result;
+
+    m_DeferredBuffers->SetRenderTargets(m_Direct3D->GetDeviceContext());
+
+    m_DeferredBuffers->ClearRenderTargets(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.f);
+
+    m_Direct3D->GetWorldMatrix(worldMatrix);
+    m_Camera->GetViewMatrix(viewMatrix);
+    m_Direct3D->GetProjectionMatrix(projectionMatrix);
+
+    worldMatrix = XMMatrixMultiply(XMMatrixRotationY(rotation), XMMatrixRotationX(rotation));
+    // worldMatrix = XMMatrixMultiply(worldMatrix, XMMatrixScaling(2.f, 2.f, 2.f));
+    //  = XMMatrixRotationY(rotation);
+   //  worldMatrix = XMMatrixRotationY(rotation);
+
+    m_Model->Render(m_Direct3D->GetDeviceContext());
+    result = m_DeferredShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), m_Model->GetTexture(1));
+    if (!result)
+    {
+        return false;
+    }
+
+    m_Direct3D->SetBackBufferRenderTarget();
+    m_Direct3D->ResetViewport();
+
+    return true;
+}
+*/
+
