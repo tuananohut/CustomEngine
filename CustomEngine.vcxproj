@@ -168,6 +168,7 @@
     <ClInclude Include="src\headers\orthowindow.h" />
     <ClInclude Include="src\headers\particleshader.h" />
     <ClInclude Include="src\headers\particlesystem.h" />
+    <ClInclude Include="src\headers\pbrshader.h" />
     <ClInclude Include="src\headers\position.h" />
     <ClInclude Include="src\headers\projectionshader.h" />
     <ClInclude Include="src\headers\reflectionshader.h" />
@@ -232,6 +233,7 @@
     <ClCompile Include="src\orthowindow.cpp" />
     <ClCompile Include="src\particleshader.cpp" />
     <ClCompile Include="src\particlesystem.cpp" />
+    <ClCompile Include="src\pbrshader.cpp" />
     <ClCompile Include="src\position.cpp" />
     <ClCompile Include="src\projectionshader.cpp" />
     <ClCompile Include="src\reflectionshader.cpp" />
@@ -304,6 +306,8 @@
     <None Include="src\shaders\normalmap.vs" />
     <None Include="src\shaders\particle.ps" />
     <None Include="src\shaders\particle.vs" />
+    <None Include="src\shaders\pbr.ps" />
+    <None Include="src\shaders\pbr.vs" />
     <None Include="src\shaders\projection.ps" />
     <None Include="src\shaders\projection.vs" />
     <None Include="src\shaders\reflection.ps" />
