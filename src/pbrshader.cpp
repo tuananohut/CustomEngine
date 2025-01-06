@@ -33,7 +33,7 @@ bool PBRShader::Initialize(ID3D11Device* device, HWND hwnd)
 		return false;
 	}
 
-	error = InitializeShader(device, hwnd, vsFilename, psFilename);
+	result = InitializeShader(device, hwnd, vsFilename, psFilename);
 	if (error != 0)
 	{
 		return false;
