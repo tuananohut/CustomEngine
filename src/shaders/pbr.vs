@@ -26,7 +26,7 @@ struct PixelInputType
 	float2 tex: TEXCOORD0;
 	float3 normal: NORMAL;
 	float3 tangent: TANGENT; 
-	float3 normal: BINORMAL;
+	float3 binormal: BINORMAL;
 	float3 viewDirection: TEXCOORD1;
 };
 
