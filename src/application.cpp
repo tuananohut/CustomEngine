@@ -6,16 +6,7 @@ Application::Application()
     m_Camera = nullptr;
     m_Light = nullptr;
     m_SphereModel = nullptr;
-    m_GroundModel = nullptr;
-    m_DeferredBuffers = nullptr;
-    m_GBufferShader = nullptr;
-    m_SSAORenderTexture = nullptr;
-    m_FullScreenWindow = nullptr;
-    m_SSAOShader = nullptr;
-    m_RandomTexture = nullptr;
-    m_BlurSSAORenderTexture = nullptr;
-    m_SSAOBlurShader = nullptr;
-    m_LightShader = nullptr;
+    m_PBRShader = nullptr;
 }
 
 Application::Application(const Application& other) {}
@@ -25,12 +16,10 @@ Application::~Application() {}
 bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
     char modelFilename[128];
-    char textureFilename[128];
-    char textureFilename2[128];
+    char diffuseFilename[128];
+    char normalFilename[128];
+    char rmFilename[128];
     bool result;
-
-    m_screenWidth = screenWidth;
-    m_screenHeight = screenHeight;
 
     m_Direct3D = new D3D;
     result = m_Direct3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
@@ -42,187 +31,44 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_Camera = new Camera;
 
-    m_Camera->SetPosition(0.f, 0.f, -10.f);
-    m_Camera->RenderBaseViewMatrix();
-
-    m_Camera->SetPosition(0.f, 7.f, -10.f);
-    m_Camera->SetRotation(35.f, 0.f, 0.f);
+    m_Camera->SetPosition(0.f, 0.f, -5.f);
     m_Camera->Render();
 
     m_Light = new Light;
 
-    m_Light->SetDiffuseColor(1.f, 1.f, 1.f, 1.f);
-    m_Light->SetDirection(1.f, -0.5f, 0.f);
+    m_Light->SetDirection(0.5f, 0.5f, 0.5f);
 
     strcpy_s(modelFilename, "assets/models/sphere.txt");
-    strcpy_s(textureFilename, "assets/textures/ice01.tga");
-    strcpy_s(textureFilename2, "assets/textures/metal001.tga");
+    strcpy_s(diffuseFilename, "assets/textures/pbr_albedo.tga");
+    strcpy_s(normalFilename, "assets/textures/pbr_normal.tga");
+    strcpy_s(rmFilename, "assets/textures/pbr_roughmetal.tga");
 
     m_SphereModel = new Model;
-    result = m_SphereModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename2);
+    result = m_SphereModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, diffuseFilename, normalFilename, rmFilename);
     if (!result)
     {
         MessageBox(hwnd, L"Could not initialize the sphere model object.", L"Error", MB_OK | MB_ICONERROR);
         return false;
     }
 
-    strcpy_s(modelFilename, "assets/models/plane01.txt");
-
-    m_GroundModel = new Model;
-    result = m_GroundModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, textureFilename, textureFilename2);
+    m_PBRShader = new PBRShader;
+    result = m_PBRShader->Initialize(m_Direct3D->GetDevice(), hwnd);
     if (!result)
     {
-        MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK | MB_ICONERROR);
+        MessageBox(hwnd, L"Could not initialize the PBR shader object.", L"Error", MB_OK | MB_ICONERROR);
         return false;
     }
-
-    m_DeferredBuffers = new DeferredBuffers;
-    result = m_DeferredBuffers->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the deferred buffers object.", L"Error", MB_OK | MB_ICONERROR);
-        return false;
-    }
-
-    m_GBufferShader = new GBufferShader;
-    result = m_GBufferShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the gbuffer shader object.", L"Error", MB_OK | MB_ICONERROR);
-        return false;
-    }
-
-    m_SSAORenderTexture = new RenderTexture;
-    result = m_SSAORenderTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR, 2);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the ssao render texture object.", L"Error", MB_OK | MB_ICONERROR);
-        return false;
-    }
-
-    m_BlurSSAORenderTexture = new RenderTexture;
-    result = m_BlurSSAORenderTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR, 2);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the blur ssao render texture object.", L"Error", MB_OK | MB_ICONERROR);
-        return false;
-    }
-
-    m_FullScreenWindow = new OrthoWindow;
-    result = m_FullScreenWindow->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the full screen ortho window object.", L"Error", MB_OK | MB_ICONERROR);
-        return false;
-    }
-
-    m_SSAOShader = new SSAOShader;
-    result = m_SSAOShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the ssao shader object.", L"Error", MB_OK | MB_ICONERROR);
-        return false;
-    }
-
-    strcpy_s(textureFilename, "assets/textures/random_vec.tga");
-    
-    m_RandomTexture = new Texture;
-    result = m_RandomTexture->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), textureFilename);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the random texture object.", L"Error", MB_OK | MB_ICONERROR);
-        return false;
-    }
-
-    m_SSAOBlurShader = new SSAOBlurShader;
-    result = m_SSAOBlurShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the ssao blur shader object.", L"Error", MB_OK | MB_ICONERROR);
-        return false;
-    }
-
-    m_LightShader = new LightShader;
-    result = m_LightShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK | MB_ICONERROR);
-        return false;
-    }
-
+   
     return true;
 }
 
 void Application::Shutdown()
 {
-    if (m_LightShader)
+    if (m_PBRShader)
     {
-        m_LightShader->Shutdown();
-        delete m_LightShader;
-        m_LightShader = nullptr;
-    }
-
-    if (m_SSAOBlurShader)
-    {
-        m_SSAOBlurShader->Shutdown();
-        delete m_SSAOBlurShader;
-        m_SSAOBlurShader = nullptr;
-    }
-
-    if (m_RandomTexture)
-    {
-        m_RandomTexture->Shutdown();
-        delete m_RandomTexture;
-        m_RandomTexture = nullptr;
-    }
-
-    if (m_SSAOShader)
-    {
-        m_SSAOShader->Shutdown();
-        delete m_SSAOShader;
-        m_SSAOShader = nullptr;
-    }
-
-    if (m_FullScreenWindow)
-    {
-        m_FullScreenWindow->Shutdown();
-        delete m_FullScreenWindow;
-        m_FullScreenWindow = nullptr;
-    }
-
-    if (m_BlurSSAORenderTexture)
-    {
-        m_BlurSSAORenderTexture->Shutdown();
-        delete m_BlurSSAORenderTexture;
-        m_BlurSSAORenderTexture = nullptr;
-    }
-
-    if (m_SSAORenderTexture)
-    {
-        m_SSAORenderTexture->Shutdown();
-        delete m_SSAORenderTexture;
-        m_SSAORenderTexture = nullptr;
-    }
-
-    if (m_GBufferShader)
-    {
-        m_GBufferShader->Shutdown();
-        delete m_GBufferShader;
-        m_GBufferShader = nullptr;
-    }
-
-    if (m_DeferredBuffers)
-    {
-        m_DeferredBuffers->Shutdown();
-        delete m_DeferredBuffers;
-        m_DeferredBuffers = nullptr;
-    }
-
-    if (m_GroundModel)
-    {
-        m_GroundModel->Shutdown();
-        delete m_GroundModel;
-        m_GroundModel = nullptr;
+        m_PBRShader->Shutdown();
+        delete m_PBRShader;
+        m_PBRShader = nullptr;
     }
 
     if (m_SphereModel)
@@ -255,29 +101,17 @@ void Application::Shutdown()
 bool Application::Frame(Input* Input)
 {
     bool result;
-    float rotation = 0.f;
+    static float rotation = 0.f;
 
     if (Input->IsEscapePressed() == true)
     {
         return false;
     }
 
-    result = RenderGBuffer();
-    if (!result)
+    rotation -= 0.0174532925f * 0.1f;
+    if (rotation < 0.0f)
     {
-        return false;
-    }
-
-    result = RenderSSAO();
-    if (!result)
-    {
-        return false;
-    }
-
-    result = BlurSSAOTexture();
-    if (!result)
-    {
-        return false;
+        rotation += 360.0f;
     }
 
     result = Render(rotation);
@@ -288,7 +122,7 @@ bool Application::Frame(Input* Input)
 
     return true;
 }
-
+/*
 bool Application::RenderGBuffer()
 {
     XMMATRIX translateMatrix, viewMatrix, projectionMatrix;
@@ -300,7 +134,9 @@ bool Application::RenderGBuffer()
     m_DeferredBuffers->SetRenderTargets(m_Direct3D->GetDeviceContext());
     m_DeferredBuffers->ClearRenderTargets(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 0.f);
 
-    translateMatrix = XMMatrixTranslation(2.f, 2.f, 0.f);
+    translateMatrix = XMMatrixMultiply(XMMatrixTranslation(2.f, 1.f, 0.f), XMMatrixRotationY(90.f));
+    translateMatrix = XMMatrixMultiply(XMMatrixScaling(2.f, 2.f, 2.f), translateMatrix);
+    // ranslateMatrix = ;
 
     m_SphereModel->Render(m_Direct3D->GetDeviceContext());
     result = m_GBufferShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), translateMatrix, viewMatrix, projectionMatrix, m_SphereModel->GetTexture(0));
@@ -402,29 +238,28 @@ bool Application::BlurSSAOTexture()
 
     return true;
 }
-
+*/
 bool Application::Render(float rotation)
 {
-    XMMATRIX worldMatrix, viewMatrix, baseViewMatrix, orthoMatrix;
+    XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
     bool result;
+    
+    m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.f);
+
+    m_Camera->Render();
 
     m_Direct3D->GetWorldMatrix(worldMatrix);
     m_Camera->GetViewMatrix(viewMatrix);
-    m_Camera->GetBaseViewMatrix(baseViewMatrix);
-    m_Direct3D->GetOrthoMatrix(orthoMatrix);
+    m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-    m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.f);
+    worldMatrix = XMMatrixRotationY(rotation);
 
-    m_Direct3D->TurnZBufferOff();
-
-    m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
-    result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Camera->GetPosition(), m_DeferredBuffers->GetShaderResourceNormals(), m_SSAORenderTexture->GetShaderResourceView(), viewMatrix, m_DeferredBuffers->GetShaderResourceColors());
+    m_SphereModel->Render(m_Direct3D->GetDeviceContext());
+    result = m_PBRShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_SphereModel->GetTexture(0), m_SphereModel->GetTexture(1), m_SphereModel->GetTexture(2), m_Light->GetDirection(), m_Camera->GetPosition());
     if (!result)
     {
         return false;
     }
-
-    m_Direct3D->TurnZBufferOn();
 
     m_Direct3D->EndScene();
 
