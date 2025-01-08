@@ -38,10 +38,10 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_Light->SetDirection(0.5f, 0.5f, 0.5f);
 
-    strcpy_s(modelFilename, "assets/models/sphere.txt");
-    strcpy_s(diffuseFilename, "assets/textures/pbr_albedo.tga");
-    strcpy_s(normalFilename, "assets/textures/pbr_normal.tga");
-    strcpy_s(rmFilename, "assets/textures/pbr_roughmetal.tga");
+    strcpy_s(modelFilename, "assets/models/cube.txt");
+    strcpy_s(diffuseFilename, "assets/textures/pirate_albedo.tga");
+    strcpy_s(normalFilename, "assets/textures/pirate_normal.tga");
+    strcpy_s(rmFilename, "assets/textures/pirate_roughness.tga");
 
     m_SphereModel = new Model;
     result = m_SphereModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, diffuseFilename, normalFilename, rmFilename);
@@ -108,7 +108,7 @@ bool Application::Frame(Input* Input)
         return false;
     }
 
-    rotation -= 0.0174532925f * 0.1f;
+    rotation -= 0.0174532925f * 0.25f;
     if (rotation < 0.0f)
     {
         rotation += 360.0f;
@@ -241,7 +241,7 @@ bool Application::BlurSSAOTexture()
 */
 bool Application::Render(float rotation)
 {
-    XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+    XMMATRIX worldMatrix, viewMatrix, projectionMatrix, rotationMatrixX, rotationMatrixY, rotationMatrixZ;
     bool result;
     
     m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.f);
@@ -251,8 +251,16 @@ bool Application::Render(float rotation)
     m_Direct3D->GetWorldMatrix(worldMatrix);
     m_Camera->GetViewMatrix(viewMatrix);
     m_Direct3D->GetProjectionMatrix(projectionMatrix);
+    
+    rotationMatrixX = XMMatrixRotationX(rotation);
+    rotationMatrixY = XMMatrixRotationY(rotation);
+    rotationMatrixZ = XMMatrixRotationZ(rotation);
+    
+    worldMatrix = XMMatrixMultiply(rotationMatrixX, rotationMatrixY);
+    worldMatrix = XMMatrixMultiply(rotationMatrixZ, worldMatrix);
 
-    worldMatrix = XMMatrixRotationY(rotation);
+    // worldMatrix = XMMatrixRotationY(rotation);
+
 
     m_SphereModel->Render(m_Direct3D->GetDeviceContext());
     result = m_PBRShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_SphereModel->GetTexture(0), m_SphereModel->GetTexture(1), m_SphereModel->GetTexture(2), m_Light->GetDirection(), m_Camera->GetPosition());
