@@ -19,6 +19,10 @@ struct PixelInputType
 	float3 viewDirection: TEXCOORD1;
 };
 
+float GGXNormalDistribution(float roughnessSqr, float NdotH);
+float GeometryFunction(float roughnessSqr, float NdotL, float NdotV);
+float3 FresnelSchlick(float3 F0, float HdotV);
+
 float4 PBRPixelShader(PixelInputType input): SV_TARGET
 {
 	float3 lightDir;
@@ -27,7 +31,7 @@ float4 PBRPixelShader(PixelInputType input): SV_TARGET
 	float roughness, metallic; 
 	float3 F0;
 	float3 halfDirection;
-	float NdotH, NdotV, NdotL, HdotV; // ?
+	float NdotH, NdotV, NdotL, HdotV; 
 	float roughnessSqr, roughSqr2, NdotHSqr, denominator, normalDistribution;
 	float smithL, smithV, geometricShadow; 
 	float3 fresnel; 
@@ -55,22 +59,14 @@ float4 PBRPixelShader(PixelInputType input): SV_TARGET
 	NdotV = max(0.f, dot(bumpNormal, input.viewDirection));
 	NdotL = max(0.f, dot(bumpNormal, lightDir));
 	HdotV = max(0.f, dot(halfDirection, input.viewDirection));
-
-	// GGX normal distribution calculation 
+	
 	roughnessSqr = roughness * roughness;
-	roughSqr2 = roughnessSqr * roughnessSqr;
-	NdotHSqr = NdotH * NdotH; 
-	denominator = (NdotHSqr * (roughSqr2 - 1.f) + 1.f);
-	denominator = 3.14159265359f * (denominator * denominator);
-	normalDistribution = roughSqr2 / denominator; 
+	
+	normalDistribution = GGXNormalDistribution(roughnessSqr, NdotH);
 
-	// Schlick - GGX for geometry function
-	smithL = NdotL / (NdotL * (1.f - roughnessSqr) + roughnessSqr);
-	smithV = NdotV / (NdotV * (1.f - roughnessSqr) + roughnessSqr);
-	geometricShadow = smithL * smithV;
+	geometricShadow = GeometryFunction(roughnessSqr, NdotL, NdotV);
 
-	// Fresnel Schlick for fresnel calculation
-	fresnel = F0 + (1.f - F0) * pow(1.f - HdotV, 5.f);
+	fresnel = FresnelSchlick(F0, HdotV);
 
 	// Cook-Torrance speculat BRDF calculation
 	specularity = (normalDistribution * fresnel * geometricShadow) / ((4.f * (NdotL * NdotV)) + 0.00001f);
@@ -81,4 +77,39 @@ float4 PBRPixelShader(PixelInputType input): SV_TARGET
 	color = float4(color.rgb, 1.f);
 
 	return color;
+}
+
+// GGX normal distribution calculation 
+float GGXNormalDistribution(float roughnessSqr, float NdotH)
+{
+	float roughSqr, NdotHSqr, denominator, normalDistribution, roughSqr2;
+
+	roughSqr2 = roughnessSqr * roughnessSqr;
+	NdotHSqr = NdotH * NdotH; 
+	denominator = (NdotHSqr * (roughSqr2 - 1.f) + 1.f);
+	denominator = 3.14159265359f * (denominator * denominator);
+	normalDistribution = roughSqr2 / denominator; 
+
+	return normalDistribution;
+}
+
+// Schlick - GGX for geometry function
+float GeometryFunction(float roughnessSqr, float NdotL, float NdotV)
+{
+	float smithL, smithV, geometricShadow;
+	
+	smithL = NdotL / (NdotL * (1.f - roughnessSqr) + roughnessSqr);
+	smithV = NdotV / (NdotV * (1.f - roughnessSqr) + roughnessSqr);
+	geometricShadow = smithL * smithV;
+
+	return geometricShadow;
+}
+
+// Fresnel Schlick for fresnel calculation
+float3 FresnelSchlick(float3 F0, float HdotV)
+{
+	float3 fresnel;
+	fresnel = F0 + (1.f - F0) * pow(1.f - HdotV, 5.f);
+	
+	return fresnel;
 }
