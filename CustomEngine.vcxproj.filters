@@ -204,6 +204,9 @@
     <ClInclude Include="src\headers\pbrshader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\headers\xinput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -398,6 +401,9 @@
     <ClCompile Include="src\pbrshader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\pbrbeckmannshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\color.vs" />
@@ -482,6 +488,7 @@
     <None Include="src\shaders\ssaoblur.ps" />
     <None Include="src\shaders\pbr.vs" />
     <None Include="src\shaders\pbr.ps" />
+    <None Include="src\shaders\pbr_beckmann.ps" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\assets\models\cube.txt" />

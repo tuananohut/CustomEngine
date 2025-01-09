@@ -196,6 +196,7 @@
     <ClInclude Include="src\headers\xaudio.h" />
     <ClInclude Include="src\headers\xaudiosound.h" />
     <ClInclude Include="src\headers\xaudiosound3d.h" />
+    <ClInclude Include="src\headers\xinput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\alphamapshader.cpp" />
@@ -233,6 +234,7 @@
     <ClCompile Include="src\orthowindow.cpp" />
     <ClCompile Include="src\particleshader.cpp" />
     <ClCompile Include="src\particlesystem.cpp" />
+    <ClCompile Include="src\pbrbeckmannshader.cpp" />
     <ClCompile Include="src\pbrshader.cpp" />
     <ClCompile Include="src\position.cpp" />
     <ClCompile Include="src\projectionshader.cpp" />
@@ -282,6 +284,7 @@
     <None Include="src\shaders\deferred.vs" />
     <None Include="src\shaders\depth.ps" />
     <None Include="src\shaders\depth.vs" />
+    <None Include="src\shaders\pbr_beckmann.ps" />
     <None Include="src\shaders\fade.ps" />
     <None Include="src\shaders\fade.vs" />
     <None Include="src\shaders\fire.ps" />
