@@ -1,0 +1,97 @@
+Texture2D diffuseTexture : register(t0);
+Texture2D normalMap : register(t1);
+Texture2D rmTexture : register(t2);
+SamplerState SampleType : register(s0);
+
+cbuffer LightBuffer
+{
+    float3 lightDirection;
+    float padding;
+};
+
+struct PixelInputType
+{
+    float4 position : SV_POSITION;
+    float2 tex : TEXCOORD0;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
+    float3 viewDirection : TEXCOORD1;
+};
+
+float BeckmannNDF(float NdotH, float roughness);
+float GeometryCookTorrance(float NdotL, float NdotV, float3 normal, float3 halfDirection);
+float3 FresnelSchlick(float3 F0, float HdotV);
+
+float4 PBRPixelShader(PixelInputType input) : SV_TARGET
+{
+    float3 bumpMap;
+    float4 color;
+
+    float3 lightDir = normalize(-lightDirection);
+    float3 albedo = diffuseTexture.Sample(SampleType, input.tex).rgb;
+    float3 rmColor = rmTexture.Sample(SampleType, input.tex).rgb;
+	bumpMap = normalMap.Sample(SampleType, input.tex).rgb;
+
+	bumpMap = (bumpMap * 2.f) - 1.f; 
+
+    float3 bumpNormal = normalize((bumpMap.x * input.tangent) + (bumpMap.y * input.binormal) + (bumpMap.z * input.normal));
+
+    float roughness = rmColor.r * 3.f;
+    float metallic = rmColor.b;
+
+    // Fresnel F0
+    float3 F0 = lerp(float3(0.04f, 0.04f, 0.04f), albedo, metallic);
+
+    float3 halfDirection = normalize(input.viewDirection + lightDir);
+    float NdotH = max(dot(bumpNormal, halfDirection), 0.0f);
+    float NdotV = max(dot(bumpNormal, input.viewDirection), 0.0f);
+    float NdotL = max(dot(bumpNormal, lightDir), 0.0f);
+    float HdotV = max(dot(halfDirection, input.viewDirection), 0.0f);
+
+    float roughnessSqr = roughness * roughness;
+
+    float normalDistribution = BeckmannNDF(NdotH, roughness); 
+
+    float geometricShadow = GeometryCookTorrance(NdotL, NdotV, bumpNormal, halfDirection); 
+
+    // Fresnel Schlick Calculation
+    float3 fresnel = FresnelSchlick(F0, HdotV);
+
+    // Cook-Torrance Specular BRDF
+    float3 specularity = (normalDistribution * fresnel * geometricShadow) / max(4.0f * NdotL * NdotV, 0.001f);
+
+    // Final Color
+    color.rgb = albedo + specularity;
+	color.rgb = color.rgb * NdotL;
+    
+    color = float4(color.rgb, 1.f);
+
+    return color;
+}
+
+// Beckmann NDF Function
+float BeckmannNDF(float NdotH, float roughness)
+{
+    float alpha = roughness * roughness;
+    float tanTheta2 = (1.0f - NdotH * NdotH) / (NdotH * NdotH);
+    return exp(-tanTheta2 / (alpha * alpha)) / (3.14159265f * alpha * alpha * pow(NdotH, 4.0f));
+}
+
+// Cook-Torrance Geometry Function
+float GeometryCookTorrance(float NdotL, float NdotV, float3 normal, float3 halfDirection)
+{
+    float NdotH = max(dot(normal, halfDirection), 0.0f);
+    float HdotV = max(dot(halfDirection, normalize(NdotV)), 0.0f);
+
+    float G1 = (2.0f * NdotH * NdotV) / HdotV;
+    float G2 = (2.0f * NdotH * NdotL) / HdotV;
+
+    return min(1.0f, min(G1, G2));
+}
+
+// Fresnel Schlick Function
+float3 FresnelSchlick(float3 F0, float HdotV)
+{
+    return F0 + (1.0f - F0) * pow(1.0f - HdotV, 5.0f);
+}
