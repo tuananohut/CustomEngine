@@ -39,7 +39,9 @@ private:
 	Camera* m_Camera;
 	Light* m_Light;
 	Model* m_SphereModel;
+	Model* m_Model;
 	PBRShader* m_PBRShader;
+	PBRBeckmannShader* m_PBRBeckmannShader;
 };
 
 #endif
