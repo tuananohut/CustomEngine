@@ -6,7 +6,9 @@ Application::Application()
     m_Camera = nullptr;
     m_Light = nullptr;
     m_SphereModel = nullptr;
+    m_Model = nullptr;
     m_PBRShader = nullptr;
+    m_PBRBeckmannShader = nullptr;
 }
 
 Application::Application(const Application& other) {}
@@ -31,20 +33,34 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
     m_Camera = new Camera;
 
-    m_Camera->SetPosition(0.f, 0.f, -5.f);
+    m_Camera->SetPosition(0.f, 0.f, -6.f);
     m_Camera->Render();
 
     m_Light = new Light;
 
     m_Light->SetDirection(0.5f, 0.5f, 0.5f);
 
-    strcpy_s(modelFilename, "assets/models/cube.txt");
+    strcpy_s(modelFilename, "assets/models/sphere.txt");
+    // strcpy_s(diffuseFilename, "assets/textures/pbr_albedo.tga");
+    // strcpy_s(normalFilename, "assets/textures/pbr_normal.tga");
+    // strcpy_s(rmFilename, "assets/textures/pbr_roughmetal.tga");
+
     strcpy_s(diffuseFilename, "assets/textures/pirate_albedo.tga");
     strcpy_s(normalFilename, "assets/textures/pirate_normal.tga");
     strcpy_s(rmFilename, "assets/textures/pirate_roughness.tga");
 
     m_SphereModel = new Model;
     result = m_SphereModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, diffuseFilename, normalFilename, rmFilename);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the sphere model object.", L"Error", MB_OK | MB_ICONERROR);
+        return false;
+    }
+
+
+
+    m_Model = new Model;
+    result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), modelFilename, diffuseFilename, normalFilename, rmFilename);
     if (!result)
     {
         MessageBox(hwnd, L"Could not initialize the sphere model object.", L"Error", MB_OK | MB_ICONERROR);
@@ -58,17 +74,39 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
         MessageBox(hwnd, L"Could not initialize the PBR shader object.", L"Error", MB_OK | MB_ICONERROR);
         return false;
     }
+
+    m_PBRBeckmannShader = new PBRBeckmannShader;
+    result = m_PBRBeckmannShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the PBR Beckmann shader object.", L"Error", MB_OK | MB_ICONERROR);
+        return false;
+    }
    
     return true;
 }
 
 void Application::Shutdown()
 {
+    if (m_PBRBeckmannShader)
+    {
+        m_PBRBeckmannShader->Shutdown();
+        delete m_PBRBeckmannShader;
+        m_PBRBeckmannShader = nullptr;
+    }
+
     if (m_PBRShader)
     {
         m_PBRShader->Shutdown();
         delete m_PBRShader;
         m_PBRShader = nullptr;
+    }
+
+    if (m_Model)
+    {
+        m_Model->Shutdown();
+        delete m_Model;
+        m_Model = nullptr;
     }
 
     if (m_SphereModel)
@@ -241,7 +279,7 @@ bool Application::BlurSSAOTexture()
 */
 bool Application::Render(float rotation)
 {
-    XMMATRIX worldMatrix, viewMatrix, projectionMatrix, rotationMatrixX, rotationMatrixY, rotationMatrixZ;
+    XMMATRIX worldMatrix, viewMatrix, projectionMatrix, rotationMatrixX, rotationMatrixY, rotationMatrixZ, translateMatrix;
     bool result;
     
     m_Direct3D->BeginScene(0.f, 0.f, 0.f, 1.f);
@@ -259,15 +297,28 @@ bool Application::Render(float rotation)
     worldMatrix = XMMatrixMultiply(rotationMatrixX, rotationMatrixY);
     worldMatrix = XMMatrixMultiply(rotationMatrixZ, worldMatrix);
 
-    // worldMatrix = XMMatrixRotationY(rotation);
+    worldMatrix = XMMatrixRotationY(rotation);
 
+    translateMatrix = XMMatrixMultiply(worldMatrix, XMMatrixTranslation(-2.f, 0.f, 0.f));
 
     m_SphereModel->Render(m_Direct3D->GetDeviceContext());
-    result = m_PBRShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_SphereModel->GetTexture(0), m_SphereModel->GetTexture(1), m_SphereModel->GetTexture(2), m_Light->GetDirection(), m_Camera->GetPosition());
+    result = m_PBRShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), translateMatrix, viewMatrix, projectionMatrix, m_SphereModel->GetTexture(0), m_SphereModel->GetTexture(1), m_SphereModel->GetTexture(2), m_Light->GetDirection(), m_Camera->GetPosition());
     if (!result)
     {
         return false;
     }
+
+    worldMatrix = XMMatrixRotationY(rotation);
+
+    translateMatrix = XMMatrixMultiply(worldMatrix, XMMatrixTranslation(2.f, 0.f, 0.f));
+
+    m_Model->Render(m_Direct3D->GetDeviceContext());
+    result = m_PBRBeckmannShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), translateMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0), m_Model->GetTexture(1), m_Model->GetTexture(2), m_Light->GetDirection(), m_Camera->GetPosition());
+    if (!result)
+    {
+        return false;
+    }
+
 
     m_Direct3D->EndScene();
 
