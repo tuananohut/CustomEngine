@@ -284,6 +284,8 @@
     <None Include="src\shaders\deferred.vs" />
     <None Include="src\shaders\depth.ps" />
     <None Include="src\shaders\depth.vs" />
+    <None Include="src\shaders\heat.ps" />
+    <None Include="src\shaders\heat.vs" />
     <None Include="src\shaders\pbr_beckmann.ps" />
     <None Include="src\shaders\fade.ps" />
     <None Include="src\shaders\fade.vs" />

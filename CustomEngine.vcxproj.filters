@@ -489,6 +489,8 @@
     <None Include="src\shaders\pbr.vs" />
     <None Include="src\shaders\pbr.ps" />
     <None Include="src\shaders\pbr_beckmann.ps" />
+    <None Include="src\shaders\heat.vs" />
+    <None Include="src\shaders\heat.ps" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\assets\models\cube.txt" />
