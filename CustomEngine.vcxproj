@@ -157,6 +157,7 @@
     <ClInclude Include="src\headers\gbuffershader.h" />
     <ClInclude Include="src\headers\glassshader.h" />
     <ClInclude Include="src\headers\glowshader.h" />
+    <ClInclude Include="src\headers\heat.h" />
     <ClInclude Include="src\headers\heatshader.h" />
     <ClInclude Include="src\headers\input.h" />
     <ClInclude Include="src\headers\light.h" />
@@ -223,6 +224,7 @@
     <ClCompile Include="src\gbuffershader.cpp" />
     <ClCompile Include="src\glassshader.cpp" />
     <ClCompile Include="src\glowshader.cpp" />
+    <ClCompile Include="src\heat.cpp" />
     <ClCompile Include="src\heatshader.cpp" />
     <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\light.cpp" />
