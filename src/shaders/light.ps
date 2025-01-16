@@ -1,42 +1,44 @@
-SamplerState SampleTypePoint : register(s0);
-Texture2D normalsTexture : register(t0);
-Texture2D ssaoTexture : register(t1);
-Texture2D colorsTexture : register(t2);
+Texture2D shaderTexture : register(t0);
+SamplerState SampleType : register(s0);
+
+cbuffer LightBuffer
+{
+	float4 ambientColor;
+    float4 diffuseColor;
+    float3 lightDirection;
+	float padding;
+};
 
 struct PixelInputType
 {
     float4 position : SV_POSITION;
     float2 tex : TEXCOORD0;
-    float3 lightDirection : TEXCOORD1;
+	float3 normal : NORMAL;
 };
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
 	float4 textureColor;
-	float ambientOcclusion;
-	float4 ambientColor;
-	float4 color;
-	float3 normal;
+	float3 lightDir;
 	float lightIntensity;
+	float4 color;
 
-	textureColor = colorsTexture.Sample(SampleTypePoint, input.tex);
+	textureColor = shaderTexture.Sample(SampleType, input.tex);
 
-    ambientOcclusion = ssaoTexture.Sample(SampleTypePoint, input.tex).r;
-	ambientColor = float4(ambientOcclusion, ambientOcclusion, ambientOcclusion, 1.0f);
-	
-	color = 1.f - ambientColor;
+    color = ambientColor;
 
-    normal = normalsTexture.Sample(SampleTypePoint, input.tex).xyz;
+    lightDir = -lightDirection;
 
-    lightIntensity = saturate(dot(normal, input.lightDirection));
+    lightIntensity = saturate(dot(input.normal, lightDir));
+
 	if(lightIntensity > 0.f)
-	{
-		color += float4(1.f, 1.f, 1.f, 1.f) * lightIntensity;
-	}
+    {
+        color += (diffuseColor * lightIntensity);
+    }
 
     color = saturate(color);
-	
+
 	color = color * textureColor;
 
-    return color;
+	return color;
 }
