@@ -47,8 +47,7 @@ void TextureShader::Shutdown()
 }
 
 bool TextureShader::Render(ID3D11DeviceContext* deviceContext, 
-						   int vertexCount,
-						   int instanceCount,
+						   int indexCount,
 						   XMMATRIX worldMatrix,
 						   XMMATRIX viewMatrix,
 						   XMMATRIX projectionMatrix,
@@ -62,7 +61,7 @@ bool TextureShader::Render(ID3D11DeviceContext* deviceContext,
 		return false;
 	}
 
-	RenderShader(deviceContext, vertexCount, instanceCount);
+	RenderShader(deviceContext, indexCount);
 
 	return true;
 }
@@ -310,7 +309,7 @@ bool TextureShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	return true;
 }
 
-void TextureShader::RenderShader(ID3D11DeviceContext* deviceContext, int vertexCount, int instanceCount)
+void TextureShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
 {
 	deviceContext->IASetInputLayout(m_layout);
 
@@ -319,5 +318,5 @@ void TextureShader::RenderShader(ID3D11DeviceContext* deviceContext, int vertexC
 	
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
 
-	deviceContext->DrawInstanced(vertexCount, instanceCount, 0, 0);
+	deviceContext->DrawIndexed(indexCount, 0, 0);
 }
