@@ -1,20 +1,17 @@
-Texture2D shaderTexture: register(t0);
-SamplerState SampleType: register(s0);
+Texture2D shaderTexture : register(t0);
+SamplerState SampleType : register(s0);
 
 struct PixelInputType
 {
-	float4 position: SV_POSITION;
-	float2 tex: TEXCOORD0;
-	float4 color: COLOR;
+    float4 position : SV_POSITION;
+    float2 tex : TEXCOORD0;
 };
 
-float4 TexturePixelShader(PixelInputType input): SV_TARGET
+float4 TexturePixelShader(PixelInputType input) : SV_TARGET
 {
 	float4 textureColor;
 
-	textureColor = shaderTexture.Sample(SampleType, input.tex);
+    textureColor = shaderTexture.Sample(SampleType, input.tex);
 
-	float4 finalColor = textureColor * input.color;
-
-	return finalColor;
+    return textureColor;
 }
