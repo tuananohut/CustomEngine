@@ -72,8 +72,8 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [x] Tutorial 50: Deferred Shading
 - [x] Tutorial 51: Screen Space Ambient Occlusion
 - [x] Tutorial 52: Physically Based Rendering
-- [ ] Tutorial 53: Heat
-- [ ] ... 
+- [x] Tutorial 53: Heat
+- [ ] Tutorial 54: Parallax Scrolling
 - [x] Tutorial 55: Direct Sound
 - [x] Tutorial 56: 3D Sound
 - [x] Tutorial 57: XAudio2
