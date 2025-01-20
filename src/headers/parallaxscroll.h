@@ -13,6 +13,7 @@ private:
 	{
 		float scrollSpeed;
 		float textureTranslation;
+		float textureOpacity; 
 	};
 
 public: 
@@ -27,6 +28,7 @@ public:
 	int GetTextureCount(); 
 	ID3D11ShaderResourceView* GetTexture(int); 
 	float GetTranslation(int); 
+	float GetOpacity(int);
 
 private:
 	Texture* m_TextureArray; 

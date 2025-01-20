@@ -22,7 +22,8 @@ private:
 	struct TranslateBufferType
 	{
 		float translation;
-		XMFLOAT3 paddding; 
+		float opacity; 
+		XMFLOAT2 paddding; 
 	};
 
 public:
@@ -32,14 +33,14 @@ public:
 	
 	bool Initialize(ID3D11Device*, HWND); 
 	void Shutdown();
-	bool Render(ID3D11DeviceContext*, int, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*, float); 
+	bool Render(ID3D11DeviceContext*, int, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*, float, float); 
 
 private:
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-	bool SetShaderParameters(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*, float);
+	bool SetShaderParameters(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*, float, float);
 	void RenderShader(ID3D11DeviceContext*, int);
 
 private:
