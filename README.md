@@ -94,6 +94,8 @@ https://screamingbrainstudios.itch.io/planet-texture-pack-1
 
 https://pixelfranek.itch.io/free-textures-of-light
 
+https://digitalmoons.itch.io/parallax-forest-background
+
 ### Sound
 
 https://pixabay.com/sound-effects/pianos-by-jtwayne-7-174717/
