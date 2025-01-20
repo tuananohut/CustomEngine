@@ -17,6 +17,7 @@ bool ParallaxScroll::Initialize(ID3D11Device* device, ID3D11DeviceContext* devic
 	int i, j; 
 	char input; 
 	float scrollSpeed;
+	float opacity; 
 	bool result; 
 
 	fin.open(configFilename);
@@ -60,6 +61,10 @@ bool ParallaxScroll::Initialize(ID3D11Device* device, ID3D11DeviceContext* devic
 
 		fin.get(input); 
 
+		fin >> opacity;
+
+		fin.get(input);
+
 		result = m_TextureArray[i].Initialize(device, deviceContext, textureFilename);
 		if (!result)
 		{
@@ -67,6 +72,7 @@ bool ParallaxScroll::Initialize(ID3D11Device* device, ID3D11DeviceContext* devic
 		}
 
 		m_ParallaxArray[i].scrollSpeed = scrollSpeed;
+		m_ParallaxArray[i].textureOpacity = opacity; 
 		m_ParallaxArray[i].textureTranslation = 0.f;
 	}
 
@@ -124,4 +130,9 @@ ID3D11ShaderResourceView* ParallaxScroll::GetTexture(int index)
 float ParallaxScroll::GetTranslation(int index)
 {
 	return m_ParallaxArray[index].textureTranslation;
+}
+
+float ParallaxScroll::GetOpacity(int index)
+{
+	return m_ParallaxArray[index].textureOpacity;
 }

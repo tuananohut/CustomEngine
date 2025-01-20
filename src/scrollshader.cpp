@@ -46,11 +46,11 @@ void ScrollShader::Shutdown()
 	ShutdownShader();
 }
 
-bool ScrollShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, float translation)
+bool ScrollShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, float translation, float opacity)
 {
 	bool result; 
 
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, translation);
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, translation, opacity);
 	if (!result)
 	{
 		return false; 
@@ -260,7 +260,7 @@ void ScrollShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd,
 	MessageBox(hwnd, L"Error compiling shader. Check shader-error.txt for message.", shaderFilename, MB_OK | MB_ICONERROR);
 }
 
-bool ScrollShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, float translation)
+bool ScrollShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, float translation, float opacity)
 {
 	HRESULT result; 
 	D3D11_MAPPED_SUBRESOURCE mappedResource; 
@@ -300,7 +300,9 @@ bool ScrollShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMAT
 
 	dataPtr2 = (TranslateBufferType*)mappedResource.pData; 
 
-	dataPtr2->translation = translation; 
+	dataPtr2->translation = translation;
+	dataPtr2->opacity = opacity;
+	dataPtr2->paddding = XMFLOAT2(0.f, 0.f);
 
 	deviceContext->Unmap(m_translateBuffer, 0);
 
