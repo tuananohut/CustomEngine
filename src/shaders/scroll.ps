@@ -4,6 +4,7 @@ SamplerState SampleType: register(s0);
 cbuffer TranslationBuffer
 {
 	float textureTranslation; 
+	float textureOpacity; 
 };
 
 struct PixelInputType
@@ -19,6 +20,8 @@ float4 ScrollPixelShader(PixelInputType input): SV_TARGET
 	input.tex.x -= textureTranslation; 
 
 	textureColor = shaderTexture.SampleLevel(SampleType, input.tex, 0);
+
+	textureColor.a *= textureOpacity;
 
 	return textureColor; 
 }
