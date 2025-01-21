@@ -1,7 +1,7 @@
 # CustomEngine
 
 I am learning how to make a render engine to understand:
-- theory of computer graphics
+- computer graphics basics
 - implementation of rendering techniques
 - shader programming
 
@@ -73,11 +73,13 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [x] Tutorial 51: Screen Space Ambient Occlusion
 - [x] Tutorial 52: Physically Based Rendering
 - [x] Tutorial 53: Heat
-- [ ] Tutorial 54: Parallax Scrolling
+- [x] Tutorial 54: Parallax Scrolling
 - [x] Tutorial 55: Direct Sound
 - [x] Tutorial 56: 3D Sound
 - [x] Tutorial 57: XAudio2
 - [x] Tutorial 58: X3DAudio
+- [ ] Tutorial 59: Animated Particles
+- [ ] Tutorial 60: XInput
 
 
 ## I made this with engine:
