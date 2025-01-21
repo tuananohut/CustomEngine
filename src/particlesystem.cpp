@@ -2,22 +2,24 @@
 
 ParticleSystem::ParticleSystem()
 {
-	m_Texture = nullptr;
-	m_particleList = nullptr;
-	m_vertices = nullptr;
 	m_vertexBuffer = nullptr;
 	m_indexBuffer = nullptr;
+	m_particleList = nullptr;
+	m_vertices = nullptr;
+	m_Texture = nullptr;
 }
 
 ParticleSystem::ParticleSystem(const ParticleSystem& other) {}
 
 ParticleSystem::~ParticleSystem() {}
 
-bool ParticleSystem::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* textureFilename)
+bool ParticleSystem::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* configFilename)
 {
 	bool result;
 
-	result = LoadTexture(device, deviceContext, textureFilename);
+	strcpy_s(m_configFilename, configFilename); 
+
+	result = LoadParticleConfiguration();
 	if (!result)
 	{
 		return false;
@@ -35,16 +37,22 @@ bool ParticleSystem::Initialize(ID3D11Device* device, ID3D11DeviceContext* devic
 		return false;
 	}
 
+	result = LoadTexture(device, deviceContext);
+	if (!result)
+	{
+		return false; 
+	}
+
 	return true;
 }
 
 void ParticleSystem::Shutdown()
 {
+	ReleaseTexture();
+
 	ShutdownBuffers();
 
 	ShutdownParticleSystem();
-
-	ReleaseTexture();
 }
 
 bool ParticleSystem::Frame(float frameTime, ID3D11DeviceContext* deviceContext)
@@ -81,47 +89,71 @@ int ParticleSystem::GetIndexCount()
 	return m_indexCount;
 }
 
-bool ParticleSystem::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename)
+bool ParticleSystem::LoadParticleConfiguration()
 {
-	bool result;
+	ifstream fin; 
+	int i; 
+	char input; 
 
-	m_Texture = new Texture;
-
-	result = m_Texture->Initialize(device, deviceContext, filename);
-	if (!result)
+	fin.open(m_configFilename); 
+	if (fin.fail())
 	{
-		return false;
+		return false; 
 	}
+
+	fin.get(input);
+	while(input != ':')
+	{
+		fin.get(input);
+	}
+	fin >> m_maxParticles;
+
+	fin.get(input);
+	while(input != ':')
+	{
+		fin.get(input); 
+	}
+	fin >> m_particlesPerSecond;
+
+	fin.get(input);
+	while(input != ':')
+	{
+		fin.get(input);
+	}
+	fin >> m_particleSize; 
+
+	fin.get(input); 
+	while(input != ':')
+	{
+		fin.get(input);
+	}
+	fin >> m_particleLifeTime; 
+
+	fin.get(input); 
+	while(input != ':')
+	{
+		fin.get(input);
+	}
+	fin.get(input);
+
+	i = 0;
+	fin.get(input);
+	while(input != ':')
+	{
+		m_textureFilename[i] = input; 
+		i++; 
+		fin.get(input);
+	}
+	m_textureFilename[i] = '\0';
+	
+	fin.close();
 
 	return true;
-}
-
-void ParticleSystem::ReleaseTexture()
-{
-	if (m_Texture)
-	{
-		m_Texture->Shutdown();
-		delete m_Texture;
-		m_Texture = nullptr;
-	}
 }
 
 bool ParticleSystem::InitializeParticleSystem()
 {
 	int i;
-
-	m_particleDeviationX = 8.f;
-	m_particleDeviationY = 4.f;
-	m_particleDeviationZ = 2.f;
-
-	m_particleVelocity = 1.f;
-	m_particleVelocityVariation = 0.2f;
-
-	m_particleSize = 0.11f;
-
-	m_particlesPerSecond = 150.f;
-
-	m_maxParticles = 500;
 
 	m_particleList = new ParticleType[m_maxParticles];
 
@@ -130,9 +162,9 @@ bool ParticleSystem::InitializeParticleSystem()
 		m_particleList[i].active = false;
 	}
 
-	m_currentParticleCount = 0;
-
 	m_accumulatedTime = 0.f;
+
+	m_currentParticleCount = 0;
 
 	return true;
 }
@@ -144,6 +176,137 @@ void ParticleSystem::ShutdownParticleSystem()
 		delete[] m_particleList;
 		m_particleList = nullptr;
 	}
+}
+
+void ParticleSystem::EmitParticles(float frameTime)
+{
+	float centerX, centerY, radius, positionX, positionY, positionZ, scroll1X, scroll1Y;
+	float emitterOrigin[3];
+	int index, i, j;
+	bool emitParticle, found;
+	static float angle = 0.0f;
+
+	centerX = 0.f; 
+	centerY = 0.f; 
+
+	radius = 1.f; 
+
+	angle += frameTime * 2.f;
+
+	emitterOrigin[0] = centerX + radius * sin(angle);
+	emitterOrigin[1] = centerY + radius * cos(angle);
+	emitterOrigin[2] = 0.f;
+
+	m_accumulatedTime += frameTime;
+
+	emitParticle = false;
+
+	if (m_accumulatedTime > (1.f / m_particlesPerSecond))
+	{
+		m_accumulatedTime = 0.f;
+		emitParticle = true;
+	}
+
+	if ((emitParticle == true) && (m_currentParticleCount < (m_maxParticles - 1)))
+	{
+		m_currentParticleCount++;
+
+		positionX = emitterOrigin[0];
+		positionY = emitterOrigin[1];
+		positionZ = emitterOrigin[2];
+	
+		scroll1X = (((float)rand() - (float)rand()) / RAND_MAX);
+		if (scroll1X < 0.f)
+		{
+			scroll1X *= -1.f; 
+		}
+
+		scroll1Y = scroll1X;
+
+		index = 0;
+		found = false;
+		while (!found)
+		{
+			if ((m_particleList[index].active == false) || (m_particleList[index].positionZ < positionZ))
+			{
+				found = true;
+			}
+			else
+			{
+				index++;
+			}
+		}
+
+		i = m_currentParticleCount;
+		j = i - 1;
+
+		while (i != index)
+		{
+			CopyParticle(i, j);
+			i--;
+			j--;
+		}
+
+		m_particleList[index].positionX = positionX;
+		m_particleList[index].positionY = positionY;
+		m_particleList[index].positionZ = positionZ;
+		m_particleList[index].active = true;
+		m_particleList[index].lifeTime = m_particleLifeTime;
+		m_particleList[index].scroll1X = scroll1X;
+		m_particleList[index].scroll1Y = scroll1Y;
+	}
+}
+
+void ParticleSystem::UpdateParticles(float frameTime)
+{
+	int i;
+
+	for (i = 0; i < m_currentParticleCount; i++)
+	{
+		m_particleList[i].lifeTime = m_particleList[i].lifeTime - frameTime;
+
+		m_particleList[i].scroll1X = m_particleList[i].scroll1X + (frameTime * 0.5f);
+		if (m_particleList[i].scroll1X > 1.f)
+		{
+			m_particleList[i].scroll1X -= 1.f;
+		}
+
+		m_particleList[i].scroll1Y = m_particleList[i].scroll1Y + (frameTime * 0.5f);
+		if (m_particleList[i].scroll1Y > 1.f)
+		{
+			m_particleList[i].scroll1Y -= 1.f;
+		}
+	}
+}
+
+void ParticleSystem::KillParticles()
+{
+	int i, j;
+
+	for (i = 0; i < m_maxParticles; i++)
+	{
+		if ((m_particleList[i].active == true) && (m_particleList[i].positionY < -6.0f))
+		{
+			m_particleList[i].active = false;
+			m_currentParticleCount--;
+
+			for (j = i; j < m_maxParticles - 1; j++)
+			{
+				CopyParticle(j, j + 1);
+			}
+		}
+	}
+}
+
+void ParticleSystem::CopyParticle(int dst, int src)
+{
+	m_particleList[dst].positionX = m_particleList[src].positionX;
+	m_particleList[dst].positionY = m_particleList[src].positionY;
+	m_particleList[dst].positionZ = m_particleList[src].positionZ;
+	m_particleList[dst].active = m_particleList[src].active;
+	m_particleList[dst].lifeTime = m_particleList[src].lifeTime;
+	m_particleList[dst].scroll1X = m_particleList[src].scroll1X;
+	m_particleList[dst].scroll1Y = m_particleList[src].scroll1Y;
 }
 
 bool ParticleSystem::InitializeBuffers(ID3D11Device* device)
@@ -245,120 +408,13 @@ void ParticleSystem::RenderBuffers(ID3D11DeviceContext* deviceContext)
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void ParticleSystem::EmitParticles(float frameTime)
-{
-	bool emitParticle, found;
-	float positionX, positionY, positionZ, velocity, red, green, blue;
-	int index, i, j;
-
-	m_accumulatedTime += frameTime;
-
-	emitParticle = false;
-
-	if (m_accumulatedTime > (1.f / m_particlesPerSecond))
-	{
-		m_accumulatedTime = 0.f;
-		emitParticle = true;
-	}
-
-	if ((emitParticle == true) && (m_currentParticleCount < (m_maxParticles - 1)))
-	{
-		m_currentParticleCount++;
-
-		positionX = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationX;
-		positionY = m_particleDeviationY;
-		positionZ = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationZ;
-
-		velocity = m_particleVelocity + (((float)rand() - (float)rand()) / RAND_MAX) * m_particleVelocityVariation;
-
-		red = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f;
-		green = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f;
-		blue = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f;
-
-		index = 0;
-		found = false;
-		while (!found)
-		{
-			if ((m_particleList[index].active == false) || (m_particleList[index].positionZ < positionZ))
-			{
-				found = true;
-			}
-			else
-			{
-				index++;
-			}
-		}
-
-		i = m_currentParticleCount;
-		j = i - 1;
-
-		while (i != index)
-		{
-			m_particleList[i].positionX = m_particleList[j].positionX;
-			m_particleList[i].positionY = m_particleList[j].positionY;
-			m_particleList[i].positionZ = m_particleList[j].positionZ;
-			m_particleList[i].red = m_particleList[j].red;
-			m_particleList[i].green = m_particleList[j].green;
-			m_particleList[i].blue = m_particleList[j].blue;
-			m_particleList[i].velocity = m_particleList[j].velocity;
-			m_particleList[i].active = m_particleList[j].active;
-			i--;
-			j--;
-		}
-
-		m_particleList[index].positionX = positionX;
-		m_particleList[index].positionY = positionY;
-		m_particleList[index].positionZ = positionZ;
-		m_particleList[index].red = red;
-		m_particleList[index].green = green;
-		m_particleList[index].blue = blue;
-		m_particleList[index].velocity = velocity;
-		m_particleList[index].active = true;
-	}
-}
-
-void ParticleSystem::UpdateParticles(float frameTime)
-{
-	int i;
-
-	for (i = 0; i < m_currentParticleCount; i++)
-	{
-		m_particleList[i].positionY = m_particleList[i].positionY - (m_particleList[i].velocity * frameTime);
-	}
-}
-
-void ParticleSystem::KillParticles()
-{
-	int i, j;
-
-	for (i = 0; i < m_maxParticles; i++)
-	{
-		if ((m_particleList[i].active == true) && (m_particleList[i].positionY < -6.0f))
-		{
-			m_particleList[i].active = false;
-			m_currentParticleCount--;
-
-			for (j = i; j < m_maxParticles - 1; j++)
-			{
-				m_particleList[j].positionX = m_particleList[j + 1].positionX;
-				m_particleList[j].positionY = m_particleList[j + 1].positionY;
-				m_particleList[j].positionZ = m_particleList[j + 1].positionZ;
-				m_particleList[j].red = m_particleList[j + 1].red;
-				m_particleList[j].green = m_particleList[j + 1].green;
-				m_particleList[j].blue = m_particleList[j + 1].blue;
-				m_particleList[j].velocity = m_particleList[j + 1].velocity;
-				m_particleList[j].active = m_particleList[j + 1].active;
-			}
-		}
-	}
-}
-
 bool ParticleSystem::UpdateBuffers(ID3D11DeviceContext* deviceContext)
 {
 	int index, i;
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	VertexType* verticesPtr;
+	float lifeTime, scroll1X, scroll1Y; 
 
 	memset(m_vertices, 0, (sizeof(VertexType) * m_vertexCount));
 
@@ -366,34 +422,38 @@ bool ParticleSystem::UpdateBuffers(ID3D11DeviceContext* deviceContext)
 
 	for (i = 0; i < m_currentParticleCount; i++)
 	{
+		lifeTime = m_particleList[i].lifeTime / m_particleLifeTime;
+		scroll1X = m_particleList[i].scroll1X;
+		scroll1Y = m_particleList[i].scroll1Y;
+
 		m_vertices[index].position = XMFLOAT3(m_particleList[i].positionX - m_particleSize, m_particleList[i].positionY - m_particleSize, m_particleList[i].positionZ);
 		m_vertices[index].texture = XMFLOAT2(0.0f, 1.0f);
-		m_vertices[index].color = XMFLOAT4(m_particleList[i].red, m_particleList[i].green, m_particleList[i].blue, 1.0f);
+		m_vertices[index].data1 = XMFLOAT4(lifeTime, scroll1X, scroll1Y, 1.0f);
 		index++;
 
 		m_vertices[index].position = XMFLOAT3(m_particleList[i].positionX - m_particleSize, m_particleList[i].positionY + m_particleSize, m_particleList[i].positionZ);
 		m_vertices[index].texture = XMFLOAT2(0.0f, 0.0f);
-		m_vertices[index].color = XMFLOAT4(m_particleList[i].red, m_particleList[i].green, m_particleList[i].blue, 1.0f);
+		m_vertices[index].data1 = XMFLOAT4(lifeTime, scroll1X, scroll1Y, 1.0f);
 		index++;
 
 		m_vertices[index].position = XMFLOAT3(m_particleList[i].positionX + m_particleSize, m_particleList[i].positionY - m_particleSize, m_particleList[i].positionZ);
 		m_vertices[index].texture = XMFLOAT2(1.0f, 1.0f);
-		m_vertices[index].color = XMFLOAT4(m_particleList[i].red, m_particleList[i].green, m_particleList[i].blue, 1.0f);
+		m_vertices[index].data1 = XMFLOAT4(lifeTime, scroll1X, scroll1Y, 1.0f);
 		index++;
 
 		m_vertices[index].position = XMFLOAT3(m_particleList[i].positionX + m_particleSize, m_particleList[i].positionY - m_particleSize, m_particleList[i].positionZ);
 		m_vertices[index].texture = XMFLOAT2(1.0f, 1.0f);
-		m_vertices[index].color = XMFLOAT4(m_particleList[i].red, m_particleList[i].green, m_particleList[i].blue, 1.0f);
+		m_vertices[index].data1 = XMFLOAT4(lifeTime, scroll1X, scroll1Y, 1.0f);
 		index++;
 
 		m_vertices[index].position = XMFLOAT3(m_particleList[i].positionX - m_particleSize, m_particleList[i].positionY + m_particleSize, m_particleList[i].positionZ);
 		m_vertices[index].texture = XMFLOAT2(0.0f, 0.0f);
-		m_vertices[index].color = XMFLOAT4(m_particleList[i].red, m_particleList[i].green, m_particleList[i].blue, 1.0f);
+		m_vertices[index].data1 = XMFLOAT4(lifeTime, scroll1X, scroll1Y, 1.0f);
 		index++;
 
 		m_vertices[index].position = XMFLOAT3(m_particleList[i].positionX + m_particleSize, m_particleList[i].positionY + m_particleSize, m_particleList[i].positionZ);
 		m_vertices[index].texture = XMFLOAT2(1.0f, 0.0f);
-		m_vertices[index].color = XMFLOAT4(m_particleList[i].red, m_particleList[i].green, m_particleList[i].blue, 1.0f);
+		m_vertices[index].data1 = XMFLOAT4(lifeTime, scroll1X, scroll1Y, 1.0f);
 		index++;
 	}
 
@@ -410,4 +470,62 @@ bool ParticleSystem::UpdateBuffers(ID3D11DeviceContext* deviceContext)
 	deviceContext->Unmap(m_vertexBuffer, 0);
 
 	return true;
+}
+
+bool ParticleSystem::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+{
+	bool result;
+
+	m_Texture = new Texture;
+
+	result = m_Texture->Initialize(device, deviceContext, m_textureFilename);
+	if (!result)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void ParticleSystem::ReleaseTexture()
+{
+	if (m_Texture)
+	{
+		m_Texture->Shutdown();
+		delete m_Texture;
+		m_Texture = nullptr;
+	}
+}
+
+bool ParticleSystem::Reload(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+{
+	bool result; 
+
+	Shutdown();
+
+	result = LoadParticleConfiguration();
+	if (!result)
+	{
+		return false; 
+	}
+
+	result = InitializeParticleSystem();
+	if (!result)
+	{
+		return false; 
+	}
+
+	result = InitializeBuffers(device);
+	if (!result)
+	{
+		return false; 
+	}
+
+	result = LoadTexture(device, deviceContext);
+	if (!result)
+	{
+		return false; 
+	}
+
+	return true; 
 }
