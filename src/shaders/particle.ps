@@ -5,17 +5,27 @@ struct PixelInputType
 {
 	float4 position: SV_POSITION;
 	float2 tex: TEXCOORD0;
-	float4 color: COLOR;
+	float4 data1: TEXCOORD1;
+	float2 texCoords1: TEXCOORD2;
 };
 
 float4 ParticlePixelShader(PixelInputType input): SV_TARGET
 {
 	float4 textureColor;
-	float4 finalColor;
+	float alpha; 
+	float intensity; 
 
-	textureColor = shaderTexture.Sample(SampleType, input.tex);
+	textureColor = shaderTexture.Sample(SampleTypeWrap, input.tex);
 
-	finalColor = textureColor * input.color;
+	alpha = shaderTexture.Sample(SampleTypeWrap, input.texCoords1).a; 
 
-	return finalColor;
+	textureColor.rgb *= alpha; 
+
+	intensity = input.data1.r; 
+
+	textureColor.rgb *= intensity;
+
+	textureColor.a = 1.f; 
+
+	return textureColor; 
 }

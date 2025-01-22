@@ -9,19 +9,21 @@ struct VertexInputType
 {
 	float4 position: POSITION;
 	float2 tex: TEXCOORD0;
-	float4 color: COLOR;
+	float4 data1: TEXCOORD1;
 };
 
 struct PixelInputType
 {
 	float4 position: SV_POSITION;
 	float2 tex: TEXCOORD0;
-	float4 color: COLOR;
+	float4 data1: TEXCOORD1;
+	float2 texCoords1: TEXCOORD2;
 };
 
 PixelInputType ParticleVertexShader(VertexInputType input)
 {
 	PixelInputType output;
+	float scroll1X, scroll1Y; 
 
 	input.position.w = 1.f;
 
@@ -30,7 +32,14 @@ PixelInputType ParticleVertexShader(VertexInputType input)
 	output.position = mul(output.position, projectionMatrix);
 
 	output.tex = input.tex;
-	output.color = input.color;
+
+	output.data1 = input.data1;
+
+	scroll1X = input.data1.y; 
+	scroll1Y = input.data1.z; 
+
+	output.texCoords1.x = input.tex.x - scroll1X; 
+	output.texCoords1.y = input.tex.y - scroll1Y; 
 
 	return output;
 }
