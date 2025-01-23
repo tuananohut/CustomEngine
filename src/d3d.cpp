@@ -40,6 +40,7 @@ bool D3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd, b
   D3D11_RASTERIZER_DESC rasterDesc;
   float fieldOfView, screenAspect;
   D3D11_BLEND_DESC blendStateDescription;
+  D3D11_BLEND_DESC smokeBlendStateDescription;
 
   m_vsync_enabled = vsync;
 
@@ -162,7 +163,7 @@ bool D3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd, b
 
   featureLevel = D3D_FEATURE_LEVEL_11_0;
 
-  /*  */
+  
   result = D3D11CreateDeviceAndSwapChain(NULL,
 					 D3D_DRIVER_TYPE_HARDWARE,
 					 NULL, 0, &featureLevel, 1,
@@ -336,6 +337,24 @@ bool D3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd, b
   if (FAILED(result))
   {
       return false;
+  }  
+
+  ZeroMemory(&blendStateDescription, sizeof(D3D11_BLEND_DESC));
+
+  // Premultiplied alpha blend state: result = src.RGB + (dest.RGB * (1 - src.A))
+  blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
+  blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+  blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+  blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+  blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
+  blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+  blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+  blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+
+  result = m_device->CreateBlendState(&blendStateDescription, &m_alphaParticleEnableBlendingState);
+  if (FAILED(result))
+  {
+      return false; 
   }
 
   return true;
@@ -514,4 +533,16 @@ void D3D::DisableAlphaBlending()
     blendFactor[3] = 0.0f;
 
     m_deviceContext->OMSetBlendState(m_alphaDisableBlendingState, blendFactor, 0xffffffff);
+}
+
+void D3D::EnableParticleAlphaBlending()
+{
+    float blendFactor[4];
+
+    blendFactor[0] = 0.0f;
+    blendFactor[1] = 0.0f;
+    blendFactor[2] = 0.0f;
+    blendFactor[3] = 0.0f;
+
+    m_deviceContext->OMSetBlendState(m_alphaParticleEnableBlendingState, blendFactor, 0xffffffff);
 }
