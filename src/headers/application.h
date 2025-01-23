@@ -3,11 +3,10 @@
 
 #include "d3d.h"
 #include "input.h"
-#include "timer.h"
 #include "camera.h"
-#include "orthowindow.h"
-#include "parallaxscroll.h"
-#include "scrollshader.h"
+#include "timer.h"
+#include "particlesystem.h"
+#include "particleshader.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -40,9 +39,8 @@ private:
 	D3D* m_Direct3D;
 	Timer* m_Timer;
 	Camera* m_Camera;
-	OrthoWindow* m_FullScreenWindow; 
-	ScrollShader* m_ScrollShader; 
-	ParallaxScroll* m_ParallaxForest; 
+	ParticleSystem* m_ParticleSystem; 
+	ParticleShader* m_ParticleShader; 
 };
 
 #endif
