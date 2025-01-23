@@ -66,7 +66,7 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [x] Tutorial 44: Soft Shadows
 - [x] Tutorial 45: Shadow Mapping and Transparency
 - [x] Tutorial 46: Glow
-- [ ] Tutorial 47: Picking
+- [x] Tutorial 47: Picking
 - [x] Tutorial 48: Instancing
 - [x] Tutorial 49: Hardware Tessellation
 - [x] Tutorial 50: Deferred Shading
@@ -78,8 +78,8 @@ open CustomEngine.sln file and build the project. If you encounter any issues, l
 - [x] Tutorial 56: 3D Sound
 - [x] Tutorial 57: XAudio2
 - [x] Tutorial 58: X3DAudio
-- [ ] Tutorial 59: Animated Particles
-- [ ] Tutorial 60: XInput
+- [x] Tutorial 59: Animated Particles
+- [x] Tutorial 60: XInput
 
 
 ## I made this with engine:
