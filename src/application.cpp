@@ -5,9 +5,8 @@ Application::Application()
     m_Direct3D = nullptr;
     m_Timer = nullptr; 
     m_Camera = nullptr;
-    m_FullScreenWindow = nullptr;
-    m_ParallaxForest = nullptr; 
-    m_ScrollShader = nullptr; 
+    m_ParticleSystem = nullptr; 
+    m_ParticleShader = nullptr; 
 }
 
 Application::Application(const Application& other) {}
@@ -16,7 +15,7 @@ Application::~Application() {}
 
 bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
-    char configFilename[256];
+    char configFilename[128];
     bool result;
 
     m_Direct3D = new D3D;
@@ -40,31 +39,23 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     m_Camera->SetPosition(0.f, 0.f, -10.f);
     m_Camera->Render();
     m_Camera->RenderBaseViewMatrix();
+    
+    strcpy_s(configFilename, "assets/particle_config_01.txt");
 
-    m_FullScreenWindow = new OrthoWindow;
-    result = m_FullScreenWindow->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight);
+    m_ParticleSystem = new ParticleSystem;
+    result = m_ParticleSystem->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), configFilename);
     if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the full screen ortho window object.", L"Error", MB_OK | MB_ICONERROR);
-        return false;
-    }
-
-    strcpy_s(configFilename, "assets/parallaxscroll/config.txt");
-
-    m_ParallaxForest = new ParallaxScroll;
-    result = m_ParallaxForest->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), configFilename); 
-    if (!result) 
-    {
-        MessageBox(hwnd, L"Could not initialize the parallax scroll object.", L"Error", MB_OK | MB_ICONERROR); 
-        return false;
-    }
-
-    m_ScrollShader = new ScrollShader; 
-    result = m_ScrollShader->Initialize(m_Direct3D->GetDevice(), hwnd); 
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the scroll shader object.", L"Error", MB_OK | MB_ICONERROR); 
+    { 
+        MessageBox(hwnd, L"Could not initialize the particle system object.", L"Error", MB_OK);
         return false; 
+    }
+
+    m_ParticleShader = new ParticleShader; 
+    result = m_ParticleShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the particle shader object.", L"Error", MB_OK);
+        return false;
     }
 
     return true;
@@ -72,25 +63,18 @@ bool Application::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Application::Shutdown()
 {
-    if (m_ScrollShader) 
+    if (m_ParticleShader)
     {
-        m_ScrollShader->Shutdown(); 
-        delete m_ScrollShader;
-        m_ScrollShader = nullptr;
+        m_ParticleShader->Shutdown();
+        delete m_ParticleShader;
+        m_ParticleShader = nullptr; 
     }
 
-    if (m_ParallaxForest)
+    if (m_ParticleSystem)
     {
-        m_ParallaxForest->Shutdown();
-        delete m_ParallaxForest;
-        m_ParallaxForest = nullptr;
-    }
-
-    if (m_FullScreenWindow)
-    {
-        m_FullScreenWindow->Shutdown();
-        delete m_FullScreenWindow;
-        m_FullScreenWindow = nullptr; 
+        m_ParticleSystem->Shutdown();
+        delete m_ParticleSystem;
+        m_ParticleShader = nullptr; 
     }
 
     if (m_Camera)
@@ -118,15 +102,27 @@ bool Application::Frame(Input* Input)
     bool result;
     float frameTime;
 
+    m_Timer->Frame();
+
     if (Input->IsEscapePressed() == true)
     {
         return false;
     }
 
-    m_Timer->Frame();
-    frameTime = m_Timer->GetTime();
+    if (Input->IsBPressed())
+    {
+        result = m_ParticleSystem->Reload(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext());
+        if (!result)
+        {
+            return false;
+        }
+    }
 
-    m_ParallaxForest->Frame(frameTime);
+    result = m_ParticleSystem->Frame(m_Timer->GetTime(), m_Direct3D->GetDeviceContext());
+    if (!result)
+    {
+        return false;
+    }
 
     result = Render();
     if (!result)
@@ -140,33 +136,29 @@ bool Application::Frame(Input* Input)
 
 bool Application::Render()
 {
-    XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
+    XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
     int textureCount, i;
     bool result;
 
     m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
     m_Direct3D->GetWorldMatrix(worldMatrix);
-    m_Camera->GetBaseViewMatrix(baseViewMatrix);
-    m_Direct3D->GetOrthoMatrix(orthoMatrix);
+    m_Camera->GetViewMatrix(viewMatrix);
+    m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
+    m_Direct3D->EnableParticleAlphaBlending();
     m_Direct3D->TurnZBufferOff();
-    m_Direct3D->EnableAlphaBlending();
 
-    textureCount = m_ParallaxForest->GetTextureCount();
+    m_ParticleSystem->Render(m_Direct3D->GetDeviceContext());
 
-    for (i = 0; i < textureCount; i++)
-    {
-        m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
-        result = m_ScrollShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix, m_ParallaxForest->GetTexture(i), m_ParallaxForest->GetTranslation(i), m_ParallaxForest->GetOpacity(i));
-        if (!result)
-        {
-            return false;
-        }
+    result = m_ParticleShader->Render(m_Direct3D->GetDeviceContext(), m_ParticleSystem->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_ParticleSystem->GetTexture());
+    if (!result)
+    { 
+        return false; 
     }
 
-    m_Direct3D->TurnZBufferOn();
     m_Direct3D->DisableAlphaBlending();
+    m_Direct3D->TurnZBufferOn();
     
     m_Direct3D->EndScene();
 

@@ -6,7 +6,7 @@ ParticleShader::ParticleShader()
 	m_pixelShader = nullptr;
 	m_layout = nullptr;
 	m_matrixBuffer = nullptr;
-	m_sampleState = nullptr;
+	m_sampleStateWrap = nullptr;
 }
 
 ParticleShader::ParticleShader(const ParticleShader& other) {}
@@ -191,10 +191,10 @@ bool ParticleShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
 
 void ParticleShader::ShutdownShader()
 {
-	if (m_sampleState)
+	if (m_sampleStateWrap)
 	{
-		m_sampleState->Release();
-		m_sampleState = nullptr;
+		m_sampleStateWrap->Release();
+		m_sampleStateWrap = nullptr;
 	}
 
 	if (m_matrixBuffer)
