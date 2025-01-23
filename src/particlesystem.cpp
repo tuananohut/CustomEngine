@@ -17,7 +17,7 @@ bool ParticleSystem::Initialize(ID3D11Device* device, ID3D11DeviceContext* devic
 {
 	bool result;
 
-	strcpy_s(m_configFilename, configFilename); 
+	strcpy_s(m_configFilename, configFilename);
 
 	result = LoadParticleConfiguration();
 	if (!result)
@@ -40,7 +40,7 @@ bool ParticleSystem::Initialize(ID3D11Device* device, ID3D11DeviceContext* devic
 	result = LoadTexture(device, deviceContext);
 	if (!result)
 	{
-		return false; 
+		return false;
 	}
 
 	return true;
@@ -91,46 +91,46 @@ int ParticleSystem::GetIndexCount()
 
 bool ParticleSystem::LoadParticleConfiguration()
 {
-	ifstream fin; 
-	int i; 
-	char input; 
+	ifstream fin;
+	int i;
+	char input;
 
-	fin.open(m_configFilename); 
+	fin.open(m_configFilename);
 	if (fin.fail())
 	{
-		return false; 
+		return false;
 	}
 
 	fin.get(input);
-	while(input != ':')
+	while (input != ':')
 	{
 		fin.get(input);
 	}
 	fin >> m_maxParticles;
 
 	fin.get(input);
-	while(input != ':')
+	while (input != ':')
 	{
-		fin.get(input); 
+		fin.get(input);
 	}
 	fin >> m_particlesPerSecond;
 
 	fin.get(input);
-	while(input != ':')
+	while (input != ':')
 	{
 		fin.get(input);
 	}
-	fin >> m_particleSize; 
+	fin >> m_particleSize;
 
-	fin.get(input); 
-	while(input != ':')
+	fin.get(input);
+	while (input != ':')
 	{
 		fin.get(input);
 	}
-	fin >> m_particleLifeTime; 
+	fin >> m_particleLifeTime;
 
-	fin.get(input); 
-	while(input != ':')
+	fin.get(input);
+	while (input != ':')
 	{
 		fin.get(input);
 	}
@@ -138,14 +138,14 @@ bool ParticleSystem::LoadParticleConfiguration()
 
 	i = 0;
 	fin.get(input);
-	while(input != ':')
+	while (input != '\n')
 	{
-		m_textureFilename[i] = input; 
-		i++; 
+		m_textureFilename[i] = input;
+		i++;
 		fin.get(input);
 	}
 	m_textureFilename[i] = '\0';
-	
+
 	fin.close();
 
 	return true;
@@ -184,12 +184,12 @@ void ParticleSystem::EmitParticles(float frameTime)
 	float emitterOrigin[3];
 	int index, i, j;
 	bool emitParticle, found;
-	static float angle = 0.0f;
+	static float angle = 0.f;
 
-	centerX = 0.f; 
-	centerY = 0.f; 
+	centerX = 0.f;
+	centerY = 0.f;
 
-	radius = 1.f; 
+	radius = 1.f;
 
 	angle += frameTime * 2.f;
 
@@ -214,11 +214,11 @@ void ParticleSystem::EmitParticles(float frameTime)
 		positionX = emitterOrigin[0];
 		positionY = emitterOrigin[1];
 		positionZ = emitterOrigin[2];
-	
+
 		scroll1X = (((float)rand() - (float)rand()) / RAND_MAX);
 		if (scroll1X < 0.f)
 		{
-			scroll1X *= -1.f; 
+			scroll1X *= -1.f;
 		}
 
 		scroll1Y = scroll1X;
@@ -285,7 +285,7 @@ void ParticleSystem::KillParticles()
 
 	for (i = 0; i < m_maxParticles; i++)
 	{
-		if ((m_particleList[i].active == true) && (m_particleList[i].positionY < -6.0f))
+		if ((m_particleList[i].active == true) && (m_particleList[i].lifeTime <= 0.0f))
 		{
 			m_particleList[i].active = false;
 			m_currentParticleCount--;
@@ -414,7 +414,7 @@ bool ParticleSystem::UpdateBuffers(ID3D11DeviceContext* deviceContext)
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	VertexType* verticesPtr;
-	float lifeTime, scroll1X, scroll1Y; 
+	float lifeTime, scroll1X, scroll1Y;
 
 	memset(m_vertices, 0, (sizeof(VertexType) * m_vertexCount));
 
@@ -427,33 +427,33 @@ bool ParticleSystem::UpdateBuffers(ID3D11DeviceContext* deviceContext)
 		scroll1Y = m_particleList[i].scroll1Y;
 
 		m_vertices[index].position = XMFLOAT3(m_particleList[i].positionX - m_particleSize, m_particleList[i].positionY - m_particleSize, m_particleList[i].positionZ);
-		m_vertices[index].texture = XMFLOAT2(0.0f, 1.0f);
-		m_vertices[index].data1 = XMFLOAT4(lifeTime, scroll1X, scroll1Y, 1.0f);
+		m_vertices[index].texture = XMFLOAT2(0.f, 1.f);
+		m_vertices[index].data1 = XMFLOAT4(lifeTime, scroll1X, scroll1Y, 1.f);
 		index++;
 
 		m_vertices[index].position = XMFLOAT3(m_particleList[i].positionX - m_particleSize, m_particleList[i].positionY + m_particleSize, m_particleList[i].positionZ);
-		m_vertices[index].texture = XMFLOAT2(0.0f, 0.0f);
-		m_vertices[index].data1 = XMFLOAT4(lifeTime, scroll1X, scroll1Y, 1.0f);
+		m_vertices[index].texture = XMFLOAT2(0.f, 0.f);
+		m_vertices[index].data1 = XMFLOAT4(lifeTime, scroll1X, scroll1Y, 1.f);
 		index++;
 
 		m_vertices[index].position = XMFLOAT3(m_particleList[i].positionX + m_particleSize, m_particleList[i].positionY - m_particleSize, m_particleList[i].positionZ);
-		m_vertices[index].texture = XMFLOAT2(1.0f, 1.0f);
-		m_vertices[index].data1 = XMFLOAT4(lifeTime, scroll1X, scroll1Y, 1.0f);
+		m_vertices[index].texture = XMFLOAT2(1.f, 1.f);
+		m_vertices[index].data1 = XMFLOAT4(lifeTime, scroll1X, scroll1Y, 1.f);
 		index++;
 
 		m_vertices[index].position = XMFLOAT3(m_particleList[i].positionX + m_particleSize, m_particleList[i].positionY - m_particleSize, m_particleList[i].positionZ);
-		m_vertices[index].texture = XMFLOAT2(1.0f, 1.0f);
-		m_vertices[index].data1 = XMFLOAT4(lifeTime, scroll1X, scroll1Y, 1.0f);
+		m_vertices[index].texture = XMFLOAT2(1.f, 1.f);
+		m_vertices[index].data1 = XMFLOAT4(lifeTime, scroll1X, scroll1Y, 1.f);
 		index++;
 
 		m_vertices[index].position = XMFLOAT3(m_particleList[i].positionX - m_particleSize, m_particleList[i].positionY + m_particleSize, m_particleList[i].positionZ);
-		m_vertices[index].texture = XMFLOAT2(0.0f, 0.0f);
-		m_vertices[index].data1 = XMFLOAT4(lifeTime, scroll1X, scroll1Y, 1.0f);
+		m_vertices[index].texture = XMFLOAT2(0.f, 0.f);
+		m_vertices[index].data1 = XMFLOAT4(lifeTime, scroll1X, scroll1Y, 1.f);
 		index++;
 
 		m_vertices[index].position = XMFLOAT3(m_particleList[i].positionX + m_particleSize, m_particleList[i].positionY + m_particleSize, m_particleList[i].positionZ);
-		m_vertices[index].texture = XMFLOAT2(1.0f, 0.0f);
-		m_vertices[index].data1 = XMFLOAT4(lifeTime, scroll1X, scroll1Y, 1.0f);
+		m_vertices[index].texture = XMFLOAT2(1.f, 0.f);
+		m_vertices[index].data1 = XMFLOAT4(lifeTime, scroll1X, scroll1Y, 1.f);
 		index++;
 	}
 
@@ -499,33 +499,33 @@ void ParticleSystem::ReleaseTexture()
 
 bool ParticleSystem::Reload(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
-	bool result; 
+	bool result;
 
 	Shutdown();
 
 	result = LoadParticleConfiguration();
 	if (!result)
 	{
-		return false; 
+		return false;
 	}
 
 	result = InitializeParticleSystem();
 	if (!result)
 	{
-		return false; 
+		return false;
 	}
 
 	result = InitializeBuffers(device);
 	if (!result)
 	{
-		return false; 
+		return false;
 	}
 
 	result = LoadTexture(device, deviceContext);
 	if (!result)
 	{
-		return false; 
+		return false;
 	}
 
-	return true; 
+	return true;
 }
